@@ -1,13 +1,26 @@
 package wodss.timecastbackend.domain;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.validation.constraints.Max;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+@Entity
 public class Project {
+
+    protected Project(){}
+
+    public Project(String name, LocalDateTime startDate, LocalDateTime endDate,  LocalDateTime estimatedEndDate, float ftes, Assignment assignment) { ;
+        this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.estimatedEndDate = estimatedEndDate;
+        this.ftes = ftes;
+        this.assignment = assignment;
+    }
 
     @Id
     private int id;
@@ -22,12 +35,11 @@ public class Project {
     @Min(0)
     private float ftes;
 
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL)
+    private Assignment assignment;
+
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {

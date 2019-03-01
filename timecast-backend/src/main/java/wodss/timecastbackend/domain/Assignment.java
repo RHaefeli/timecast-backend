@@ -5,7 +5,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
@@ -13,6 +12,14 @@ import java.time.LocalDate;
 public class Assignment {
 
     protected Assignment(){}
+
+    public Assignment(Project project, User user, int employment, LocalDate startDate, LocalDate endDate) {
+        this.project = project;
+        this.user = user;
+        this.employment = employment;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 
     @Id
     private int id;
@@ -24,18 +31,12 @@ public class Assignment {
     @Min(0)
     private int employment;
     @NotNull
-    @NotBlank
     private LocalDate startDate;
     @NotNull
-    @NotBlank
     private LocalDate endDate;
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public Project getProject() {
