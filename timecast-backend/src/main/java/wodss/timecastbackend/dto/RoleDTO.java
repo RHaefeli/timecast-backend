@@ -1,27 +1,24 @@
-package wodss.timecastbackend.domain;
+package wodss.timecastbackend.dto;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Entity @Table(name="roles")
-public class Role {
+public class RoleDTO {
+    @JsonProperty("id") private long id;
+    @JsonProperty("name") private String name;
+    @JsonProperty("description") private String description;
 
-    protected Role(){}
-
-    public Role(String name, String description){
+    public RoleDTO(long id, String name, String description) {
+        this.id = id;
         this.name = name;
         this.description = description;
     }
 
-    @Id
-    private long id;
-    @NotNull
-    private String name;
-    @NotNull
-    private String description;
-
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {

@@ -1,45 +1,32 @@
-package wodss.timecastbackend.domain;
+package wodss.timecastbackend.dto;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
-@Entity
-public class Project {
+public class ProjectDTO {
+    @JsonProperty("id") private long id;
+    @JsonProperty("name") private String name;
+    @JsonProperty("startDate") private LocalDateTime startDate;
+    @JsonProperty("endDate") private LocalDateTime endDate;
+    @JsonProperty("estimatedEndDate") private LocalDateTime estimatedEndDate;
+    @JsonProperty("ftes") private float ftes;
 
-    protected Project(){}
-
-    public Project(String name, LocalDateTime startDate, LocalDateTime endDate,  LocalDateTime estimatedEndDate, float ftes, Assignment assignment) { ;
+    public ProjectDTO(long id, String name, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime estimatedEndDate, float ftes) {
+        this.id = id;
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
         this.estimatedEndDate = estimatedEndDate;
         this.ftes = ftes;
-        this.assignment = assignment;
     }
-
-    @Id
-    private long id;
-    @NotNull
-    private String name;
-    @NotNull
-    private LocalDateTime startDate;
-    @NotNull
-    private LocalDateTime endDate;
-    @NotNull
-    private LocalDateTime estimatedEndDate;
-    @Min(0)
-    private float ftes;
-
-    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL)
-    private Assignment assignment;
 
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -81,5 +68,4 @@ public class Project {
     public void setFtes(float ftes) {
         this.ftes = ftes;
     }
-    //TODO: What will be used? FTEs? Hours?
 }

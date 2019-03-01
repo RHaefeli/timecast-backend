@@ -22,7 +22,7 @@ public class Assignment {
     }
 
     @Id
-    private int id;
+    private long id;
     @OneToOne(optional = false)
     private Project project;
     @OneToOne(optional = false)
@@ -35,7 +35,7 @@ public class Assignment {
     @NotNull
     private LocalDate endDate;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
