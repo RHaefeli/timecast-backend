@@ -18,7 +18,7 @@ public class User {
     }
 
     @Id
-    private int id;
+    private long id;
     @NotNull
     private String lastName;
     @NotNull
@@ -30,7 +30,7 @@ public class User {
     @Max(100)
     private int employment;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
