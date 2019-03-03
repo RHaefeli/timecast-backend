@@ -11,15 +11,14 @@ import java.time.LocalDateTime;
 @Entity
 public class Project {
 
-    protected Project(){}
+    public Project(){}
 
-    public Project(String name, LocalDateTime startDate, LocalDateTime endDate,  LocalDateTime estimatedEndDate, float ftes, Assignment assignment) { ;
+    public Project(String name, LocalDateTime startDate, LocalDateTime endDate,  LocalDateTime estimatedEndDate, float ftes) { ;
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
         this.estimatedEndDate = estimatedEndDate;
         this.ftes = ftes;
-        this.assignment = assignment;
     }
 
     @Id

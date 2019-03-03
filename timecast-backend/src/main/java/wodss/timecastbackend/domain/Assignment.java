@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Entity
 public class Assignment {
 
-    protected Assignment(){}
+    public Assignment(){}
 
     public Assignment(Project project, User user, int employment, LocalDate startDate, LocalDate endDate) {
         this.project = project;
