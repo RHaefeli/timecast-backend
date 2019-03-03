@@ -21,6 +21,8 @@ public class ProjectDTO {
         this.ftes = ftes;
     }
 
+    public ProjectDTO() {}
+
     public long getId() {
         return id;
     }

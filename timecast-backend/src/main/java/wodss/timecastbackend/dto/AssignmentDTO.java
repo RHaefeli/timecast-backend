@@ -6,20 +6,22 @@ import java.time.LocalDate;
 
 public class AssignmentDTO {
     @JsonProperty("id") private long id;
-    @JsonProperty("project") private Long project;
-    @JsonProperty("user") private Long user;
+    @JsonProperty("projectId") private Long projectId;
+    @JsonProperty("userId") private Long userId;
     @JsonProperty("employment") private int employment;
     @JsonProperty("startDate") private LocalDate startDate;
     @JsonProperty("endDate") private LocalDate endDate;
 
-    public AssignmentDTO(long id, Long project, Long user, int employment, LocalDate startDate, LocalDate endDate) {
+    public AssignmentDTO(long id, Long projectId, Long userId, int employment, LocalDate startDate, LocalDate endDate) {
         this.id = id;
-        this.project = project;
-        this.user = user;
+        this.projectId = projectId;
+        this.userId = userId;
         this.employment = employment;
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public AssignmentDTO() {}
 
     public long getId() {
         return id;
@@ -29,20 +31,20 @@ public class AssignmentDTO {
         this.id = id;
     }
 
-    public Long getProject() {
-        return project;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public void setProject(Long project) {
-        this.project = project;
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 
-    public Long getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(Long user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public int getEmployment() {

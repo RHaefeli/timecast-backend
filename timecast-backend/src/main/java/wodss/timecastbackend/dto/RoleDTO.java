@@ -13,6 +13,8 @@ public class RoleDTO {
         this.description = description;
     }
 
+    public RoleDTO() {}
+
     public long getId() {
         return id;
     }

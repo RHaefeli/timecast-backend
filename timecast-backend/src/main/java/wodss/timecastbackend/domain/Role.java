@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 @Entity @Table(name="roles")
 public class Role {
 
-    protected Role(){}
+    public Role(){}
 
     public Role(String name, String description){
         this.name = name;

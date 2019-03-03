@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 @Entity @Table(name="users")
 public class User {
 
-    protected User(){}
+    public User(){}
 
     public User(String lastName, String firstName, Role role, int employment) {
         this.lastName = lastName;
