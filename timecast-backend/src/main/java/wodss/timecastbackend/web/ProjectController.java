@@ -11,6 +11,7 @@ import wodss.timecastbackend.persistence.ProjectRepository;
 import wodss.timecastbackend.util.ModelMapper;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -38,4 +39,34 @@ public class ProjectController {
         projectDto.setId(project.getId());
         return new ResponseEntity<ProjectDTO>(projectDto, HttpStatus.OK);
     }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ProjectDTO> update(@RequestBody Project projectUpdate, @PathVariable Long id) {
+        Optional<Project> projectOptional = projectRepository.findById(id);
+        if (projectOptional.isPresent()) {
+            Project p = projectOptional.get();
+            p.setName(projectUpdate.getName());
+            p.setStartDate(projectUpdate.getStartDate());
+            p.setEndDate(projectUpdate.getEndDate());
+            p.setEstimatedEndDate(projectUpdate.getEstimatedEndDate());
+            p.setFtes(projectUpdate.getFtes());
+            projectRepository.save(p);
+
+            ProjectDTO dto = new ProjectDTO(p.getId(), p.getName(), p.getStartDate(), p.getEndDate(), p.getEstimatedEndDate(), p.getFtes());
+            return new ResponseEntity<ProjectDTO>(dto, HttpStatus.OK);
+        }
+        return new ResponseEntity<ProjectDTO>(HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        Optional<Project> projectOptional = projectRepository.findById(id);
+        if (projectOptional.isPresent()) {
+            Project project = projectOptional.get();
+            projectRepository.delete(project);
+            return new ResponseEntity<String>(HttpStatus.OK);
+        }
+        return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+    }
+
 }
