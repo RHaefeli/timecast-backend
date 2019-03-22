@@ -9,14 +9,13 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
-public class Assignment {
+public class Contract {
 
-    public Assignment(){}
+    public Contract(){}
 
-    public Assignment(Project project, User user, int employment, LocalDate startDate, LocalDate endDate) {
-        this.project = project;
-        this.user = user;
-        this.employment = employment;
+    public Contract(Employee employee, int pensumPercentage, LocalDate startDate, LocalDate endDate) {
+        this.employee = employee;
+        this.pensumPercentage = pensumPercentage;
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -24,12 +23,10 @@ public class Assignment {
     @Id
     private long id;
     @OneToOne(optional = false)
-    private Project project;
-    @OneToOne(optional = false)
-    private User user;
+    private Employee employee;
     @Max(100)
     @Min(0)
-    private int employment;
+    private int pensumPercentage;
     @NotNull
     private LocalDate startDate;
     @NotNull
@@ -39,28 +36,24 @@ public class Assignment {
         return id;
     }
 
-    public Project getProject() {
-        return project;
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public Employee getEmployee() {
+        return employee;
     }
 
-    public User getUser() {
-        return user;
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public int getPensumPercentage() {
+        return pensumPercentage;
     }
 
-    public int getEmployment() {
-        return employment;
-    }
-
-    public void setEmployment(int employment) {
-        this.employment = employment;
+    public void setPensumPercentage(int pensumPercentage) {
+        this.pensumPercentage = pensumPercentage;
     }
 
     public LocalDate getStartDate() {

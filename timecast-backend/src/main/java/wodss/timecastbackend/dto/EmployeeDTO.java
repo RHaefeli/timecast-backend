@@ -2,25 +2,24 @@ package wodss.timecastbackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import wodss.timecastbackend.domain.User;
 
 @JsonAutoDetect
-public class UserDTO {
+public class EmployeeDTO {
     @JsonProperty("id") private Long id;
     @JsonProperty("lastName") private String lastName;
     @JsonProperty("firstName") private String firstName;
+    @JsonProperty("emailAddress") private String emailAddress;
     @JsonProperty("roleId") private Long roleId;
-    @JsonProperty("employment") private int employment;
 
-    public UserDTO(Long id, String lastName, String firstName, Long roleId, int employment) {
+    public EmployeeDTO(Long id, String lastName, String firstName, String emailAddress, Long roleId, int employment) {
         this.id = id;
         this.lastName = lastName;
         this.firstName = firstName;
+        this.emailAddress = emailAddress;
         this.roleId = roleId;
-        this.employment = employment;
     }
 
-    public UserDTO(){}
+    public EmployeeDTO(){}
 
     public Long getId() {
         return id;
@@ -46,19 +45,15 @@ public class UserDTO {
         this.firstName = firstName;
     }
 
+    public String getEmailAddress() { return emailAddress; }
+
+    public void setEmailAddress(String emailAddress) { this.emailAddress = emailAddress; }
+
     public Long getRoleId() {
         return roleId;
     }
 
     public void setRoleId(Long roleId) {
         this.roleId = roleId;
-    }
-
-    public int getEmployment() {
-        return employment;
-    }
-
-    public void setEmployment(int employment) {
-        this.employment = employment;
     }
 }

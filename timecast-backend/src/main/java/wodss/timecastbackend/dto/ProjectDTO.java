@@ -7,18 +7,18 @@ import java.time.LocalDateTime;
 public class ProjectDTO {
     @JsonProperty("id") private long id;
     @JsonProperty("name") private String name;
+    @JsonProperty("projectManagerId") private long projectManagerId;
+    @JsonProperty("ftePercentage") private float ftePercentage;
     @JsonProperty("startDate") private LocalDateTime startDate;
     @JsonProperty("endDate") private LocalDateTime endDate;
-    @JsonProperty("estimatedEndDate") private LocalDateTime estimatedEndDate;
-    @JsonProperty("ftes") private float ftes;
 
-    public ProjectDTO(long id, String name, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime estimatedEndDate, float ftes) {
+    public ProjectDTO(long id, long projectManagerId, String name, LocalDateTime startDate, LocalDateTime endDate, float ftePercentage) {
         this.id = id;
         this.name = name;
+        this.projectManagerId = projectManagerId;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.estimatedEndDate = estimatedEndDate;
-        this.ftes = ftes;
+        this.ftePercentage = ftePercentage;
     }
 
     public ProjectDTO() {}
@@ -39,6 +39,14 @@ public class ProjectDTO {
         this.name = name;
     }
 
+    public long getProjectManagerId() {
+        return projectManagerId;
+    }
+
+    public void setProjectManagerId(long projectManagerId) {
+        this.projectManagerId = projectManagerId;
+    }
+
     public LocalDateTime getStartDate() {
         return startDate;
     }
@@ -55,19 +63,11 @@ public class ProjectDTO {
         this.endDate = endDate;
     }
 
-    public LocalDateTime getEstimatedEndDate() {
-        return estimatedEndDate;
+    public float getFtePercentage() {
+        return ftePercentage;
     }
 
-    public void setEstimatedEndDate(LocalDateTime estimatedEndDate) {
-        this.estimatedEndDate = estimatedEndDate;
-    }
-
-    public float getFtes() {
-        return ftes;
-    }
-
-    public void setFtes(float ftes) {
-        this.ftes = ftes;
+    public void setFtePercentage(float ftePercentage) {
+        this.ftePercentage = ftePercentage;
     }
 }

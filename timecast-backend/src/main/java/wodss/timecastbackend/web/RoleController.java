@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.RoleDTO;
-import wodss.timecastbackend.dto.UserDTO;
 import wodss.timecastbackend.persistence.RoleRepository;
 import wodss.timecastbackend.util.ModelMapper;
 

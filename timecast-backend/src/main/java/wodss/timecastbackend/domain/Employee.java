@@ -6,15 +6,15 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Entity @Table(name="users")
-public class User {
+public class Employee {
 
-    public User(){}
+    public Employee(){}
 
-    public User(String lastName, String firstName, Role role, int employment) {
+    public Employee(String lastName, String firstName, String emailAddress, Role role) {
         this.lastName = lastName;
         this.firstName = firstName;
+        this.emailAddress = emailAddress;
         this.role = role;
-        this.employment = employment;
     }
 
     @Id
@@ -23,12 +23,11 @@ public class User {
     private String lastName;
     @NotNull
     private String firstName;
+    @NotNull
+    private String emailAddress;
     @OneToOne
     @NotNull
     private Role role;
-    @Min(0)
-    @Max(100)
-    private int employment;
 
     public long getId() {
         return id;
@@ -50,19 +49,15 @@ public class User {
         this.firstName = firstName;
     }
 
+    public String getEmailAddress() { return emailAddress; }
+
+    public void setEmailAddress(String emailAddress) { this.emailAddress = emailAddress; }
+
     public Role getRole() {
         return role;
     }
 
     public void setRole(Role role) {
         this.role = role;
-    }
-
-    public int getEmployment() {
-        return employment;
-    }
-
-    public void setEmployment(int employment) {
-        this.employment = employment;
     }
 }

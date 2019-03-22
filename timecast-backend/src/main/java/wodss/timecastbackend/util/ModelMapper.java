@@ -3,37 +3,29 @@ package wodss.timecastbackend.util;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import wodss.timecastbackend.domain.Assignment;
-import wodss.timecastbackend.domain.Project;
-import wodss.timecastbackend.domain.Role;
-import wodss.timecastbackend.domain.User;
-import wodss.timecastbackend.dto.AssignmentDTO;
-import wodss.timecastbackend.dto.ProjectDTO;
-import wodss.timecastbackend.dto.RoleDTO;
-import wodss.timecastbackend.dto.UserDTO;
+import wodss.timecastbackend.domain.*;
+import wodss.timecastbackend.dto.*;
 
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface ModelMapper {
 
     @Mapping(source = "role", target = "roleId")
-    UserDTO userToUserDTO(User user);
-
+    EmployeeDTO employeeToEmployeeDTO(Employee employee);
     default Long roleToLong(Role r){
         return r.getId();
     }
 
+    ContractDTO contractToContractDTO(Contract contract);
     ProjectDTO projectToProjectDTO(Project p);
     RoleDTO roleToRoleDTO(Role r);
 
     @Mapping(source = "project", target = "projectId")
-    @Mapping(source = "user", target = "userId")
-    AssignmentDTO assignmentToAssignmentDTO(Assignment a);
-
-    default Long userToLong(User u){
-        return u.getId();
+    @Mapping(source = "contract", target = "contractId")
+    AllocationDTO allocationToAllocationDTO(Allocation a);
+    default Long employeeToLong(Employee e){
+        return e.getId();
     }
-
     default Long projectToLong(Project p){
         return p.getId();
     }

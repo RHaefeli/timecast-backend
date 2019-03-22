@@ -13,33 +13,36 @@ public class Project {
 
     public Project(){}
 
-    public Project(String name, LocalDateTime startDate, LocalDateTime endDate,  LocalDateTime estimatedEndDate, float ftes) { ;
+    public Project(String name, Employee projectManager, LocalDateTime startDate, LocalDateTime endDate, float ftePercentage) { ;
         this.name = name;
+        this.projectManager = projectManager;
+        this.ftePercentage = ftePercentage;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.estimatedEndDate = estimatedEndDate;
-        this.ftes = ftes;
     }
 
     @Id
     private long id;
     @NotNull
     private String name;
+    @OneToOne(optional = false)
+    private Employee projectManager;
+    @Min(0)
+    private float ftePercentage;
     @NotNull
     private LocalDateTime startDate;
     @NotNull
     private LocalDateTime endDate;
-    @NotNull
-    private LocalDateTime estimatedEndDate;
-    @Min(0)
-    private float ftes;
-
     @OneToOne(mappedBy = "project", cascade = CascadeType.ALL)
-    private Assignment assignment;
+    private Allocation allocation;
 
     public long getId() {
         return id;
     }
+
+    public Employee getProjectManager() { return projectManager; }
+
+    public void setProjectManager(Employee projectManager) { this.projectManager = projectManager; }
 
     public String getName() {
         return name;
@@ -65,20 +68,12 @@ public class Project {
         this.endDate = endDate;
     }
 
-    public LocalDateTime getEstimatedEndDate() {
-        return estimatedEndDate;
+    public float getFtePercentage() {
+        return ftePercentage;
     }
 
-    public void setEstimatedEndDate(LocalDateTime estimatedEndDate) {
-        this.estimatedEndDate = estimatedEndDate;
-    }
-
-    public float getFtes() {
-        return ftes;
-    }
-
-    public void setFtes(float ftes) {
-        this.ftes = ftes;
+    public void setFtePercentage(float ftePercentage) {
+        this.ftePercentage = ftePercentage;
     }
     //TODO: What will be used? FTEs? Hours?
 }

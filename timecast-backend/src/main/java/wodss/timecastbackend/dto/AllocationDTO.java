@@ -4,24 +4,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 
-public class AssignmentDTO {
+public class AllocationDTO {
     @JsonProperty("id") private long id;
     @JsonProperty("projectId") private Long projectId;
-    @JsonProperty("userId") private Long userId;
-    @JsonProperty("employment") private int employment;
+    @JsonProperty("contractId") private Long contractId;
+    @JsonProperty("pensumPercentage") private int pensumPercentage;
     @JsonProperty("startDate") private LocalDate startDate;
     @JsonProperty("endDate") private LocalDate endDate;
 
-    public AssignmentDTO(long id, Long projectId, Long userId, int employment, LocalDate startDate, LocalDate endDate) {
+    public AllocationDTO(long id, Long projectId, Long contractId, int pensumPercentage, LocalDate startDate, LocalDate endDate) {
         this.id = id;
         this.projectId = projectId;
-        this.userId = userId;
-        this.employment = employment;
+        this.contractId = contractId;
+        this.pensumPercentage = pensumPercentage;
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    public AssignmentDTO() {}
+    public AllocationDTO() {}
 
     public long getId() {
         return id;
@@ -39,20 +39,20 @@ public class AssignmentDTO {
         this.projectId = projectId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getContractId() {
+        return contractId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setContractId(Long contractId) {
+        this.contractId = contractId;
     }
 
-    public int getEmployment() {
-        return employment;
+    public int getPensumPercentage() {
+        return pensumPercentage;
     }
 
-    public void setEmployment(int employment) {
-        this.employment = employment;
+    public void setPensumPercentage(int pensumPercentage) {
+        this.pensumPercentage = pensumPercentage;
     }
 
     public LocalDate getStartDate() {

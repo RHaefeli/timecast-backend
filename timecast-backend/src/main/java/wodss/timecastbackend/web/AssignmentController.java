@@ -5,13 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import wodss.timecastbackend.domain.Assignment;
+import wodss.timecastbackend.domain.Allocation;
+import wodss.timecastbackend.domain.Contract;
 import wodss.timecastbackend.domain.Project;
-import wodss.timecastbackend.domain.User;
-import wodss.timecastbackend.dto.AssignmentDTO;
+import wodss.timecastbackend.dto.AllocationDTO;
 import wodss.timecastbackend.persistence.AssignmentRepository;
+import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
-import wodss.timecastbackend.persistence.UserRepository;
 import wodss.timecastbackend.util.ModelMapper;
 
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/assignments")
+@RequestMapping("/allocations")
 public class AssignmentController {
 
     @Autowired
@@ -27,39 +27,39 @@ public class AssignmentController {
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
-    private UserRepository userRepository;
+    private ContractRepository contractRepository;
 
     @Autowired
     private ModelMapper mapper;
 
     @GetMapping
-    public @ResponseBody List<AssignmentDTO> getAllAssignments(){
-        List<AssignmentDTO> assignmentDtos = assignmentRepository.findAll().stream().map(a -> mapper.assignmentToAssignmentDTO(a)).collect(Collectors.toList());
-        return assignmentDtos;
+    public @ResponseBody List<AllocationDTO> getAllAssignments(){
+        List<AllocationDTO> allocationDTOS = assignmentRepository.findAll().stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
+        return allocationDTOS;
     }
 
     @PostMapping
-    public ResponseEntity<AssignmentDTO> createAssignment(@RequestBody AssignmentDTO assignmentDto) {
+    public ResponseEntity<AllocationDTO> createAssignment(@RequestBody AllocationDTO allocationDto) {
         //TODO: Validation
 
         Project project = null;
-        Optional<Project> oProject = projectRepository.findById(assignmentDto.getProjectId());
+        Optional<Project> oProject = projectRepository.findById(allocationDto.getProjectId());
         if(oProject.isPresent()){
             project = oProject.get();
         } else {
             return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         }
 
-        User user = null;
-        Optional<User> oUser = userRepository.findById(assignmentDto.getUserId());
+        Contract contract = null;
+        Optional<Contract> oUser = contractRepository.findById(allocationDto.getContractId());
         if(oUser.isPresent()){
-            user = oUser.get();
+            contract = oUser.get();
         } else {
             return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         }
 
-        Assignment assignment = new Assignment(project, user, assignmentDto.getEmployment(), assignmentDto.getStartDate(), assignmentDto.getEndDate());
-        assignment = assignmentRepository.save(assignment);
-        return new ResponseEntity<>(assignmentDto, HttpStatus.OK);
+        Allocation allocation = new Allocation(project, contract, allocationDto.getPensumPercentage(), allocationDto.getStartDate(), allocationDto.getEndDate());
+        allocation = assignmentRepository.save(allocation);
+        return new ResponseEntity<>(allocationDto, HttpStatus.OK);
     }
 }

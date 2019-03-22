@@ -33,7 +33,7 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDto) {
         //TODO: Validation
 
-        Project project = new Project(projectDto.getName(), projectDto.getStartDate(), projectDto.getEndDate(), projectDto.getEstimatedEndDate(), projectDto.getFtes());
+        Project project = new Project(projectDto.getName(), projectDto.getStartDate(), projectDto.getEndDate(), projectDto.getEstimatedEndDate(), projectDto.getFtePercentage());
         project = projectRepository.save(project);
         projectDto.setId(project.getId());
         return new ResponseEntity<ProjectDTO>(projectDto, HttpStatus.OK);
