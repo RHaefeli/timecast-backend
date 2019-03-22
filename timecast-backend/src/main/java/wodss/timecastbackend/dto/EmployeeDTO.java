@@ -10,13 +10,15 @@ public class EmployeeDTO {
     @JsonProperty("firstName") private String firstName;
     @JsonProperty("emailAddress") private String emailAddress;
     @JsonProperty("roleId") private Long roleId;
+    @JsonProperty("active") private boolean active;
 
-    public EmployeeDTO(Long id, String lastName, String firstName, String emailAddress, Long roleId, int employment) {
+    public EmployeeDTO(Long id, String lastName, String firstName, String emailAddress, Long roleId, int employment, boolean active) {
         this.id = id;
         this.lastName = lastName;
         this.firstName = firstName;
         this.emailAddress = emailAddress;
         this.roleId = roleId;
+        this.active = active;
     }
 
     public EmployeeDTO(){}
@@ -56,4 +58,8 @@ public class EmployeeDTO {
     public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
+
+    public boolean getActive() { return active; }
+
+    public void setActive(boolean active) { this.active = active; }
 }

@@ -15,6 +15,7 @@ public class Employee {
         this.firstName = firstName;
         this.emailAddress = emailAddress;
         this.role = role;
+        this.active = true;
     }
 
     @Id
@@ -25,9 +26,10 @@ public class Employee {
     private String firstName;
     @NotNull
     private String emailAddress;
-    @OneToOne
-    @NotNull
+    @OneToOne(optional = false)
     private Role role;
+    @NotNull
+    private boolean active;
 
     public long getId() {
         return id;
@@ -60,4 +62,8 @@ public class Employee {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    public boolean isActive() { return active; }
+
+    public void setActive(boolean active) { this.active = active; }
 }
