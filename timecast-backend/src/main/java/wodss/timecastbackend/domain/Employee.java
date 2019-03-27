@@ -5,7 +5,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-@Entity @Table(name="users")
+@Entity
 public class Employee {
 
     public Employee(){}
