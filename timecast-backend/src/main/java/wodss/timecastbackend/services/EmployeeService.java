@@ -1,5 +1,6 @@
 package wodss.timecastbackend.services;
 
+<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,4 +81,7 @@ public class EmployeeService {
         }
         return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
     }
+=======
+public class EmployeeService {
+>>>>>>> ba4a61c7b3236e0fc87ec8401864090affb4ab33
 }

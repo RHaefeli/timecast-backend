@@ -12,6 +12,7 @@ import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.services.ProjectService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -52,6 +53,7 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO> update(@RequestBody Project projectUpdate, @PathVariable Long id) {
         ProjectDTO dto = projectService.updateProject(projectUpdate,id );
         if(dto != null){
+
             return new ResponseEntity<ProjectDTO>(dto, HttpStatus.OK);
         }
         return new ResponseEntity<ProjectDTO>(HttpStatus.NOT_FOUND);
@@ -60,6 +62,7 @@ public class ProjectController {
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
         return projectService.deleteProject(id);
+
     }
 
 }
