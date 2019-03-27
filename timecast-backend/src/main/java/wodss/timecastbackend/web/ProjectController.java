@@ -5,51 +5,51 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Project;
 import wodss.timecastbackend.dto.ProjectDTO;
-import wodss.timecastbackend.persistence.EmployeeRepository;
-import wodss.timecastbackend.persistence.ProjectRepository;
-import wodss.timecastbackend.util.ModelMapper;
+import wodss.timecastbackend.service.ProjectService;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/projects")
 public class ProjectController {
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectService projectService;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    public ProjectController(ProjectService ps){
+        this.projectService = ps;
+    }
 
-    @Autowired
-    private ModelMapper mapper;
 
     @GetMapping
     public @ResponseBody List<ProjectDTO> getAllProjects() {
-        List<ProjectDTO> projectDtos = projectRepository.findAll().stream().map(p -> mapper.projectToProjectDTO(p)).collect(Collectors.toList());
-        return projectDtos;
+        return projectService.getAllProjects();
+    }
+
+    @GetMapping(value="/{id}")
+    public ResponseEntity<ProjectDTO>getProject(@PathVariable Long id) throws Exception{
+        return new ResponseEntity<ProjectDTO>(projectService.getProject(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDto) {
-        //TODO: Validation
+    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDto) throws Exception{
+        Project project = projectService.createProject(projectDto);
 
-        Employee projectManager = null;
-        Optional<Employee> oProjectManager = employeeRepository.findById(projectDto.getProjectManagerId());
-        if(oProjectManager.isPresent()) {
-            projectManager = oProjectManager.get();
-        } else {
-            return new ResponseEntity<ProjectDTO>(HttpStatus.PRECONDITION_FAILED);
-        }
-
-        Project project = new Project(projectDto.getName(), projectManager, projectDto.getStartDate(), projectDto.getEndDate(), projectDto.getFtePercentage());
-        project = projectRepository.save(project);
         projectDto.setId(project.getId());
         return new ResponseEntity<ProjectDTO>(projectDto, HttpStatus.OK);
     }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ProjectDTO> update(@RequestBody Project projectUpdate, @PathVariable Long id) throws Exception{
+        return new ResponseEntity<ProjectDTO>(projectService.updateProject(projectUpdate,id ), HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) throws Exception{
+        return projectService.deleteProject(id);
+
+    }
+
 }

@@ -5,51 +5,51 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.dto.EmployeeDTO;
-import wodss.timecastbackend.persistence.RoleRepository;
-import wodss.timecastbackend.persistence.EmployeeRepository;
-import wodss.timecastbackend.util.ModelMapper;
+import wodss.timecastbackend.service.EmployeeService;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/employees")
 public class EmployeeController {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+    private final EmployeeService employeeService;
 
     @Autowired
-    private ModelMapper mapper; //This error is due to IntelliJ not being capable of intepreting the @Spring
+    public EmployeeController(EmployeeService empService){
+        this.employeeService = empService;
+    }
+
 
     @GetMapping
     public @ResponseBody List<EmployeeDTO> getAllUsers() {
-        List<EmployeeDTO> employeeDtos = employeeRepository.findAll().stream().map(u -> mapper.employeeToEmployeeDTO(u)).collect(Collectors.toList());
-        return employeeDtos;
+        return employeeService.getAllEmployees();
+    }
+
+    @GetMapping(value="/{id}")
+    public ResponseEntity<EmployeeDTO>getUser(@PathVariable Long id)  throws Exception{
+        return new ResponseEntity<EmployeeDTO>(employeeService.getEmployee(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDTO> createUser(@RequestBody EmployeeDTO employeeDto){
-        //TODO: Validation
-
-        Role role = null;
-        Optional<Role> oRole = roleRepository.findById(employeeDto.getRoleId());
-        if(oRole.isPresent()) {
-            role = oRole.get();
-        } else {
-            return new ResponseEntity<EmployeeDTO>(HttpStatus.PRECONDITION_FAILED);
-        }
-
-        Employee employee = new Employee(employeeDto.getLastName(), employeeDto.getFirstName(), employeeDto.getEmailAddress(), role);
-        employee = employeeRepository.save(employee);
-        employeeDto.setId(employee.getId());
+    public ResponseEntity<EmployeeDTO> createUser(@RequestBody EmployeeDTO employeeDto)  throws Exception{
+        Employee e = employeeService.createEmployee(employeeDto);
+        employeeDto.setId(e.getId());
         return new ResponseEntity<EmployeeDTO>(employeeDto, HttpStatus.OK);
     }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<EmployeeDTO> update(@RequestBody Employee employeeUpdate, @PathVariable Long id)  throws Exception{
+        return new ResponseEntity<EmployeeDTO>(employeeService.updateEmployee(employeeUpdate, id), HttpStatus.OK);
+
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id)  throws Exception{
+        return employeeService.deleteEmployee(id);
+    }
+
 
 }
