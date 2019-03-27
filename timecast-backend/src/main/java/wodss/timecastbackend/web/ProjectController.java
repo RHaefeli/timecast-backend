@@ -5,54 +5,53 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Project;
+import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.dto.ProjectDTO;
-import wodss.timecastbackend.persistence.ProjectRepository;
-import wodss.timecastbackend.util.ModelMapper;
+import wodss.timecastbackend.services.ProjectService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/projects")
 public class ProjectController {
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectService projectService;
 
     @Autowired
-    private ModelMapper mapper;
+    public ProjectController(ProjectService ps){
+        this.projectService = ps;
+    }
 
     @GetMapping
     public @ResponseBody List<ProjectDTO> getAllProjects() {
-        List<ProjectDTO> projectDtos = projectRepository.findAll().stream().map(p -> mapper.projectToProjectDTO(p)).collect(Collectors.toList());
-        return projectDtos;
+        return projectService.getAllProjects();
+    }
+
+    @GetMapping(value="/{id}")
+    public ResponseEntity<ProjectDTO>getProject(@PathVariable Long id){
+        ProjectDTO dto = projectService.getProject(id);
+        if(dto != null){
+            return new ResponseEntity<ProjectDTO>(dto, HttpStatus.OK);
+        }
+        return new ResponseEntity<ProjectDTO>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping
     public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDto) {
         //TODO: Validation
 
-        Project project = new Project(projectDto.getName(), projectDto.getStartDate(), projectDto.getEndDate(), projectDto.getEstimatedEndDate(), projectDto.getFtePercentage());
-        project = projectRepository.save(project);
+        Project project = projectService.createProject(projectDto);
         projectDto.setId(project.getId());
         return new ResponseEntity<ProjectDTO>(projectDto, HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<ProjectDTO> update(@RequestBody Project projectUpdate, @PathVariable Long id) {
-        Optional<Project> projectOptional = projectRepository.findById(id);
-        if (projectOptional.isPresent()) {
-            Project p = projectOptional.get();
-            p.setName(projectUpdate.getName());
-            p.setStartDate(projectUpdate.getStartDate());
-            p.setEndDate(projectUpdate.getEndDate());
-            p.setEstimatedEndDate(projectUpdate.getEstimatedEndDate());
-            p.setFtes(projectUpdate.getFtes());
-            projectRepository.save(p);
-
-            ProjectDTO dto = new ProjectDTO(p.getId(), p.getName(), p.getStartDate(), p.getEndDate(), p.getEstimatedEndDate(), p.getFtes());
+        ProjectDTO dto = projectService.updateProject(projectUpdate,id );
+        if(dto != null){
             return new ResponseEntity<ProjectDTO>(dto, HttpStatus.OK);
         }
         return new ResponseEntity<ProjectDTO>(HttpStatus.NOT_FOUND);
@@ -60,13 +59,7 @@ public class ProjectController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        Optional<Project> projectOptional = projectRepository.findById(id);
-        if (projectOptional.isPresent()) {
-            Project project = projectOptional.get();
-            projectRepository.delete(project);
-            return new ResponseEntity<String>(HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+        return projectService.deleteProject(id);
     }
 
 }
