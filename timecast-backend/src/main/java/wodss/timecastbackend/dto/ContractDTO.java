@@ -29,11 +29,11 @@ public class ContractDTO {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public Long getEmployeeId() {
         return employeeId;
     }
 
-    public void setUserId(Long employeeId) {
+    public void setEmployeeId(Long employeeId) {
         this.employeeId = employeeId;
     }
 
