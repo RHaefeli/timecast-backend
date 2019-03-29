@@ -59,7 +59,6 @@ public class AllocationService {
     public void deleteAllocation(long id) throws Exception {
         Allocation allocation = checkIfAllocationExists(id);
         allocationRepository.delete(allocation);
-        allocationRepository.
     }
 
     public AllocationDTO editAllocation(long id, AllocationDTO allocationDTO) throws Exception {

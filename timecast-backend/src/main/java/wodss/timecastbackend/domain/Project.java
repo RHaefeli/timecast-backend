@@ -1,12 +1,10 @@
 package wodss.timecastbackend.domain;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Project {
@@ -33,8 +31,8 @@ public class Project {
     private LocalDateTime startDate;
     @NotNull
     private LocalDateTime endDate;
-    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL)
-    private Allocation allocation;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Allocation> allocations;
 
     public long getId() {
         return id;
