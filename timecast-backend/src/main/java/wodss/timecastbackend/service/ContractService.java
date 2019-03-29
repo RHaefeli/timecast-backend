@@ -47,10 +47,11 @@ public class ContractService {
     }
 
     public ContractDTO createContract(ContractDTO contractDTO) throws Exception {
-
+        //checks
         Employee employee = checkIfEmployeeExists(contractDTO.getEmployeeId());
         checkPensumPercentage(contractDTO.getPensumPercentage());
         checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
+        //Creating contract
         Contract contract = new Contract(employee, contractDTO.getPensumPercentage(), contractDTO.getStartDate(), contractDTO.getEndDate());
         contract = contractRepository.save(contract);
         contractDTO = mapper.contractToContractDTO(contract);
@@ -63,10 +64,12 @@ public class ContractService {
     }
 
     public ContractDTO editContract(long id, ContractDTO contractDTO) throws Exception {
+        //Checks
         Contract contract = checkIfContractExists(id);
         Employee employee = checkIfEmployeeExists(id);
         checkPensumPercentage(contractDTO.getPensumPercentage());
         checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
+        //Applying changes
         contract.setEmployee(employee);
         contract.setPensumPercentage(contractDTO.getPensumPercentage());
         contract.setStartDate(contractDTO.getStartDate());
@@ -94,7 +97,7 @@ public class ContractService {
 
     public void checkPensumPercentage(int percentage) throws Exception{
         //Should this be handled inside of service? What if constraints are changed in model?
-        if(percentage > 0 || percentage > 100){
+        if(percentage < 0 || percentage > 100){
             throw new PreconditionFailedException("The pensum percentage must lie within a range of 0 and 100.");
         }
     }
@@ -102,6 +105,8 @@ public class ContractService {
     public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID) throws Exception{
 
         boolean startDateOverlapsEndDate = startDate.isAfter(endDate);
+        //boolean startDateIsInPast = startDate.isBefore(LocalDate.now());
+
         //Observe is this stream actually returns the correct value.
         boolean startDateOverlapsWithOtherContract =
                 contractRepository.findAll().stream()
@@ -109,9 +114,16 @@ public class ContractService {
         boolean endDateOverlapsWithOtherContract =
                 contractRepository.findAll().stream()
                         .anyMatch(contract -> (contract.getEmployee().getId() == employeeID) && contract.getStartDate().isBefore(endDate));
+
+
         if(startDateOverlapsEndDate){
             throw new PreconditionFailedException("The start date and end date must not overlap!");
         }
+        /*
+        if(startDateIsInPast){
+            throw new PreconditionFailedException("The start date must not be set in the past!");
+        }
+        */
         if(startDateOverlapsWithOtherContract){
             throw new PreconditionFailedException("The start date overlaps with another contract!");
         }

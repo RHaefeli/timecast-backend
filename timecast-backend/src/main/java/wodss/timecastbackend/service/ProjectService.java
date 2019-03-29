@@ -17,6 +17,8 @@ import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
 import wodss.timecastbackend.util.RessourceNotFoundException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,14 +51,9 @@ public class ProjectService {
     }
 
     public Project createProject(ProjectDTO projectDto) throws Exception{
-        //TODO: Validation necessary? (for employee id etc)
-        Employee projectManager;
-        Optional<Employee> oProjectManager = employeeRepository.findById(projectDto.getProjectManagerId());
-        if(oProjectManager.isPresent()) {
-            projectManager = oProjectManager.get();
-        } else {
-            throw new PreconditionFailedException();
-        }
+
+        Employee projectManager = checkEmployee(projectDto.getProjectManagerId());
+        checkDates(projectDto.getStartDate(), projectDto.getEndDate() );
 
         Project p = new Project(
                 projectDto.getName(),
@@ -69,6 +66,8 @@ public class ProjectService {
     }
 
     public ProjectDTO updateProject(Project projectUpdate, Long id) throws Exception{
+        checkDates(projectUpdate.getStartDate(), projectUpdate.getEndDate() );
+
         Optional<Project> projectOptional = projectRepository.findById(id);
         if (projectOptional.isPresent()) {
             Project p = projectOptional.get();
@@ -80,7 +79,6 @@ public class ProjectService {
             projectRepository.save(p);
 
             return mapper.projectToProjectDTO(p);
-            //return new ResponseEntity<ProjectDTO>(dto, HttpStatus.OK);
         }
         throw new RessourceNotFoundException();
     }
@@ -93,5 +91,22 @@ public class ProjectService {
             return new ResponseEntity<String>(HttpStatus.OK);
         }
         throw new RessourceNotFoundException();
+    }
+    private Employee checkEmployee(long employeeID) throws Exception{
+
+        Optional<Employee> oProjectManager = employeeRepository.findById(employeeID);
+        if(oProjectManager.isPresent()) {
+            //Check if Employee has projectmanager role
+            return oProjectManager.get();
+        } else {
+            throw new PreconditionFailedException();
+        }
+    }
+    private void checkDates(LocalDateTime startDate, LocalDateTime endDate) throws Exception{
+        //TODO: Can start dates lie in the past?
+        boolean startDateOverlapsEndDate = startDate.isAfter(endDate);
+        if(startDateOverlapsEndDate){
+            throw new PreconditionFailedException("The start date and end date must not overlap!");
+        }
     }
 }

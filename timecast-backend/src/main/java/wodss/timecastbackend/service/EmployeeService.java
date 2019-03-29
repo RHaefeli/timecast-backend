@@ -18,6 +18,7 @@ import wodss.timecastbackend.util.RessourceNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,14 +48,8 @@ public class EmployeeService {
     }
 
     public Employee createEmployee(EmployeeDTO employeeDTO) throws Exception{
-        Role role;
-        Optional<Role> oRole = roleRepository.findById(employeeDTO.getRoleId());
-        if(oRole.isPresent()){
-            role = oRole.get();
-        }
-        else{
-            throw new PreconditionFailedException();
-        }
+        Role role = checkIfRoleExists(employeeDTO.getRoleId());
+        checkStrings(employeeDTO.getFirstName(), employeeDTO.getLastName(), employeeDTO.getEmailAddress());
 
         Employee e = new Employee(
                 employeeDTO.getLastName(),
@@ -92,4 +87,41 @@ public class EmployeeService {
         throw new RessourceNotFoundException();
     }
 
+    private Role checkIfRoleExists(long roleID) throws Exception{
+        Optional<Role> oRole = roleRepository.findById(roleID);
+        if(oRole.isPresent()){
+            return oRole.get();
+        }
+        else{
+            throw new PreconditionFailedException("Invalid Role id was passed");
+        }
+    }
+    private void checkStrings(String firstName, String lastName, String emailAddress) throws Exception{
+        if(isNullOrEmpty(firstName)){
+            throw new PreconditionFailedException("Invalid first name");
+        }
+        if(isNullOrEmpty(lastName)){
+            throw new PreconditionFailedException("Invalid last name");
+        }
+        if(!isValid(emailAddress)){
+            throw new PreconditionFailedException("invalid email");
+        }
+    }
+    private boolean isNullOrEmpty(String s){
+        return s.trim().isEmpty() || s == null;
+    }
+
+    private boolean isValid(String email)
+    {
+        //Source: https://www.geeksforgeeks.org/check-email-address-valid-not-java/
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+                "[a-zA-Z0-9_+&*-]+)*@" +
+                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                "A-Z]{2,7}$";
+
+        Pattern pat = Pattern.compile(emailRegex);
+        if (email == null)
+            return false;
+        return pat.matcher(email).matches();
+    }
 }
