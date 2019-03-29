@@ -13,6 +13,7 @@ import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
 import wodss.timecastbackend.util.RessourceNotFoundException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,7 +47,10 @@ public class ContractService {
     }
 
     public ContractDTO createContract(ContractDTO contractDTO) throws Exception {
+
         Employee employee = checkIfEmployeeExists(contractDTO.getEmployeeId());
+        checkPensumPercentage(contractDTO.getPensumPercentage());
+        checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
         Contract contract = new Contract(employee, contractDTO.getPensumPercentage(), contractDTO.getStartDate(), contractDTO.getEndDate());
         contract = contractRepository.save(contract);
         contractDTO = mapper.contractToContractDTO(contract);
@@ -61,6 +65,8 @@ public class ContractService {
     public ContractDTO editContract(long id, ContractDTO contractDTO) throws Exception {
         Contract contract = checkIfContractExists(id);
         Employee employee = checkIfEmployeeExists(id);
+        checkPensumPercentage(contractDTO.getPensumPercentage());
+        checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
         contract.setEmployee(employee);
         contract.setPensumPercentage(contractDTO.getPensumPercentage());
         contract.setStartDate(contractDTO.getStartDate());
@@ -84,5 +90,33 @@ public class ContractService {
             return oEmployee.get();
         else
             throw new PreconditionFailedException();
+    }
+
+    public void checkPensumPercentage(int percentage) throws Exception{
+        //Should this be handled inside of service? What if constraints are changed in model?
+        if(percentage > 0 || percentage > 100){
+            throw new PreconditionFailedException("The pensum percentage must lie within a range of 0 and 100.");
+        }
+    }
+
+    public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID) throws Exception{
+
+        boolean startDateOverlapsEndDate = startDate.isAfter(endDate);
+        //Observe is this stream actually returns the correct value.
+        boolean startDateOverlapsWithOtherContract =
+                contractRepository.findAll().stream()
+                        .anyMatch(contract -> (contract.getEmployee().getId() == employeeID) && contract.getEndDate().isBefore(startDate));
+        boolean endDateOverlapsWithOtherContract =
+                contractRepository.findAll().stream()
+                        .anyMatch(contract -> (contract.getEmployee().getId() == employeeID) && contract.getStartDate().isBefore(endDate));
+        if(startDateOverlapsEndDate){
+            throw new PreconditionFailedException("The start date and end date must not overlap!");
+        }
+        if(startDateOverlapsWithOtherContract){
+            throw new PreconditionFailedException("The start date overlaps with another contract!");
+        }
+        if(endDateOverlapsWithOtherContract){
+            throw new PreconditionFailedException("The end date overlaps with another contract!");
+        }
     }
 }
