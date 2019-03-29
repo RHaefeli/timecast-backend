@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import wodss.timecastbackend.domain.Allocation;
 
 @Repository
-public interface AssignmentRepository extends JpaRepository<Allocation, Long> {
+public interface AllocationRepository extends JpaRepository<Allocation, Long> {
 }
