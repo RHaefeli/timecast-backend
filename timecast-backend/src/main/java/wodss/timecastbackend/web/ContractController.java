@@ -36,7 +36,7 @@ public class ContractController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<String> deleteContract(@PathVariable long id, @RequestBody ContractDTO contractDTO) throws Exception {
+    public ResponseEntity<String> deleteContract(@PathVariable long id) throws Exception {
         contractService.deleteContract(id);
         return new ResponseEntity<String>("Ressource succesfully deleted", HttpStatus.NO_CONTENT);
     }
