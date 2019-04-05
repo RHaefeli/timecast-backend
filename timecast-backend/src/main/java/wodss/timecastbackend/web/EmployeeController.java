@@ -9,6 +9,7 @@ import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.service.EmployeeService;
 
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @Controller
@@ -34,9 +35,12 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDTO> createUser(@RequestBody EmployeeDTO employeeDto)  throws Exception{
-        Employee e = employeeService.createEmployee(employeeDto);
+    public ResponseEntity<EmployeeDTO> createUser(@RequestBody EmployeeDTO employeeDto, @RequestParam String role)  throws Exception{
+
+        Employee e = employeeService.createEmployee(employeeDto, role);
+
         employeeDto.setId(e.getId());
+        employeeDto.setRole(role);
         return new ResponseEntity<EmployeeDTO>(employeeDto, HttpStatus.OK);
     }
 

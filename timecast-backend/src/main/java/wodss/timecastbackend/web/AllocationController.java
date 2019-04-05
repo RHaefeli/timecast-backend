@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/allocations")
-public class AssignmentController {
+public class AllocationController {
 
     @Autowired
     private AssignmentRepository assignmentRepository;

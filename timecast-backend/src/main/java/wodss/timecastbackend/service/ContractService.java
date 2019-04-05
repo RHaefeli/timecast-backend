@@ -108,12 +108,16 @@ public class ContractService {
         //boolean startDateIsInPast = startDate.isBefore(LocalDate.now());
 
         //Observe is this stream actually returns the correct value.
+        //TODO: It is still possible to have multiple contracts at the exact same dates. Check for equal dates.
         boolean startDateOverlapsWithOtherContract =
                 contractRepository.findAll().stream()
-                        .anyMatch(contract -> (contract.getEmployee().getId() == employeeID) && contract.getEndDate().isBefore(startDate));
+                        .anyMatch(contract -> (contract.getEmployee().getId() == employeeID) && (contract.getEndDate().isAfter(startDate) && contract.getStartDate().isBefore((startDate))));
         boolean endDateOverlapsWithOtherContract =
                 contractRepository.findAll().stream()
-                        .anyMatch(contract -> (contract.getEmployee().getId() == employeeID) && contract.getStartDate().isBefore(endDate));
+                        .anyMatch(contract -> (
+                                contract.getEmployee().getId() == employeeID)
+                                && contract.getStartDate().isBefore(endDate)
+                                && contract.getEndDate().isAfter((endDate)));
 
 
         if(startDateOverlapsEndDate){

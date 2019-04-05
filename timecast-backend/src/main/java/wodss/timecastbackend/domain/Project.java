@@ -1,11 +1,9 @@
 package wodss.timecastbackend.domain;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,7 +11,7 @@ public class Project {
 
     public Project(){}
 
-    public Project(String name, Employee projectManager, LocalDateTime startDate, LocalDateTime endDate, float ftePercentage) { ;
+    public Project(String name, Employee projectManager, LocalDate startDate, LocalDate endDate, float ftePercentage) {
         this.name = name;
         this.projectManager = projectManager;
         this.ftePercentage = ftePercentage;
@@ -21,18 +19,18 @@ public class Project {
         this.endDate = endDate;
     }
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @NotNull
     private String name;
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private Employee projectManager;
     @Min(0)
     private float ftePercentage;
     @NotNull
-    private LocalDateTime startDate;
+    private LocalDate startDate;
     @NotNull
-    private LocalDateTime endDate;
+    private LocalDate endDate;
     @OneToOne(mappedBy = "project", cascade = CascadeType.ALL)
     private Allocation allocation;
 
@@ -52,19 +50,19 @@ public class Project {
         this.name = name;
     }
 
-    public LocalDateTime getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

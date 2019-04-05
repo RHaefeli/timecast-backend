@@ -2,6 +2,7 @@ package wodss.timecastbackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class ProjectDTO {
@@ -9,10 +10,10 @@ public class ProjectDTO {
     @JsonProperty("name") private String name;
     @JsonProperty("projectManagerId") private long projectManagerId;
     @JsonProperty("ftePercentage") private float ftePercentage;
-    @JsonProperty("startDate") private LocalDateTime startDate;
-    @JsonProperty("endDate") private LocalDateTime endDate;
+    @JsonProperty("startDate") private LocalDate startDate;
+    @JsonProperty("endDate") private LocalDate endDate;
 
-    public ProjectDTO(long id, long projectManagerId, String name, LocalDateTime startDate, LocalDateTime endDate, float ftePercentage) {
+    public ProjectDTO(long id, long projectManagerId, String name, LocalDate startDate, LocalDate endDate, float ftePercentage) {
         this.id = id;
         this.name = name;
         this.projectManagerId = projectManagerId;
@@ -47,19 +48,19 @@ public class ProjectDTO {
         this.projectManagerId = projectManagerId;
     }
 
-    public LocalDateTime getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

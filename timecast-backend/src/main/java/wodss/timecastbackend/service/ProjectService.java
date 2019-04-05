@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Project;
+import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.persistence.EmployeeRepository;
@@ -95,14 +96,13 @@ public class ProjectService {
     private Employee checkEmployee(long employeeID) throws Exception{
 
         Optional<Employee> oProjectManager = employeeRepository.findById(employeeID);
-        if(oProjectManager.isPresent()) {
-            //Check if Employee has projectmanager role
+        if(oProjectManager.isPresent() && oProjectManager.get().getRole().equals(Role.PROJECTMANAGER)) {
             return oProjectManager.get();
         } else {
             throw new PreconditionFailedException();
         }
     }
-    private void checkDates(LocalDateTime startDate, LocalDateTime endDate) throws Exception{
+    private void checkDates(LocalDate startDate, LocalDate endDate) throws Exception{
         //TODO: Can start dates lie in the past?
         boolean startDateOverlapsEndDate = startDate.isAfter(endDate);
         if(startDateOverlapsEndDate){

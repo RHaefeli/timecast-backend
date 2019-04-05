@@ -10,11 +10,13 @@ import wodss.timecastbackend.dto.*;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface ModelMapper {
 
-    @Mapping(source = "role", target = "roleId")
+
+    @Mapping(source = "role", target = "role")
     EmployeeDTO employeeToEmployeeDTO(Employee employee);
-    default Long roleToLong(Role r){
-        return r.getId();
+    default String roleToString(Role r){
+        return r.getValue();
     }
+
 
     @Mapping(source = "employee", target = "employeeId")
     ContractDTO contractToContractDTO(Contract contract);
@@ -23,7 +25,7 @@ public interface ModelMapper {
     @Mapping(source = "projectManager", target = "projectManagerId")
     ProjectDTO projectToProjectDTO(Project p);
 
-    RoleDTO roleToRoleDTO(Role r);
+    //RoleDTO roleToRoleDTO(Role r);
 
     @Mapping(source = "project", target = "projectId")
     @Mapping(source = "contract", target = "contractId")
