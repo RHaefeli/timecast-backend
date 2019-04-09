@@ -92,7 +92,7 @@ public class ContractService {
         if(oEmployee.isPresent())
             return oEmployee.get();
         else
-            throw new PreconditionFailedException();
+            throw new RessourceNotFoundException();
     }
 
     public void checkPensumPercentage(int percentage) throws Exception{
@@ -106,9 +106,6 @@ public class ContractService {
 
         boolean startDateLiesAfterEndDate = startDate.isAfter(endDate);
         //boolean startDateIsInPast = startDate.isBefore(LocalDate.now());
-
-        //Observe is this stream actually returns the correct value.
-        //TODO: It is still possible to have multiple contracts at the exact same dates. Check for equal dates.
         //Error cases:
         //Error case 1: The start date of the new Contract lies in between the start and end date of another contract of the same employee or it equals the start/end date of another contract.
         boolean startDateOverlapsWithOtherContract =
@@ -126,6 +123,7 @@ public class ContractService {
                                 &&((contract.getStartDate().isBefore(endDate) && contract.getEndDate().isAfter(endDate))
                                 || (contract.getStartDate().equals(endDate) || contract.getEndDate().equals(endDate)))
                         );
+        //Error case 3: There is another contract that is entirely contained within the contract.
         boolean contractContainsExistingContract =
                 contractRepository.findAll().stream()
                         .anyMatch(contract -> (
