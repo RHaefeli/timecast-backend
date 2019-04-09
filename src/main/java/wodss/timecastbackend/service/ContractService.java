@@ -9,6 +9,7 @@ import wodss.timecastbackend.dto.ContractDTO;
 import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
+import wodss.timecastbackend.util.BadRequestException;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
 import wodss.timecastbackend.util.RessourceNotFoundException;
@@ -31,9 +32,10 @@ public class ContractService {
     @Autowired
     private ModelMapper mapper;
 
-    public List<ContractDTO> findAll() {
-        List<ContractDTO> contractDTOs = contractRepository.findAll().stream().map(c -> mapper.contractToContractDTO(c)).collect(Collectors.toList());
-        return contractDTOs;
+    public List<ContractDTO> findByQuery(LocalDate fromDate, LocalDate toDate) throws Exception {
+        if(fromDate != null && toDate != null && fromDate.isAfter(toDate))
+            throw new BadRequestException();
+        return modelsToDTOs(contractRepository.findByQuery(fromDate, toDate));
     }
 
     public ContractDTO findById(long id) throws Exception {
@@ -144,5 +146,9 @@ public class ContractService {
         if(contractContainsExistingContract){
             throw new PreconditionFailedException("There is already another contract in between the given time frame!");
         }
+    }
+
+    public List<ContractDTO> modelsToDTOs(List<Contract> allocations) {
+        return allocations.stream().map(c -> mapper.contractToContractDTO(c)).collect(Collectors.toList());
     }
 }

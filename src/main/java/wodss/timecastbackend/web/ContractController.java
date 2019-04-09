@@ -1,6 +1,7 @@
 package wodss.timecastbackend.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import wodss.timecastbackend.service.ContractService;
 import wodss.timecastbackend.util.AuthentificationException;
 import wodss.timecastbackend.util.PreconditionFailedException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -21,8 +23,13 @@ public class ContractController {
     private ContractService contractService;
 
     @GetMapping
-    public @ResponseBody List<ContractDTO> getAllContracts() {
-        return contractService.findAll();
+    public @ResponseBody List<ContractDTO> getAllContracts(
+            @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate toDate)
+            throws Exception {
+        return contractService.findByQuery(fromDate, toDate);
     }
 
     @PostMapping
@@ -36,7 +43,7 @@ public class ContractController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<String> deleteContract(@PathVariable long id, @RequestBody ContractDTO contractDTO) throws Exception {
+    public ResponseEntity<String> deleteContract(@PathVariable long id) throws Exception {
         contractService.deleteContract(id);
         return new ResponseEntity<String>("Ressource succesfully deleted", HttpStatus.NO_CONTENT);
     }

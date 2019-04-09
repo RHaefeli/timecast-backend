@@ -5,13 +5,14 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Project {
 
     public Project(){}
 
-    public Project(String name, Employee projectManager, LocalDate startDate, LocalDate endDate, float ftePercentage) {
+    public Project(String name, Employee projectManager, LocalDate startDate, LocalDate endDate, float ftePercentage) { ;
         this.name = name;
         this.projectManager = projectManager;
         this.ftePercentage = ftePercentage;
@@ -19,7 +20,7 @@ public class Project {
         this.endDate = endDate;
     }
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
     private long id;
     @NotNull
     private String name;
@@ -31,8 +32,8 @@ public class Project {
     private LocalDate startDate;
     @NotNull
     private LocalDate endDate;
-    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL)
-    private Allocation allocation;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Allocation> allocations;
 
     public long getId() {
         return id;

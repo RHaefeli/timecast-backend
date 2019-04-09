@@ -1,6 +1,7 @@
 package wodss.timecastbackend.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -9,6 +10,7 @@ import wodss.timecastbackend.domain.Project;
 import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.service.ProjectService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -24,8 +26,14 @@ public class ProjectController {
 
 
     @GetMapping
-    public @ResponseBody List<ProjectDTO> getAllProjects() {
-        return projectService.getAllProjects();
+    public @ResponseBody List<ProjectDTO> getAllProjects (
+            @RequestParam(value = "projectManagerId", required = false) Long projectManagerId,
+            @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate toDate)
+            throws  Exception {
+        return projectService.findByQuery(projectManagerId, fromDate, toDate);
     }
 
     @GetMapping(value="/{id}")
@@ -49,7 +57,6 @@ public class ProjectController {
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) throws Exception{
         return projectService.deleteProject(id);
-
     }
 
 }

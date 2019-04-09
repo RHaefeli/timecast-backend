@@ -1,8 +1,9 @@
 package wodss.timecastbackend.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import org.springframework.beans.factory.annotation.Autowired;
+import wodss.timecastbackend.util.LocalDateAttributeConverter;
+
+import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -23,7 +24,7 @@ public class Allocation {
 
     @Id
     private long id;
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private Project project;
     @OneToOne(optional = false)
     private Contract contract;
