@@ -5,17 +5,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import wodss.timecastbackend.domain.Allocation;
 import wodss.timecastbackend.domain.Contract;
-import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Project;
 import wodss.timecastbackend.dto.AllocationDTO;
 import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.ContractRepository;
-import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
-import wodss.timecastbackend.util.ModelMapper;
-import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.RessourceNotFoundException;
+import wodss.timecastbackend.util.*;
 
+import javax.persistence.Converter;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,9 +34,11 @@ public class AllocationService {
     @Autowired
     private ModelMapper mapper;
 
-    public List<AllocationDTO> findAll() {
-        List<AllocationDTO> allocations = allocationRepository.findAll().stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
-        return allocations;
+    public List<AllocationDTO> findbyQuery(Long employeeId, Long projectId, LocalDate fromDate, LocalDate toDate)
+            throws Exception {
+        if(fromDate != null && toDate != null && fromDate.isAfter(toDate))
+            throw new BadRequestException();
+        return modelsToDTOs(allocationRepository.findByQuery(employeeId, projectId, fromDate, toDate));
     }
 
     public AllocationDTO findById(long id) throws Exception {
@@ -97,5 +97,9 @@ public class AllocationService {
             return oProject.get();
         else
             throw new RessourceNotFoundException();
+    }
+
+    public List<AllocationDTO> modelsToDTOs(List<Allocation> allocations) {
+        return allocations.stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
     }
 }

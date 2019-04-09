@@ -26,7 +26,7 @@ public class Employee {
     private String firstName;
     @NotNull
     private String emailAddress;
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private Role role;
     @NotNull
     private boolean active;

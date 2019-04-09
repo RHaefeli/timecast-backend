@@ -3,7 +3,7 @@ package wodss.timecastbackend.domain;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -11,7 +11,7 @@ public class Project {
 
     public Project(){}
 
-    public Project(String name, Employee projectManager, LocalDateTime startDate, LocalDateTime endDate, float ftePercentage) { ;
+    public Project(String name, Employee projectManager, LocalDate startDate, LocalDate endDate, float ftePercentage) { ;
         this.name = name;
         this.projectManager = projectManager;
         this.ftePercentage = ftePercentage;
@@ -28,9 +28,9 @@ public class Project {
     @Min(0)
     private float ftePercentage;
     @NotNull
-    private LocalDateTime startDate;
+    private LocalDate startDate;
     @NotNull
-    private LocalDateTime endDate;
+    private LocalDate endDate;
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Allocation> allocations;
 
@@ -50,19 +50,19 @@ public class Project {
         this.name = name;
     }
 
-    public LocalDateTime getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

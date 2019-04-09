@@ -1,9 +1,9 @@
 package wodss.timecastbackend.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import org.springframework.beans.factory.annotation.Autowired;
+import wodss.timecastbackend.util.LocalDateAttributeConverter;
+
+import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;

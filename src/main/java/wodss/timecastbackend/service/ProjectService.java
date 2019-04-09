@@ -13,10 +13,12 @@ import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
+import wodss.timecastbackend.util.BadRequestException;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
 import wodss.timecastbackend.util.RessourceNotFoundException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,9 +37,10 @@ public class ProjectService {
         this.mapper = mapper;
     }
 
-    public List<ProjectDTO> getAllProjects() {
-        List<ProjectDTO> projectDtos = projectRepository.findAll().stream().map(p -> mapper.projectToProjectDTO(p)).collect(Collectors.toList());
-        return projectDtos;
+    public List<ProjectDTO> findByQuery(Long projectManagerId, LocalDate fromDate, LocalDate toDate) throws Exception{
+        if(fromDate != null && toDate != null && fromDate.isAfter(toDate))
+            throw new BadRequestException();
+        return modelsToDTO(projectRepository.findByQuery(projectManagerId, fromDate, toDate));
     }
 
     public ProjectDTO getProject(Long id) throws Exception{
@@ -93,5 +96,9 @@ public class ProjectService {
             return new ResponseEntity<String>(HttpStatus.OK);
         }
         throw new RessourceNotFoundException();
+    }
+
+    public List<ProjectDTO> modelsToDTO(List<Project> projects) {
+        return projects.stream().map(p -> mapper.projectToProjectDTO(p)).collect(Collectors.toList());
     }
 }

@@ -3,9 +3,9 @@ package wodss.timecastbackend.util;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import org.springframework.stereotype.Component;
 import wodss.timecastbackend.domain.*;
 import wodss.timecastbackend.dto.*;
-
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface ModelMapper {
