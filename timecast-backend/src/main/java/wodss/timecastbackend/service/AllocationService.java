@@ -16,6 +16,7 @@ import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
 import wodss.timecastbackend.util.RessourceNotFoundException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,7 +89,7 @@ public class AllocationService {
         if(oContract.isPresent())
             return oContract.get();
         else
-            throw new PreconditionFailedException();
+            throw new RessourceNotFoundException();
     }
 
     public Project checkIfProjectExists(long id) throws Exception {
@@ -97,5 +98,14 @@ public class AllocationService {
             return oProject.get();
         else
             throw new RessourceNotFoundException();
+    }
+
+    public void checkDates(LocalDate startDate, LocalDate endDate) throws Exception{
+        if(startDate.isAfter(endDate)){
+            throw new PreconditionFailedException();
+        }
+    }
+    public void pensumCheck(AllocationDTO allocationDTO){
+        if(allocationDTO.)
     }
 }
