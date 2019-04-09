@@ -49,7 +49,11 @@ public class ContractService {
     }
 
     public ContractDTO createContract(ContractDTO contractDTO) throws Exception {
+        //checks
         Employee employee = checkIfEmployeeExists(contractDTO.getEmployeeId());
+        checkPensumPercentage(contractDTO.getPensumPercentage());
+        checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
+        //Creating contract
         Contract contract = new Contract(employee, contractDTO.getPensumPercentage(), contractDTO.getStartDate(), contractDTO.getEndDate());
         contract = contractRepository.save(contract);
         contractDTO = mapper.contractToContractDTO(contract);
@@ -62,8 +66,12 @@ public class ContractService {
     }
 
     public ContractDTO editContract(long id, ContractDTO contractDTO) throws Exception {
+        //Checks
         Contract contract = checkIfContractExists(id);
         Employee employee = checkIfEmployeeExists(id);
+        checkPensumPercentage(contractDTO.getPensumPercentage());
+        checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
+        //Applying changes
         contract.setEmployee(employee);
         contract.setPensumPercentage(contractDTO.getPensumPercentage());
         contract.setStartDate(contractDTO.getStartDate());
@@ -86,7 +94,58 @@ public class ContractService {
         if(oEmployee.isPresent())
             return oEmployee.get();
         else
-            throw new PreconditionFailedException();
+            throw new RessourceNotFoundException();
+    }
+
+    public void checkPensumPercentage(int percentage) throws Exception{
+        //Should this be handled inside of service? What if constraints are changed in model?
+        if(percentage < 0 || percentage > 100){
+            throw new PreconditionFailedException("The pensum percentage must lie within a range of 0 and 100.");
+        }
+    }
+
+    public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID) throws Exception{
+
+        boolean startDateLiesAfterEndDate = startDate.isAfter(endDate);
+        //boolean startDateIsInPast = startDate.isBefore(LocalDate.now());
+        //Error cases:
+        //Error case 1: The start date of the new Contract lies in between the start and end date of another contract of the same employee or it equals the start/end date of another contract.
+        boolean startDateOverlapsWithOtherContract =
+                contractRepository.findAll().stream()
+                        .anyMatch(contract -> (
+                                contract.getEmployee().getId() == employeeID)
+                                && (((contract.getStartDate().isBefore(startDate) && contract.getEndDate().isAfter(startDate)))
+                                || (contract.getStartDate().equals(startDate) || contract.getEndDate().equals(startDate)))
+                        );
+        //Error case 2: The end date lies in between the start and end date of another contract or the end date equals the start(end date of another contract).
+        boolean endDateOverlapsWithOtherContract =
+                contractRepository.findAll().stream()
+                        .anyMatch(contract -> (
+                                contract.getEmployee().getId() == employeeID)
+                                &&((contract.getStartDate().isBefore(endDate) && contract.getEndDate().isAfter(endDate))
+                                || (contract.getStartDate().equals(endDate) || contract.getEndDate().equals(endDate)))
+                        );
+        //Error case 3: There is another contract that is entirely contained within the contract.
+        boolean contractContainsExistingContract =
+                contractRepository.findAll().stream()
+                        .anyMatch(contract -> (
+                                contract.getEmployee().getId() == employeeID
+                                && (contract.getStartDate().isAfter(startDate) && contract.getEndDate().isBefore(endDate))
+                                )
+                        );
+
+        if(startDateLiesAfterEndDate){
+            throw new PreconditionFailedException("The start date and end date must not overlap!");
+        }
+        if(startDateOverlapsWithOtherContract){
+            throw new PreconditionFailedException("The start date overlaps with another contract!");
+        }
+        if(endDateOverlapsWithOtherContract){
+            throw new PreconditionFailedException("The end date overlaps with another contract!");
+        }
+        if(contractContainsExistingContract){
+            throw new PreconditionFailedException("There is already another contract in between the given time frame!");
+        }
     }
 
     public List<ContractDTO> modelsToDTOs(List<Contract> allocations) {

@@ -12,7 +12,10 @@ import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
 import wodss.timecastbackend.util.*;
 
-import javax.persistence.Converter;
+import wodss.timecastbackend.util.ModelMapper;
+import wodss.timecastbackend.util.PreconditionFailedException;
+import wodss.timecastbackend.util.RessourceNotFoundException;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -99,7 +102,16 @@ public class AllocationService {
             throw new RessourceNotFoundException();
     }
 
-    public List<AllocationDTO> modelsToDTOs(List<Allocation> allocations) {
+    public void checkDates(LocalDate startDate, LocalDate endDate) throws Exception{
+        if(startDate.isAfter(endDate)){
+            throw new PreconditionFailedException();
+        }
+    }
+    public void pensumCheck(AllocationDTO allocationDTO){
+        
+    }
+
+     public List<AllocationDTO> modelsToDTOs(List<Allocation> allocations) {
         return allocations.stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
     }
 }

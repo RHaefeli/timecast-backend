@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Project;
+import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.persistence.EmployeeRepository;
@@ -52,14 +53,9 @@ public class ProjectService {
     }
 
     public Project createProject(ProjectDTO projectDto) throws Exception{
-        //TODO: Validation necessary? (for employee id etc)
-        Employee projectManager;
-        Optional<Employee> oProjectManager = employeeRepository.findById(projectDto.getProjectManagerId());
-        if(oProjectManager.isPresent()) {
-            projectManager = oProjectManager.get();
-        } else {
-            throw new PreconditionFailedException();
-        }
+
+        Employee projectManager = checkEmployee(projectDto.getProjectManagerId());
+        checkDates(projectDto.getStartDate(), projectDto.getEndDate() );
 
         Project p = new Project(
                 projectDto.getName(),
@@ -72,6 +68,8 @@ public class ProjectService {
     }
 
     public ProjectDTO updateProject(Project projectUpdate, Long id) throws Exception{
+        checkDates(projectUpdate.getStartDate(), projectUpdate.getEndDate() );
+
         Optional<Project> projectOptional = projectRepository.findById(id);
         if (projectOptional.isPresent()) {
             Project p = projectOptional.get();
@@ -83,7 +81,6 @@ public class ProjectService {
             projectRepository.save(p);
 
             return mapper.projectToProjectDTO(p);
-            //return new ResponseEntity<ProjectDTO>(dto, HttpStatus.OK);
         }
         throw new RessourceNotFoundException();
     }
@@ -97,8 +94,23 @@ public class ProjectService {
         }
         throw new RessourceNotFoundException();
     }
+    private Employee checkEmployee(long employeeID) throws Exception{
+
+        Optional<Employee> oProjectManager = employeeRepository.findById(employeeID);
+        if(oProjectManager.isPresent() && oProjectManager.get().getRole().equals(Role.PROJECTMANAGER)) {
+            return oProjectManager.get();
+        } else {
+            throw new PreconditionFailedException();
+        }
+    }
+    private void checkDates(LocalDate startDate, LocalDate endDate) throws Exception{
+        //TODO: Can start dates lie in the past?
+        boolean startDateOverlapsEndDate = startDate.isAfter(endDate);
+        if(startDateOverlapsEndDate){
+            throw new PreconditionFailedException("The start date and end date must not overlap!");
+        }
+    }
 
     public List<ProjectDTO> modelsToDTO(List<Project> projects) {
         return projects.stream().map(p -> mapper.projectToProjectDTO(p)).collect(Collectors.toList());
-    }
 }

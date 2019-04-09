@@ -18,7 +18,7 @@ public class Employee {
         this.active = true;
     }
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @NotNull
     private String lastName;
@@ -26,8 +26,12 @@ public class Employee {
     private String firstName;
     @NotNull
     private String emailAddress;
-    @ManyToOne(optional = false)
+    //@OneToOne(optional = false)
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
     private Role role;
+
     @NotNull
     private boolean active;
 
