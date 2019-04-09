@@ -9,9 +9,10 @@ import wodss.timecastbackend.domain.Allocation;
 import wodss.timecastbackend.domain.Contract;
 import wodss.timecastbackend.domain.Project;
 import wodss.timecastbackend.dto.AllocationDTO;
-import wodss.timecastbackend.persistence.AssignmentRepository;
+import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
+import wodss.timecastbackend.service.AllocationService;
 import wodss.timecastbackend.util.ModelMapper;
 
 import java.util.List;
@@ -23,43 +24,30 @@ import java.util.stream.Collectors;
 public class AllocationController {
 
     @Autowired
-    private AssignmentRepository assignmentRepository;
-    @Autowired
-    private ProjectRepository projectRepository;
-    @Autowired
-    private ContractRepository contractRepository;
+    private AllocationService allocationService;
 
     @Autowired
     private ModelMapper mapper;
 
     @GetMapping
-    public @ResponseBody List<AllocationDTO> getAllAssignments(){
-        List<AllocationDTO> allocationDTOS = assignmentRepository.findAll().stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
-        return allocationDTOS;
-    }
+    public @ResponseBody List<AllocationDTO> getAllAllocations(){ return allocationService.findAll(); }
 
     @PostMapping
-    public ResponseEntity<AllocationDTO> createAssignment(@RequestBody AllocationDTO allocationDto) {
-        //TODO: Validation
+    public @ResponseBody AllocationDTO createAllocation(@RequestBody AllocationDTO allocationDto) throws Exception {
+        return allocationService.createAllocation(allocationDto);
+    }
 
-        Project project = null;
-        Optional<Project> oProject = projectRepository.findById(allocationDto.getProjectId());
-        if(oProject.isPresent()){
-            project = oProject.get();
-        } else {
-            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
-        }
+    @GetMapping(value = "/{id}")
+    public @ResponseBody AllocationDTO getContractById(@PathVariable long id) throws Exception { return allocationService.findById(id); }
 
-        Contract contract = null;
-        Optional<Contract> oUser = contractRepository.findById(allocationDto.getContractId());
-        if(oUser.isPresent()){
-            contract = oUser.get();
-        } else {
-            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
-        }
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<String> deleteContract(@PathVariable long id) throws Exception {
+        allocationService.deleteAllocation(id);
+        return new ResponseEntity<String>("Ressource succesfully deleted", HttpStatus.NO_CONTENT);
+    }
 
-        Allocation allocation = new Allocation(project, contract, allocationDto.getPensumPercentage(), allocationDto.getStartDate(), allocationDto.getEndDate());
-        allocation = assignmentRepository.save(allocation);
-        return new ResponseEntity<>(allocationDto, HttpStatus.OK);
+    @PutMapping(value = "/{id}")
+    public @ResponseBody AllocationDTO editAllocation(@PathVariable long id, @RequestBody AllocationDTO allocationDTO) throws Exception {
+        return allocationService.editAllocation(id, allocationDTO);
     }
 }

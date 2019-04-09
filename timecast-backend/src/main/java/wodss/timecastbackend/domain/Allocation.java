@@ -2,6 +2,7 @@ package wodss.timecastbackend.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -23,7 +24,7 @@ public class Allocation {
 
     @Id
     private long id;
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private Project project;
     @OneToOne(optional = false)
     private Contract contract;

@@ -5,6 +5,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Project {
@@ -30,9 +31,11 @@ public class Project {
     @NotNull
     private LocalDate startDate;
     @NotNull
+
     private LocalDate endDate;
-    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL)
-    private Allocation allocation;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Allocation> allocations;
+
 
     public long getId() {
         return id;
