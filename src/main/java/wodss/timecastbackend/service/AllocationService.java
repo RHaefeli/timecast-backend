@@ -108,7 +108,7 @@ public class AllocationService {
         }
     }
     public void pensumCheck(AllocationDTO allocationDTO){
-        if(allocationDTO.)
+        
     }
 
      public List<AllocationDTO> modelsToDTOs(List<Allocation> allocations) {
