@@ -106,6 +106,6 @@ public class AllocationService {
         }
     }
     public void pensumCheck(AllocationDTO allocationDTO){
-        if(allocationDTO.)
+        
     }
 }
