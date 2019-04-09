@@ -104,35 +104,47 @@ public class ContractService {
 
     public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID) throws Exception{
 
-        boolean startDateOverlapsEndDate = startDate.isAfter(endDate);
+        boolean startDateLiesAfterEndDate = startDate.isAfter(endDate);
         //boolean startDateIsInPast = startDate.isBefore(LocalDate.now());
 
         //Observe is this stream actually returns the correct value.
         //TODO: It is still possible to have multiple contracts at the exact same dates. Check for equal dates.
+        //Error cases:
+        //Error case 1: The start date of the new Contract lies in between the start and end date of another contract of the same employee or it equals the start/end date of another contract.
         boolean startDateOverlapsWithOtherContract =
                 contractRepository.findAll().stream()
-                        .anyMatch(contract -> (contract.getEmployee().getId() == employeeID) && (contract.getEndDate().isAfter(startDate) && contract.getStartDate().isBefore((startDate))));
+                        .anyMatch(contract -> (
+                                contract.getEmployee().getId() == employeeID)
+                                && (((contract.getStartDate().isBefore(startDate) && contract.getEndDate().isAfter(startDate)))
+                                || (contract.getStartDate().equals(startDate) || contract.getEndDate().equals(startDate)))
+                        );
+        //Error case 2: The end date lies in between the start and end date of another contract or the end date equals the start(end date of another contract).
         boolean endDateOverlapsWithOtherContract =
                 contractRepository.findAll().stream()
                         .anyMatch(contract -> (
                                 contract.getEmployee().getId() == employeeID)
-                                && contract.getStartDate().isBefore(endDate)
-                                && contract.getEndDate().isAfter((endDate)));
+                                &&((contract.getStartDate().isBefore(endDate) && contract.getEndDate().isAfter(endDate))
+                                || (contract.getStartDate().equals(endDate) || contract.getEndDate().equals(endDate)))
+                        );
+        boolean contractContainsExistingContract =
+                contractRepository.findAll().stream()
+                        .anyMatch(contract -> (
+                                contract.getEmployee().getId() == employeeID
+                                && (contract.getStartDate().isAfter(startDate) && contract.getEndDate().isBefore(endDate))
+                                )
+                        );
 
-
-        if(startDateOverlapsEndDate){
+        if(startDateLiesAfterEndDate){
             throw new PreconditionFailedException("The start date and end date must not overlap!");
         }
-        /*
-        if(startDateIsInPast){
-            throw new PreconditionFailedException("The start date must not be set in the past!");
-        }
-        */
         if(startDateOverlapsWithOtherContract){
             throw new PreconditionFailedException("The start date overlaps with another contract!");
         }
         if(endDateOverlapsWithOtherContract){
             throw new PreconditionFailedException("The end date overlaps with another contract!");
+        }
+        if(contractContainsExistingContract){
+            throw new PreconditionFailedException("There is already another contract in between the given time frame!");
         }
     }
 }
