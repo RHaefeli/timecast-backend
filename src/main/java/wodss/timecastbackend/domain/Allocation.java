@@ -1,8 +1,5 @@
 package wodss.timecastbackend.domain;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import wodss.timecastbackend.util.LocalDateAttributeConverter;
-
 import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

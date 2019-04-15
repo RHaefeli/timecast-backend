@@ -12,9 +12,9 @@ public enum Role{
     Role(String s){
         this.value = s;
     }
+
     public String getValue(){
         return this.value;
     }
-
 }
 

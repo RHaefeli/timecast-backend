@@ -29,9 +29,9 @@ public class EmployeeService {
         this.mapper = mapper;
     }
 
-    public List<EmployeeDTO> getAllEmployees() {
-        List<EmployeeDTO> employeeDTOS = employeeRepository.findAll().stream().map(dto -> mapper.employeeToEmployeeDTO(dto)).collect(Collectors.toList());
-        return employeeDTOS;
+    public List<EmployeeDTO> findByQuery(String sRole) throws Exception {
+        Role role = convertStringToRoleEnum(sRole);
+        return modelsToDTOs(employeeRepository.findByQuery(role));
     }
 
     public EmployeeDTO getEmployee(Long id) throws Exception{
@@ -124,5 +124,15 @@ public class EmployeeService {
         if (email == null)
             return false;
         return pat.matcher(email).matches();
+    }
+
+    private List<EmployeeDTO> modelsToDTOs(List<Employee> employees) {
+        return employees.stream().map(e -> mapper.employeeToEmployeeDTO(e)).collect(Collectors.toList());
+    }
+
+    private Role convertStringToRoleEnum(String sRole) {
+        if(sRole != null)
+            return Role.valueOf(sRole.toUpperCase());
+        return null;
     }
 }

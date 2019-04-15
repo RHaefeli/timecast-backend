@@ -5,12 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Project;
 import wodss.timecastbackend.domain.Role;
-import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
@@ -41,7 +38,7 @@ public class ProjectService {
     public List<ProjectDTO> findByQuery(Long projectManagerId, LocalDate fromDate, LocalDate toDate) throws Exception{
         if(fromDate != null && toDate != null && fromDate.isAfter(toDate))
             throw new BadRequestException();
-        return modelsToDTO(projectRepository.findByQuery(projectManagerId, fromDate, toDate));
+        return modelsToDTOs(projectRepository.findByQuery(projectManagerId, fromDate, toDate));
     }
 
     public ProjectDTO getProject(Long id) throws Exception{
@@ -111,6 +108,7 @@ public class ProjectService {
         }
     }
 
-    public List<ProjectDTO> modelsToDTO(List<Project> projects) {
+    public List<ProjectDTO> modelsToDTOs(List<Project> projects) {
         return projects.stream().map(p -> mapper.projectToProjectDTO(p)).collect(Collectors.toList());
+    }
 }

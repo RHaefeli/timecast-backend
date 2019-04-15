@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import wodss.timecastbackend.domain.Employee;
+import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.service.EmployeeService;
 
@@ -25,8 +26,10 @@ public class EmployeeController {
 
 
     @GetMapping
-    public @ResponseBody List<EmployeeDTO> getAllUsers() {
-        return employeeService.getAllEmployees();
+    public @ResponseBody List<EmployeeDTO> getAllUsers(
+            @RequestParam(value = "role", required = false) String role)
+        throws Exception{
+        return employeeService.findByQuery(role);
     }
 
     @GetMapping(value="/{id}")
