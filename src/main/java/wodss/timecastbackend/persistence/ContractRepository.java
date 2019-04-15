@@ -12,8 +12,8 @@ import java.util.List;
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, Long> {
     @Query("SELECT c FROM Contract c WHERE" +
-            "(CAST(:fromDate AS date) IS NULL OR :fromDate < c.endDate) AND" +
-            "(CAST(:toDate AS date) IS NULL OR :toDate > c.startDate)")
+            "(CAST(:fromDate AS date) IS NULL OR :fromDate <= c.endDate) AND" +
+            "(CAST(:toDate AS date) IS NULL OR :toDate >= c.startDate)")
     List<Contract> findByQuery(
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate);

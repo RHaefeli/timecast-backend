@@ -10,9 +10,10 @@ import java.util.List;
 
 @Repository
 public interface AllocationRepository extends JpaRepository<Allocation, Long> {
-    @Query("SELECT a FROM Allocation a WHERE (:employeeId IS NULL OR a.contract.employee.id = :employeeId) AND" +
+    @Query("SELECT a FROM Allocation a WHERE (:employeeId IS NULL OR a.contract.employee.id = :employeeId) AND " +
             "(:projectId IS NULL OR a.project.id = :projectId) AND " +
-            "MAX(CAST(:fromDate as date), a.startDate) < min(CAST(:toDate AS date), a.endDate)")
+            "(CAST(:fromDate as date) IS NULL OR :fromDate <= a.endDate) AND " +
+            "(CAST(:toDate as date) IS NULL OR :toDate >= a.startDate)")
     List<Allocation> findByQuery(
             @Param("employeeId") Long employeeId,
             @Param("projectId") Long projectId,

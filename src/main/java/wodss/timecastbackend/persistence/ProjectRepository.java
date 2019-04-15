@@ -13,8 +13,8 @@ import java.util.List;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Query("SELECT p FROM Project p WHERE " +
             "(:projectManagerId IS NULL OR :projectManagerId = p.projectManager.id) AND" +
-            "(CAST(:fromDate AS date) IS NULL OR :fromDate < p.startDate) OR" +
-            "(CAST(:toDate AS date) IS NULL OR :toDate < p.endDate)")
+            "(CAST(:fromDate AS date) IS NULL OR :fromDate <= p.endDate) AND" +
+            "(CAST(:toDate AS date) IS NULL OR :toDate >= p.startDate)")
     List<Project> findByQuery(
             @Param("projectManagerId") Long projectManagerId,
             @Param("fromDate") LocalDate fromDate,
