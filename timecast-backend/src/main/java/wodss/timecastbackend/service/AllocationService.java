@@ -64,8 +64,8 @@ public class AllocationService {
 
     public AllocationDTO editAllocation(long id, AllocationDTO allocationDTO) throws Exception {
         Allocation allocation = checkIfAllocationExists(id);
-        Contract contract = checkIfContractExists(id);
-        Project project = checkIfProjectExists(id);
+        Contract contract = checkIfContractExists(allocationDTO.getContractId());
+        Project project = checkIfProjectExists(allocationDTO.getProjectId());
         checkIfAllocationIsValid(allocationDTO, project, contract);
         allocation.setContract(contract);
         allocation.setProject(project);
@@ -82,7 +82,7 @@ public class AllocationService {
         if(oAllocation.isPresent())
             return oAllocation.get();
         else
-            throw new RessourceNotFoundException();
+            throw new RessourceNotFoundException("Allocation does not exist");
     }
 
     private Contract checkIfContractExists(long id) throws Exception {
@@ -90,7 +90,7 @@ public class AllocationService {
         if(oContract.isPresent())
             return oContract.get();
         else
-            throw new RessourceNotFoundException();
+            throw new RessourceNotFoundException("Contract does not exist");
     }
 
     private Project checkIfProjectExists(long id) throws Exception {
@@ -98,7 +98,7 @@ public class AllocationService {
         if(oProject.isPresent())
             return oProject.get();
         else
-            throw new RessourceNotFoundException();
+            throw new RessourceNotFoundException("Project does not exist");
     }
 
     private void checkIfAllocationIsValid(AllocationDTO allocationDTO, Project project, Contract contract) throws Exception{
@@ -106,6 +106,8 @@ public class AllocationService {
         checkIfAllocationPensumPercentageIsNegative(allocationDTO.getPensumPercentage());
         checkDates(allocationDTO.getStartDate(), allocationDTO.getEndDate());
         checkIfAllocationExceedsFTE(project, allocationDTO.getPensumPercentage());
+        checkIfAllocationFitsInContract(allocationDTO.getStartDate() , allocationDTO.getEndDate(), contract);
+        checkIfAllocationExeedsEmployeeLimit(contract, allocationDTO.getStartDate(), allocationDTO.getEndDate(), allocationDTO.getPensumPercentage());
     }
 
     private void checkIfAllocationPensumPercentageIsNegative(int allocationPensumPercentage) throws Exception{
@@ -136,6 +138,8 @@ public class AllocationService {
     }
 
     private void checkIfAllocationExeedsEmployeeLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage) throws Exception {
+
+        //TODO: Define an SQL statement in Repository interface
         List<Allocation> overlappingAllocations = allocationRepository.findAll().stream().filter(a ->
                 a.getContract().getId() == contract.getId()
                 && (
@@ -144,57 +148,29 @@ public class AllocationService {
                         || allocationContainedWithinDates(a, startDate, endDate)
                 )
                 ).collect(Collectors.toList());
-        //TODO: Modification for recursion algorithm. The recursion needs to check overlappers for every allocation.
-        //Each allocation might have new overlappers. Maybe check in with someone else.
+
         for(Allocation a : overlappingAllocations){
-            if(recursion(overlappingAllocations,allocationPensumPercentage ).sum > contract.getPensumPercentage()){
-                throw new PreconditionFailedException("The new allocation would lead to an exceeded pensum percentage for this contract.");
+            int aa = getTotalPensumAtDate(a.getStartDate(), overlappingAllocations);
+            int bb = getTotalPensumAtDate(a.getEndDate(), overlappingAllocations);
+            if((getTotalPensumAtDate(a.getStartDate(), overlappingAllocations) + allocationPensumPercentage > contract.getPensumPercentage())
+            || getTotalPensumAtDate(a.getEndDate(), overlappingAllocations) + allocationPensumPercentage > contract.getPensumPercentage()){
+                System.out.println("aa: " + aa);
+                System.out.println("bb " + bb);
+                throw new PreconditionFailedException("The allocation exceeds the employees pensum limit.");
             }
         }
     }
 
-    /**
-     * Returns a RecursionItem which contains the sum of the pensum percentage during the duration of the new allocation.
-     * @param startList A list of allocations, which contains all allocations that the new allocation overlaps with.
-     * @param startPercentage the pensum percentage that will be added to the sum.
-     * @return A recursion item containing the sum of pensum percentages.
-     */
-    private RecursionItem recursion(List<Allocation> startList, int startPercentage){
-        RecursionItem result = new RecursionItem();
-        int sum = 0;
 
-        List<Allocation> found = new ArrayList<>();
-
-        for(Allocation allocation : startList){
-            if(!found.contains(allocation)){
-                List<Allocation> overlapsWithAllocation = startList.stream().filter(a ->
-                        a.getId() != allocation.getId()
-                        &&(dateIsWithinRange(a, allocation.getStartDate())
-                        || dateIsWithinRange(a, allocation.getEndDate())
-                        || allocationContainedWithinDates(a, allocation.getStartDate(), allocation.getEndDate())
-                        )
-                ).collect(Collectors.toList());
-                RecursionItem rec = new RecursionItem(recursion(overlapsWithAllocation, allocation.getPensumPercentage()));
-                sum += rec.sum;
-                found = rec.foundAllocations;
-                found.add(allocation);
-            }
-        }
-        result.sum = sum + startPercentage;
-        result.foundAllocations = found;
-        return result;
-
+    private int getTotalPensumAtDate(LocalDate date, List<Allocation> overlappingAllocations){
+        return overlappingAllocations.stream().filter(a ->
+                (a.getStartDate().isBefore(date) || a.getStartDate().equals(date))
+                && (a.getEndDate().isAfter(date) || a.getEndDate().equals(date))
+                ).mapToInt(a -> a.getPensumPercentage()).sum();
+        //TODO: Check behavior if sum is used on an empty list.
     }
 
-    private class RecursionItem{
-        protected int sum;
-        protected List<Allocation> foundAllocations = new ArrayList<>();
-        protected RecursionItem(){}
-        protected RecursionItem(RecursionItem r){
-            sum = r.sum;
-            foundAllocations = r.foundAllocations;
-        }
-    }
+
 
     /**
      * Checks if the date lies within the date range of the passed allocation or equals either the start or end date.

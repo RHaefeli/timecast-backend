@@ -1,9 +1,6 @@
 package wodss.timecastbackend.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -22,11 +19,11 @@ public class Allocation {
         this.endDate = endDate;
     }
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @ManyToOne(optional = false)
     private Project project;
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private Contract contract;
     @Max(100)
     @Min(0)
