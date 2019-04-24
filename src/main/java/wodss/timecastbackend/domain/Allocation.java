@@ -19,11 +19,11 @@ public class Allocation {
         this.endDate = endDate;
     }
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @ManyToOne(optional = false)
     private Project project;
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private Contract contract;
     @Max(100)
     @Min(0)

@@ -13,7 +13,7 @@ public class EmployeeDTO {
     @JsonProperty("role") private String role;
     @JsonProperty("active") private boolean active;
 
-    public EmployeeDTO(Long id, String lastName, String firstName, String emailAddress, String role, int employment, boolean active) {
+    public EmployeeDTO(Long id, String lastName, String firstName, String emailAddress, String role, boolean active) {
         this.id = id;
         this.lastName = lastName;
         this.firstName = firstName;
