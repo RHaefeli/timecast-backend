@@ -19,6 +19,8 @@ import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.service.ContractService;
 import wodss.timecastbackend.service.EmployeeService;
 import wodss.timecastbackend.util.ModelMapper;
+import wodss.timecastbackend.util.PreconditionFailedException;
+import wodss.timecastbackend.util.RessourceNotFoundException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,13 +45,16 @@ public class ContractServiceTest {
     ContractService contractService;
 
     ContractDTO testContractDTO1;
+    //Two contract are created to check boundries for start and end date.
     Contract testContract1;
+    Contract testContract2;
     Employee testEmployee1;
 
     @Before
     public void setUp(){
-        testEmployee1 = new Employee("Ziegler", "Fritz", "fritz.ziegler@mail.ch", Role.DEVELOPER);
-        testContract1 = new Contract(testEmployee1, 100, LocalDate.now(), LocalDate.now().plusYears(1));
+        testEmployee1 = generateMockEmployee(new Employee("Ziegler", "Fritz", "fritz.ziegler@mail.ch", Role.DEVELOPER), 1l);
+        testContract1 = generateMockContract(new Contract(testEmployee1, 100, LocalDate.now(), LocalDate.now().plusYears(1)), 1l);
+        testContract2 = generateMockContract(new Contract(testEmployee1, 100, testContract1.getEndDate().plusYears(1L), testContract1.getEndDate().plusYears(2L)), 1l);
         testContractDTO1 = new ContractDTO(1L, 1L, testContract1.getPensumPercentage(), testContract1.getStartDate(), testContract1.getEndDate());
 
         Mockito.when(employeeRepository.findAll()).thenReturn(Arrays.asList(testEmployee1));
@@ -59,9 +64,20 @@ public class ContractServiceTest {
         Mockito.when(contractRepository.findById((long)1)).thenReturn(Optional.of(testContract1));
     }
 
+    private Employee generateMockEmployee(Employee e, long id){
+        Employee mock = Mockito.spy(e);
+        Mockito.when(mock.getId()).thenReturn(id);
+        return mock;
+    }
+    private Contract generateMockContract(Contract c, long id){
+        Contract mock = Mockito.spy(c);
+        Mockito.when(mock.getId()).thenReturn(id);
+        return mock;
+    }
+
     @Test
     public void testCreateContract(){
-        ContractDTO createContractDTO = new ContractDTO(-1L, 1L, 100, testContract1.getEndDate().plusDays(1L), testContract1.getEndDate().plusYears(1l));
+        ContractDTO createContractDTO = new ContractDTO(-1L, 1L, 100, testContract1.getEndDate().plusDays(1L), testContract2.getStartDate().minusDays(1));
         Contract createContract = new Contract(testEmployee1, createContractDTO.getPensumPercentage(), createContractDTO.getStartDate(), createContractDTO.getEndDate());
         Mockito.when(contractRepository.save(Mockito.any(Contract.class))).thenReturn(createContract);
         Mockito.when(mapper.contractToContractDTO(createContract)).thenReturn(createContractDTO);
@@ -72,6 +88,38 @@ public class ContractServiceTest {
         catch (Exception e){
             fail("Failure saving contract");
             e.printStackTrace();
+
+        }
+    }
+
+    /*
+    @Test
+    public void testCreateContractWith___(){
+        ContractDTO createContractDTO = new ContractDTO(-1L, 1L, 100, testContract1.getEndDate().plusDays(1L), testContract1.getEndDate().plusYears(1l));
+        Contract createContract = new Contract(testEmployee1, createContractDTO.getPensumPercentage(), createContractDTO.getStartDate(), createContractDTO.getEndDate());
+
+        try{
+            ContractDTO create = contractService.createContract(createContractDTO);
+            fail("Should have thrown exception:");
+        }
+        catch (Exception e){
+            assertEquals(PreconditionFailedException.class, e.getClass());
+
+        }
+    }
+    */
+
+    @Test
+    public void testCreateContractWhereFuckYou(){
+        ContractDTO createContractDTO = new ContractDTO(-1L, 1L, 100, testContract1.getEndDate().plusDays(1L), testContract1.getEndDate().plusYears(1l));
+        Contract createContract = new Contract(testEmployee1, createContractDTO.getPensumPercentage(), createContractDTO.getStartDate(), createContractDTO.getEndDate());
+
+        try{
+            ContractDTO create = contractService.createContract(createContractDTO);
+            fail("Should have thrown exception:");
+        }
+        catch (Exception e){
+            assertEquals(PreconditionFailedException.class, e.getClass());
 
         }
     }
@@ -107,6 +155,17 @@ public class ContractServiceTest {
         }
         catch(Exception ex){
             fail("Failure editing");
+        }
+    }
+
+    @Test
+    public void testDeleteContractWithNonexistentContract(){
+        try{
+            contractService.deleteContract(999L);
+            fail("Should have thrown exception: Contract does not exists");
+        }
+        catch(Exception e){
+            assertEquals(RessourceNotFoundException.class, e.getClass());
         }
     }
 

@@ -50,11 +50,13 @@ public class ContractService {
 
     public ContractDTO createContract(ContractDTO contractDTO) throws Exception {
         //checks
-        Employee employee = checkIfEmployeeExists(contractDTO.getEmployeeId());
-        checkPensumPercentage(contractDTO.getPensumPercentage());
-        checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
+        checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId(), -1);
         //Creating contract
-        Contract contract = new Contract(employee, contractDTO.getPensumPercentage(), contractDTO.getStartDate(), contractDTO.getEndDate());
+        Contract contract = new Contract(
+                checkIfEmployeeExists(contractDTO.getEmployeeId()),
+                checkPensumPercentage(contractDTO.getPensumPercentage()),
+                contractDTO.getStartDate(),
+                contractDTO.getEndDate());
         contract = contractRepository.save(contract);
         contractDTO = mapper.contractToContractDTO(contract);
         return contractDTO;
@@ -68,12 +70,10 @@ public class ContractService {
     public ContractDTO editContract(long id, ContractDTO contractDTO) throws Exception {
         //Checks
         Contract contract = checkIfContractExists(id);
-        Employee employee = checkIfEmployeeExists(contractDTO.getEmployeeId());
-        checkPensumPercentage(contractDTO.getPensumPercentage());
-        checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
+        checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId(), contractDTO.getId());
         //Applying changes
-        contract.setEmployee(employee);
-        contract.setPensumPercentage(contractDTO.getPensumPercentage());
+        contract.setEmployee(checkIfEmployeeExists(contractDTO.getEmployeeId()));
+        contract.setPensumPercentage(checkPensumPercentage(contractDTO.getPensumPercentage()));
         contract.setStartDate(contractDTO.getStartDate());
         contract.setEndDate(contractDTO.getEndDate());
         contract = contractRepository.save(contract);
@@ -97,14 +97,15 @@ public class ContractService {
             throw new RessourceNotFoundException();
     }
 
-    public void checkPensumPercentage(int percentage) throws Exception{
+    public int checkPensumPercentage(int percentage) throws Exception{
         //Should this be handled inside of service? What if constraints are changed in model?
         if(percentage < 0 || percentage > 100){
             throw new PreconditionFailedException("The pensum percentage must lie within a range of 0 and 100.");
         }
+        return percentage;
     }
 
-    public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID) throws Exception{
+    public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID, long contractID) throws Exception{
 
         boolean startDateLiesAfterEndDate = startDate.isAfter(endDate);
         //boolean startDateIsInPast = startDate.isBefore(LocalDate.now());
@@ -113,7 +114,8 @@ public class ContractService {
         boolean startDateOverlapsWithOtherContract =
                 contractRepository.findAll().stream()
                         .anyMatch(contract -> (
-                                contract.getEmployee().getId() == employeeID)
+                                contract.getId() != contractID
+                                && contract.getEmployee().getId() == employeeID)
                                 && (((contract.getStartDate().isBefore(startDate) && contract.getEndDate().isAfter(startDate)))
                                 || (contract.getStartDate().equals(startDate) || contract.getEndDate().equals(startDate)))
                         );
@@ -121,7 +123,8 @@ public class ContractService {
         boolean endDateOverlapsWithOtherContract =
                 contractRepository.findAll().stream()
                         .anyMatch(contract -> (
-                                contract.getEmployee().getId() == employeeID)
+                                contract.getId() != contractID
+                                && contract.getEmployee().getId() == employeeID)
                                 &&((contract.getStartDate().isBefore(endDate) && contract.getEndDate().isAfter(endDate))
                                 || (contract.getStartDate().equals(endDate) || contract.getEndDate().equals(endDate)))
                         );
@@ -129,7 +132,8 @@ public class ContractService {
         boolean contractContainsExistingContract =
                 contractRepository.findAll().stream()
                         .anyMatch(contract -> (
-                                contract.getEmployee().getId() == employeeID
+                                contract.getId() != contractID
+                                &&contract.getEmployee().getId() == employeeID
                                 && (contract.getStartDate().isAfter(startDate) && contract.getEndDate().isBefore(endDate))
                                 )
                         );
