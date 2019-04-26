@@ -11,7 +11,7 @@ public class ContractDTO {
     @JsonProperty("startDate") private LocalDate startDate;
     @JsonProperty("endDate") private LocalDate endDate;
 
-    public ContractDTO(long id, Long projectId, Long employeeId, int pensumPercentage, LocalDate startDate, LocalDate endDate) {
+    public ContractDTO(Long id, long employeeId, int pensumPercentage, LocalDate startDate, LocalDate endDate) {
         this.id = id;
         this.employeeId = employeeId;
         this.pensumPercentage = pensumPercentage;
@@ -29,11 +29,11 @@ public class ContractDTO {
         this.id = id;
     }
 
-    public Long getEmployeeId() {
+    public long getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(Long employeeId) {
+    public void setEmployeeId(long employeeId) {
         this.employeeId = employeeId;
     }
 

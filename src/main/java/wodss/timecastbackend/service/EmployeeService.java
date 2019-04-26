@@ -60,11 +60,11 @@ public class EmployeeService {
     public EmployeeDTO updateEmployee(Employee employeeUpdate, Long id) throws Exception {
         Optional<Employee> employeeOptional = employeeRepository.findById(id);
         if (employeeOptional.isPresent()) {
+            checkStrings(employeeUpdate.getFirstName(), employeeUpdate.getLastName(), employeeUpdate.getEmailAddress());
             Employee e = employeeOptional.get();
             e.setFirstName(employeeUpdate.getFirstName());
             e.setLastName((employeeUpdate.getLastName()));
             e.setEmailAddress(employeeUpdate.getEmailAddress());
-            //e.setRole(employeeUpdate.getRole());
             employeeRepository.save(e);
 
             return mapper.employeeToEmployeeDTO(e);

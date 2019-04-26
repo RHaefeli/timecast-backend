@@ -49,8 +49,10 @@ public class ProjectService {
         throw new RessourceNotFoundException();
     }
 
+    //TODO: Uneinheitlich. Rückgabetyp zu DTO wechseln?
     public Project createProject(ProjectDTO projectDto) throws Exception{
 
+        //TODO: Can you assign a project manager if their contract(s) run out before the project ends?
         Employee projectManager = checkEmployee(projectDto.getProjectManagerId());
         checkDates(projectDto.getStartDate(), projectDto.getEndDate() );
 
@@ -65,6 +67,10 @@ public class ProjectService {
     }
 
     public ProjectDTO updateProject(Project projectUpdate, Long id) throws Exception{
+
+        //TODO: Can FTE be changed?
+        //TODO: Adjust end date of allocations if project enddate is changed/if enddate now lies before allocation enddate.
+        //TODO: all allocation that now start after enddate must be deleted on edit
         checkDates(projectUpdate.getStartDate(), projectUpdate.getEndDate() );
 
         Optional<Project> projectOptional = projectRepository.findById(id);

@@ -109,7 +109,7 @@ public class AllocationService {
         //Do all checks in one method.
         checkIfAllocationPensumPercentageIsNegative(allocationDTO.getPensumPercentage());
         checkDates(allocationDTO.getStartDate(), allocationDTO.getEndDate());
-        checkIfAllocationExceedsFTE(project, allocationDTO.getPensumPercentage());
+        checkIfAllocationExceedsFTE(project, allocationDTO.getPensumPercentage(), allocationDTO.getId());
         checkIfAllocationFitsInContract(allocationDTO.getStartDate() , allocationDTO.getEndDate(), contract);
         checkIfAllocationExeedsEmployeeLimit(contract, allocationDTO.getStartDate(), allocationDTO.getEndDate(), allocationDTO.getPensumPercentage());
     }
@@ -124,9 +124,10 @@ public class AllocationService {
         }
     }
 
-    private void checkIfAllocationExceedsFTE(Project project, int allocationPensumPercentage) throws Exception{
+
+    private void checkIfAllocationExceedsFTE(Project project, int allocationPensumPercentage, long allocationID) throws Exception{
         int FTEs = allocationRepository.findAll().stream()
-                .filter(allocation -> allocation.getProject().getId() == project.getId())
+                .filter(allocation -> (allocation.getProject().getId() == project.getId()) && (allocation.getId() != allocationID))
                 .mapToInt(allocation -> allocation.getPensumPercentage())
                 .sum();
         if(FTEs + allocationPensumPercentage > project.getFtePercentage()){

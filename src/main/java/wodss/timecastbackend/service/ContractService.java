@@ -68,7 +68,7 @@ public class ContractService {
     public ContractDTO editContract(long id, ContractDTO contractDTO) throws Exception {
         //Checks
         Contract contract = checkIfContractExists(id);
-        Employee employee = checkIfEmployeeExists(id);
+        Employee employee = checkIfEmployeeExists(contractDTO.getEmployeeId());
         checkPensumPercentage(contractDTO.getPensumPercentage());
         checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
         //Applying changes
@@ -77,7 +77,7 @@ public class ContractService {
         contract.setStartDate(contractDTO.getStartDate());
         contract.setEndDate(contractDTO.getEndDate());
         contract = contractRepository.save(contract);
-        contractDTO.setId(id);
+
         return contractDTO;
     }
 
