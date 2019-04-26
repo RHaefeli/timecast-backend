@@ -57,7 +57,7 @@ public class EmployeeService {
         return e;
     }
 
-    public EmployeeDTO updateEmployee(Employee employeeUpdate, Long id) throws Exception {
+    public EmployeeDTO updateEmployee(EmployeeDTO employeeUpdate, Long id) throws Exception {
         Optional<Employee> employeeOptional = employeeRepository.findById(id);
         if (employeeOptional.isPresent()) {
             checkStrings(employeeUpdate.getFirstName(), employeeUpdate.getLastName(), employeeUpdate.getEmailAddress());

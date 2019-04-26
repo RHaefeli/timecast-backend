@@ -159,7 +159,7 @@ public class EmployeeServiceTest {
         Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
         Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);
         try{
-            EmployeeDTO edit = employeeService.updateEmployee(editEmployee1, (long)1);
+            EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, (long)1);
             assertEquals(editEmployee1.getFirstName(), edit.getFirstName());
         }
         catch(Exception ex){
@@ -169,12 +169,11 @@ public class EmployeeServiceTest {
 
     @Test
     public void testEditEmployeeWithoutLastName(){
-        Employee editEmployee1 = new Employee(" ", "Moritz", "fritz.ziegler@mail.ch", null);
         EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)1, "", "Moritz", "fritz.ziegler@mail.ch", "InvalidRole", true);
         Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
         Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);
         try{
-            EmployeeDTO edit = employeeService.updateEmployee(editEmployee1, (long)1);
+            EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, (long)1);
             fail("User should not have been edited. Last name must be filled out (Error in check Strings)");
         }
         catch(Exception e){
@@ -184,12 +183,11 @@ public class EmployeeServiceTest {
 
     @Test
     public void testEditEmployeeWithoutFirstName(){
-        Employee editEmployee1 = new Employee("ziegler", "", "fritz.ziegler@mail.ch", null);
         EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)1, "", "Moritz", "fritz.ziegler@mail.ch", "InvalidRole", true);
         Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
         Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);
         try{
-            EmployeeDTO edit = employeeService.updateEmployee(editEmployee1, (long)1);
+            EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, (long)1);
             fail("User should not have been edited. First name must be filled out (Error in check Strings)");
         }
         catch(Exception e){
@@ -199,12 +197,11 @@ public class EmployeeServiceTest {
 
     @Test
     public void testEditEmployeeWithInvalidEmail(){
-        Employee editEmployee1 = new Employee("ziegler", "Fritz", "fritz.zieglermail.ch", null);
         EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)1, "Fritz", "Moritz", "fritz.zieglermail.ch", "InvalidRole", true);
         Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
         Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);
         try{
-            EmployeeDTO edit = employeeService.updateEmployee(editEmployee1, (long)1);
+            EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, (long)1);
             fail("User should not have been edited. Email was not vaild. Error in check strings (isValid regex)");
         }
         catch(Exception e){
@@ -214,12 +211,11 @@ public class EmployeeServiceTest {
 
     @Test
     public void testEditEmployeeWithNonexistentUser(){
-        Employee editEmployee1 = new Employee("ziegler", "Fritz", "fritz.ziegler@mail.ch", null);
         EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)1, "Fritz", "Moritz", "fritz.ziegler@mail.ch", "InvalidRole", true);
         Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
         Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);
         try{
-            EmployeeDTO edit = employeeService.updateEmployee(editEmployee1, (long)999);
+            EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, (long)999);
             fail("User should not have been found");
         }
         catch(Exception e){
