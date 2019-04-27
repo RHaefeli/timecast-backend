@@ -1,8 +1,12 @@
 package wodss.timecastbackend.advice;
 
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.provider.token.store.jwk.JwkException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,6 +38,10 @@ public class ExceptionAdviceHandler {
     public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(
             HttpRequestMethodNotSupportedException e) {
         return new ResponseEntity<String>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
+    }
+    @ExceptionHandler({AuthenticationException.class, JwkException.class})
+    public ResponseEntity<String> handleAuthenticationException(Exception e) {
+        return new ResponseEntity<String>("Unauthenticated or invalid token", HttpStatus.UNAUTHORIZED);
     }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {

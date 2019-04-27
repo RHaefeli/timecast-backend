@@ -2,14 +2,11 @@ package wodss.timecastbackend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.dto.EmployeeDTO;
+import wodss.timecastbackend.util.TimecastInternalServerErrorException;
 
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,15 +16,12 @@ public class JwtUtil {
 
     private ObjectMapper objectMapper = new ObjectMapper();
     private PrivateKey privateKey;
-    private PublicKey publicKey;
 
     public JwtUtil() {
-        String publicKeyPEM = RsaUtil.getKey("classpath:keystore/public_key.pem");
         String privateKeyPEM = RsaUtil.getKey("classpath:keystore/private_key.pem");
         privateKey = RsaUtil.getPrivateKeyFromString(privateKeyPEM);
-        publicKey = RsaUtil.getPublicKeyFromString(publicKeyPEM);
     }
-    public EmployeeDTO parseToken(String token) {
+    public EmployeeDTO parseToken(String token) throws JwtException {
         try {
             Claims claims = Jwts.parser()
                     .setSigningKey(privateKey)
@@ -35,13 +29,14 @@ public class JwtUtil {
             EmployeeDTO employeeDTO = objectMapper.convertValue(claims.get("employee"), EmployeeDTO.class);
             return employeeDTO;
 
-        } catch (JwtException | ClassCastException e) {
-            throw new InternalException(e.getMessage());
+        } catch (JwtException e) {
+            throw new JwtException(e.getMessage());
+        } catch ( ClassCastException e) {
+            throw new TimecastInternalServerErrorException(e.getMessage());
         }
     }
 
     public String generateToken(Employee employee) {
-        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.RS256;
         Claims claims = Jwts.claims();
         claims.setIssuer("FHNW Wodss");
         claims.setSubject("Login token");

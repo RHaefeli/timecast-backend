@@ -14,26 +14,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static org.hibernate.criterion.Restrictions.and;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
 
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
-    private RestAuthenticationSuccessHandler restAuthenticationSuccessHandler;
-    private SimpleUrlAuthenticationFailureHandler simpleUrlAuthenticationFailureHandler;
     private EmployeeDetailsService employeeDetailsService;
 
     @Autowired
     public SecurityJavaConfig(RestAuthenticationEntryPoint restAuthenticationEntryPoint,
                               EmployeeDetailsService employeeDetailsService) {
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
-        this.restAuthenticationSuccessHandler = new RestAuthenticationSuccessHandler();
-        this.simpleUrlAuthenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler();
         this.employeeDetailsService = employeeDetailsService;
     }
 
@@ -73,10 +65,6 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
             .anyRequest().authenticated()
             .and()
             .addFilter(new JwtAuthorizationFilter(authenticationManager()))
-            .formLogin()
-            .successHandler(restAuthenticationSuccessHandler)
-            .failureHandler(simpleUrlAuthenticationFailureHandler)
-            .and()
             .logout();
     }
 

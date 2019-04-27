@@ -18,7 +18,7 @@ public final class RestAuthenticationEntryPoint
             final HttpServletResponse response,
             final AuthenticationException authException) throws IOException {
 
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                "Unauthorized");
+        response.setStatus(401);
+        response.getOutputStream().println("Unauthenticated or invalid token");
     }
 }

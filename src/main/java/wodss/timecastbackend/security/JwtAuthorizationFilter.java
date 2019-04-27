@@ -1,11 +1,7 @@
 package wodss.timecastbackend.security;
 
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.SignatureException;
+import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +11,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.StringUtils;
-import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.dto.EmployeeDTO;
 
 import javax.servlet.FilterChain;
@@ -42,42 +37,33 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         if (StringUtils.isEmpty(header) || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
             filterChain.doFilter(request, response);
         } else {
-            UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            filterChain.doFilter(request, response);
+            try {
+                UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                filterChain.doFilter(request, response);
+            } catch (JwtException e) {
+                filterChain.doFilter(request, response);
+            }
         }
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) throws JwtException {
         String authHeader = request.getHeader(SecurityConstants.TOKEN_HEADER);
         if (!StringUtils.isEmpty(authHeader)) {
-            try {
-                JwtUtil jwtUtil = new JwtUtil();
-                String token = authHeader.substring(authHeader.indexOf(' ') + 1);
+            JwtUtil jwtUtil = new JwtUtil();
+            String token = authHeader.substring(authHeader.indexOf(' ') + 1);
 
-                EmployeeDTO parsedEmployee = jwtUtil.parseToken(token);
+            EmployeeDTO parsedEmployee = jwtUtil.parseToken(token);
 
-                String emailAdress = parsedEmployee.getEmailAddress();
+            String emailAdress = parsedEmployee.getEmailAddress();
 
-                List<GrantedAuthority> role = Arrays.asList(
-                        new SimpleGrantedAuthority(parsedEmployee.getRole().toString()));
+            List<GrantedAuthority> role = Arrays.asList(
+                    new SimpleGrantedAuthority(parsedEmployee.getRole().toString()));
 
-                if (!StringUtils.isEmpty(emailAdress)) {
-                    return new UsernamePasswordAuthenticationToken(emailAdress, null, role);
-                }
-            } catch (ExpiredJwtException exception) {
-                log.warn("Request to parse expired JWT : {} failed : {}", authHeader, exception.getMessage());
-            } catch (UnsupportedJwtException exception) {
-                log.warn("Request to parse unsupported JWT : {} failed : {}", authHeader, exception.getMessage());
-            } catch (MalformedJwtException exception) {
-                log.warn("Request to parse invalid JWT : {} failed : {}", authHeader, exception.getMessage());
-            } catch (SignatureException exception) {
-                log.warn("Request to parse JWT with invalid signature : {} failed : {}", authHeader, exception.getMessage());
-            } catch (IllegalArgumentException exception) {
-                log.warn("Request to parse empty or null JWT : {} failed : {}", authHeader, exception.getMessage());
+            if (!StringUtils.isEmpty(emailAdress)) {
+                return new UsernamePasswordAuthenticationToken(emailAdress, null, role);
             }
         }
-
         return null;
     }
 }

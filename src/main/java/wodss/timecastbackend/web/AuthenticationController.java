@@ -2,19 +2,13 @@ package wodss.timecastbackend.web;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import wodss.timecastbackend.domain.Employee;
-import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.security.JwtUtil;
-import wodss.timecastbackend.security.PdfEmployee;
 import wodss.timecastbackend.service.AuthenticationService;
 import wodss.timecastbackend.util.RessourceNotFoundException;
 
@@ -24,7 +18,6 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalDouble;
 
 @Controller
 @RequestMapping("/token")
