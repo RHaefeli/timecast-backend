@@ -10,11 +10,12 @@ import wodss.timecastbackend.domain.Project;
 import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.service.ProjectService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-@RequestMapping("/projects")
+@RequestMapping("/project")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -42,10 +43,11 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDto) throws Exception{
+    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDto,
+                                                    HttpServletResponse response) throws Exception{
         Project project = projectService.createProject(projectDto);
-
         projectDto.setId(project.getId());
+        response.setStatus(201);
         return new ResponseEntity<ProjectDTO>(projectDto, HttpStatus.OK);
     }
 

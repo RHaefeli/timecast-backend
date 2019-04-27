@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import wodss.timecastbackend.dto.AllocationDTO;
 import wodss.timecastbackend.service.AllocationService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-@RequestMapping("/allocations")
+@RequestMapping("/allocation")
 public class AllocationController {
 
     @Autowired
@@ -32,7 +33,9 @@ public class AllocationController {
     }
 
     @PostMapping
-    public @ResponseBody AllocationDTO createAllocation(@RequestBody AllocationDTO allocationDto) throws Exception {
+    public @ResponseBody AllocationDTO createAllocation(@RequestBody AllocationDTO allocationDto,
+                                                        HttpServletResponse response) throws Exception {
+        response.setStatus(201);
         return allocationService.createAllocation(allocationDto);
     }
 

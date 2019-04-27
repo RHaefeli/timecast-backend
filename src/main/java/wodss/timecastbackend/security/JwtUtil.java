@@ -22,8 +22,8 @@ public class JwtUtil {
     private PublicKey publicKey;
 
     public JwtUtil() {
-        String publicKeyPEM = RsaUtil.getKey("classpath:public_key.pem");
-        String privateKeyPEM = RsaUtil.getKey("classpath:private_key.pem");
+        String publicKeyPEM = RsaUtil.getKey("classpath:keystore/public_key.pem");
+        String privateKeyPEM = RsaUtil.getKey("classpath:keystore/private_key.pem");
         privateKey = RsaUtil.getPrivateKeyFromString(privateKeyPEM);
         publicKey = RsaUtil.getPublicKeyFromString(publicKeyPEM);
     }

@@ -12,11 +12,12 @@ import wodss.timecastbackend.service.ContractService;
 import wodss.timecastbackend.util.AuthentificationException;
 import wodss.timecastbackend.util.PreconditionFailedException;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-@RequestMapping("/contracts")
+@RequestMapping("/contract")
 public class ContractController {
 
     @Autowired
@@ -33,7 +34,9 @@ public class ContractController {
     }
 
     @PostMapping
-    public @ResponseBody ContractDTO createContract(@RequestBody ContractDTO contractDTO) throws Exception {
+    public @ResponseBody ContractDTO createContract(@RequestBody ContractDTO contractDTO,
+                                                    HttpServletResponse response) throws Exception {
+        response.setStatus(201);
         return contractService.createContract(contractDTO);
     }
 
