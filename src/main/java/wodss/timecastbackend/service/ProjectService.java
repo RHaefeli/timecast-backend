@@ -108,11 +108,13 @@ public class ProjectService {
     private Employee checkEmployee(long employeeID) throws Exception{
 
         Optional<Employee> oProjectManager = employeeRepository.findById(employeeID);
-        if(oProjectManager.isPresent() && oProjectManager.get().getRole().equals(Role.PROJECTMANAGER)) {
-            return oProjectManager.get();
-        } else {
-            throw new PreconditionFailedException();
+        if(!oProjectManager.isPresent()){
+            throw new RessourceNotFoundException();
         }
+        else if(!oProjectManager.get().getRole().equals(Role.PROJECTMANAGER)){
+            throw new PreconditionFailedException("Chosen Employee is not a project manager!");
+        }
+        return oProjectManager.get();
     }
     private void checkDates(LocalDate startDate, LocalDate endDate) throws Exception{
         //TODO: Can start dates lie in the past?

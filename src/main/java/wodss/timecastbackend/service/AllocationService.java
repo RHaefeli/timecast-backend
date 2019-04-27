@@ -17,7 +17,6 @@ import wodss.timecastbackend.util.PreconditionFailedException;
 import wodss.timecastbackend.util.RessourceNotFoundException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -109,9 +108,9 @@ public class AllocationService {
         //Do all checks in one method.
         checkIfAllocationPensumPercentageIsNegative(allocationDTO.getPensumPercentage());
         checkDates(allocationDTO.getStartDate(), allocationDTO.getEndDate());
-        checkIfAllocationExceedsFTE(project, allocationDTO.getPensumPercentage(), allocationDTO.getId());
+        checkIfAllocationExceedsFTEOfProject(project, allocationDTO.getPensumPercentage(), allocationDTO.getId());
         checkIfAllocationFitsInContract(allocationDTO.getStartDate() , allocationDTO.getEndDate(), contract);
-        checkIfAllocationExeedsEmployeeLimit(contract, allocationDTO.getStartDate(), allocationDTO.getEndDate(), allocationDTO.getPensumPercentage());
+        checkIfAllocationExceedsContractLimit(contract, allocationDTO.getStartDate(), allocationDTO.getEndDate(), allocationDTO.getPensumPercentage());
     }
 
     private void checkIfAllocationPensumPercentageIsNegative(int allocationPensumPercentage) throws Exception{
@@ -125,7 +124,7 @@ public class AllocationService {
     }
 
 
-    private void checkIfAllocationExceedsFTE(Project project, int allocationPensumPercentage, long allocationID) throws Exception{
+    private void checkIfAllocationExceedsFTEOfProject(Project project, int allocationPensumPercentage, long allocationID) throws Exception{
         int FTEs = allocationRepository.findAll().stream()
                 .filter(allocation -> (allocation.getProject().getId() == project.getId()) && (allocation.getId() != allocationID))
                 .mapToInt(allocation -> allocation.getPensumPercentage())
@@ -147,7 +146,7 @@ public class AllocationService {
         return allocations.stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
     }
 
-    private void checkIfAllocationExeedsEmployeeLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage) throws Exception {
+    private void checkIfAllocationExceedsContractLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage) throws Exception {
 
         //TODO: Define an SQL statement in Repository interface
         List<Allocation> overlappingAllocations = allocationRepository.findAll().stream().filter(a ->
@@ -173,6 +172,11 @@ public class AllocationService {
 
 
     private int getTotalPensumAtDate(LocalDate date, List<Allocation> overlappingAllocations){
+        //TODO: remove aa after debug
+        int aa = overlappingAllocations.stream().filter(a ->
+                (a.getStartDate().isBefore(date) || a.getStartDate().equals(date))
+                        && (a.getEndDate().isAfter(date) || a.getEndDate().equals(date))
+        ).mapToInt(a -> a.getPensumPercentage()).sum();
         return overlappingAllocations.stream().filter(a ->
                 (a.getStartDate().isBefore(date) || a.getStartDate().equals(date))
                 && (a.getEndDate().isAfter(date) || a.getEndDate().equals(date))

@@ -53,6 +53,7 @@ public class EmployeeServiceTest {
         testEmployee3 = new Employee("Meier", "Peter", "peter.meier@mail.ch", Role.PROJECTMANAGER);
 
         Mockito.when(employeeRepository.findAll()).thenReturn(Arrays.asList(testEmployee1, testEmployee2, testEmployee3));
+        Mockito.when(employeeRepository.findById(1l)).thenReturn(Optional.of(testEmployee1));
     }
 
 
@@ -111,11 +112,80 @@ public class EmployeeServiceTest {
 
     @Test
     public void testCreateEmployeeWithInvalidEmail(){
-        EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "", "new.usermail.ch","DEVELOPER",true );
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER));
+        //Test1: No @ sign
+        EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "New", "new.usermail.ch","DEVELOPER",true );
+        //Test2: no . before region identifier
+        EmployeeDTO createEmployeeDTO2 = new EmployeeDTO(null, "User", "New", "newuser@mailch","DEVELOPER",true );
+        //Test3: no name
+        EmployeeDTO createEmployeeDTO3 = new EmployeeDTO(null, "User", "New", "@mail.ch","DEVELOPER",true );
+        //test4: no name and no @ sign
+        EmployeeDTO createEmployeeDTO4 = new EmployeeDTO(null, "User", "New", "mail.ch","DEVELOPER",true );
+        //Test5: No name and no . before region identifier
+        EmployeeDTO createEmployeeDTO5 = new EmployeeDTO(null, "User", "New", "@mailch","DEVELOPER",true );
+        //Test6: only a string
+        EmployeeDTO createEmployeeDTO6 = new EmployeeDTO(null, "User", "New", "mailch","DEVELOPER",true );
+        //Test7: empty string
+        EmployeeDTO createEmployeeDTO7 = new EmployeeDTO(null, "User", "New", " ","DEVELOPER",true );
+        //Test8: email with invalid symbols
+        EmployeeDTO createEmployeeDTO8 = new EmployeeDTO(null, "User", "New", "new%user@mail.ch","DEVELOPER",true );
+
         try{
             Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() );
-            fail("The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed)");
+            fail("1 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => There was no @ sign in the email)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            Employee created = employeeService.createEmployee(createEmployeeDTO2,createEmployeeDTO1.getRole() );
+            fail("2 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no . before region identifier)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            Employee created = employeeService.createEmployee(createEmployeeDTO3,createEmployeeDTO1.getRole() );
+            fail("3 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no name)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            Employee created = employeeService.createEmployee(createEmployeeDTO4,createEmployeeDTO1.getRole() );
+            fail("4 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no name and no @ sign)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+        try{
+            Employee created = employeeService.createEmployee(createEmployeeDTO5,createEmployeeDTO1.getRole() );
+            fail("5 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => No name and no . before region identifier)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+        try{
+            Employee created = employeeService.createEmployee(createEmployeeDTO6,createEmployeeDTO1.getRole() );
+            fail("6 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => only a string with no . or @)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            Employee created = employeeService.createEmployee(createEmployeeDTO7,createEmployeeDTO1.getRole() );
+            fail("7 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => Empty string)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            Employee created = employeeService.createEmployee(createEmployeeDTO8,createEmployeeDTO1.getRole() );
+            fail("8 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => email with invalid symbols)");
         }
         catch(Exception e){
             assert(e.getClass() == PreconditionFailedException.class);
@@ -197,12 +267,80 @@ public class EmployeeServiceTest {
 
     @Test
     public void testEditEmployeeWithInvalidEmail(){
-        EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)1, "Fritz", "Moritz", "fritz.zieglermail.ch", "InvalidRole", true);
-        Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
-        Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);
+        //Test1: No @ sign
+        EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(1l, "User", "New", "new.usermail.ch","DEVELOPER",true );
+        //Test2: no . before region identifier
+        EmployeeDTO createEmployeeDTO2 = new EmployeeDTO(1l, "User", "New", "newuser@mailch","DEVELOPER",true );
+        //Test3: no name
+        EmployeeDTO createEmployeeDTO3 = new EmployeeDTO(1l, "User", "New", "@mail.ch","DEVELOPER",true );
+        //test4: no name and no @ sign
+        EmployeeDTO createEmployeeDTO4 = new EmployeeDTO(1l, "User", "New", "mail.ch","DEVELOPER",true );
+        //Test5: No name and no . before region identifier
+        EmployeeDTO createEmployeeDTO5 = new EmployeeDTO(1l, "User", "New", "@mailch","DEVELOPER",true );
+        //Test6: only a string
+        EmployeeDTO createEmployeeDTO6 = new EmployeeDTO(1l, "User", "New", "mailch","DEVELOPER",true );
+        //Test7: empty string
+        EmployeeDTO createEmployeeDTO7 = new EmployeeDTO(1l, "User", "New", " ","DEVELOPER",true );
+        //Test8: email with invalid symbols
+        EmployeeDTO createEmployeeDTO8 = new EmployeeDTO(1l, "User", "New", "new%user@mail.ch","DEVELOPER",true );
+
         try{
-            EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, (long)1);
-            fail("User should not have been edited. Email was not vaild. Error in check strings (isValid regex)");
+            EmployeeDTO created = employeeService.updateEmployee(createEmployeeDTO1, createEmployeeDTO1.getId());
+            fail("1 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => There was no @ sign in the email)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            EmployeeDTO created = employeeService.updateEmployee(createEmployeeDTO2, createEmployeeDTO2.getId() );
+            fail("2 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no . before region identifier)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            EmployeeDTO created = employeeService.updateEmployee(createEmployeeDTO3,createEmployeeDTO3.getId() );
+            fail("3 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no name)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            EmployeeDTO created = employeeService.updateEmployee(createEmployeeDTO4,createEmployeeDTO4.getId() );
+            fail("4 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no name and no @ sign)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+        try{
+            EmployeeDTO created = employeeService.updateEmployee(createEmployeeDTO5,createEmployeeDTO5.getId() );
+            fail("5 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => No name and no . before region identifier)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+        try{
+            EmployeeDTO created = employeeService.updateEmployee(createEmployeeDTO6,createEmployeeDTO6.getId() );
+            fail("6 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => only a string with no . or @)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            EmployeeDTO created = employeeService.updateEmployee(createEmployeeDTO7,createEmployeeDTO7.getId() );
+            fail("7 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => Empty string)");
+        }
+        catch(Exception e){
+            assert(e.getClass() == PreconditionFailedException.class);
+        }
+
+        try{
+            EmployeeDTO created = employeeService.updateEmployee(createEmployeeDTO8,createEmployeeDTO8.getId() );
+            fail("8 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => email with invalid symbols)");
         }
         catch(Exception e){
             assert(e.getClass() == PreconditionFailedException.class);

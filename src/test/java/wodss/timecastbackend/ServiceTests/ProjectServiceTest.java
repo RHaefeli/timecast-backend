@@ -112,7 +112,7 @@ public class ProjectServiceTest {
             fail("Should have thrown an exception. Employee does not exist. Error in checkEmployee");
         }
         catch (Exception e){
-            assertEquals(PreconditionFailedException.class, e.getClass());
+            assertEquals(RessourceNotFoundException.class, e.getClass());
         }
     }
 
@@ -148,7 +148,7 @@ public class ProjectServiceTest {
         ProjectDTO createProjectDTO = new ProjectDTO(createProject.getId(), 1, createProject.getName(), createProject.getStartDate(), createProject.getEndDate(), createProject.getFtePercentage());
         try{
             Project create = projectService.createProject(createProjectDTO);
-            fail("Should have thrown an exception. FTEs must not be negative. Error in checkIfFTEIsNegative");
+            fail("Should have thrown an exception. FTEs must not be negative. Error in checkIfFTEIsPositive");
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
@@ -253,7 +253,7 @@ public class ProjectServiceTest {
             fail("Should have thrown exception: Employee does not exist. Error in CheckEmployee");
         }
         catch(Exception ex){
-            assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(RessourceNotFoundException.class, ex.getClass());
         }
     }
 
@@ -296,6 +296,20 @@ public class ProjectServiceTest {
         try{
             ProjectDTO edit = projectService.updateProject(editProjectDTO, 1L);
             fail("Should have thrown exception: The sum of FTEs should be smaller than the new FTE limit foe the project. Error in CheckFTE");
+        }
+        catch(Exception ex){
+            assertEquals(PreconditionFailedException.class, ex.getClass());
+        }
+    }
+
+    @Test
+    public void testEditProjectWithWhereFTEIsNegative(){
+        Project editProject1 = new Project("new Project Name", testEmployee1, testProject1.getStartDate(), testProject1.getEndDate(), -1);
+        ProjectDTO editProjectDTO = new ProjectDTO(1L, 1L, editProject1.getName(), editProject1.getStartDate(), editProject1.getEndDate(), editProject1.getFtePercentage());
+        Mockito.when(mapper.projectToProjectDTO(Mockito.any(Project.class))).thenReturn(editProjectDTO);
+        try{
+            ProjectDTO edit = projectService.updateProject(editProjectDTO, 1L);
+            fail("Should have thrown exception: Dates are crossed. Error in checkDates");
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());

@@ -39,6 +39,7 @@ public class ContractService {
     }
 
     public ContractDTO findById(long id) throws Exception {
+        //TODO: Maybe refactor so that this uses checkIfContractExists?
         ContractDTO contractDTO = null;
         Optional<Contract> oContract = contractRepository.findById(id);
         if(oContract.isPresent())
