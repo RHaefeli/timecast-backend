@@ -20,7 +20,7 @@ public class Project {
         this.endDate = endDate;
     }
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @NotNull
     private String name;

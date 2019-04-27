@@ -1,8 +1,6 @@
 package wodss.timecastbackend.domain;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -10,12 +8,13 @@ public class Employee {
 
     public Employee(){}
 
-    public Employee(String lastName, String firstName, String emailAddress, Role role) {
+    public Employee(String lastName, String firstName, String emailAddress, Role role, String password) {
         this.lastName = lastName;
         this.firstName = firstName;
         this.emailAddress = emailAddress;
         this.role = role;
         this.active = true;
+        this.password = password;
     }
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,6 +33,9 @@ public class Employee {
 
     @NotNull
     private boolean active;
+
+    @NotNull
+    private String password;
 
     public long getId() {
         return id;
@@ -70,4 +72,8 @@ public class Employee {
     public boolean isActive() { return active; }
 
     public void setActive(boolean active) { this.active = active; }
+
+    public String getPassword() { return password; }
+
+    public void setPassword(String password) { this.password = password; }
 }
