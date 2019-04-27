@@ -1,0 +1,160 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_IN_PAGE_ERROR (0xc0000006) at pc=0x00007ffd8d3fc963, pid=22436, tid=13240
+#
+# JRE version:  (10.0.2+13) (build )
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (10.0.2+13, mixed mode, aot, tiered, compressed oops, g1 gc, windows-amd64)
+# Problematic frame:
+# C  [msvcr120.dll+0x3c963]
+#
+# No core dump will be written. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -XX:ErrorFile=C:\Users\cagat\AppData\Roaming\syntevo\SmartGit\18.2\hs_err_pid%p.log -Xms1m -Djava.net.preferIPv4Stack=true -Dsmartgit.logging=true com.syntevo.smartgit.transport.askpass.SgCredentialsHelperMain get
+
+Host: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz, 8 cores, 31G,  Windows 10 , 64 bit Build 17134 (10.0.17134.706)
+Time: Mon Apr 15 16:09:46 2019 Mitteleuropäische Sommerzeit elapsed time: 0 seconds (0d 0h 0m 0s)
+
+---------------  T H R E A D  ---------------
+
+Current thread is native thread
+
+Stack: [0x00000024d5400000,0x00000024d5500000],  sp=0x00000024d54ff6a0,  free space=1021k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [msvcr120.dll+0x3c963]
+C  0x0000000000010000
+
+
+siginfo: EXCEPTION_IN_PAGE_ERROR (0xc0000006), writing address 0x00000135e30f0000
+
+
+Registers:
+RAX=0x0000000000000000, RBX=0x00000135e30f0000, RCX=0x0000000000010000, RDX=0x0000000000000000
+RSP=0x00000024d54ff6a0, RBP=0x0000000000010000, RSI=0x00000135e3128a60, RDI=0x00000135e30f0000
+R8 =0x0000000000010000, R9 =0x0000000000010000, R10=0x0000000000000000, R11=0x00000135e30f0000
+R12=0x0000000000000000, R13=0x0000000066e32ab0, R14=0x00000135e311ee90, R15=0x00000024d54ffbe8
+RIP=0x00007ffd8d3fc963, EFLAGS=0x0000000000010207
+
+Top of Stack: (sp=0x00000024d54ff6a0)
+0x00000024d54ff6a0:   0000000000010000 0000000066eaa56b
+0x00000024d54ff6b0:   00000135e32265c0 0000000000000103
+0x00000024d54ff6c0:   00000135e3226ef5 00000135e31e3ec0
+0x00000024d54ff6d0:   0000000000010000 0000000000000000
+0x00000024d54ff6e0:   0000013500000000 0000000000000af0
+0x00000024d54ff6f0:   0000002400000000 000000006699b48a
+0x00000024d54ff700:   00000024d54ffaf8 000000006699b48a
+0x00000024d54ff710:   0000000000000020 00000024d54ff930
+0x00000024d54ff720:   00000024d54ffbe0 0000000000000020
+0x00000024d54ff730:   00000024d54ffbe0 0000000066ea8ad0
+0x00000024d54ff740:   0000000000010000 00000024d54ffaf8
+0x00000024d54ff750:   0000000000010000 00000024d54ff930
+0x00000024d54ff760:   0000000067295888 0000000066ea8172
+0x00000024d54ff770:   0000000000010000 0000000000000000
+0x00000024d54ff780:   0000000000000000 0000000000000000
+0x00000024d54ff790:   0000000000000000 00000135e30d1000 
+
+Instructions: (pc=0x00007ffd8d3fc963)
+0x00007ffd8d3fc943:   0f b6 d2 49 83 f8 10 0f 82 5c 01 00 00 0f ba 25
+0x00007ffd8d3fc953:   00 4e 0a 00 01 73 0e 57 48 8b f9 8b c2 49 8b c8
+0x00007ffd8d3fc963:   f3 aa 5f eb 6d 49 b9 01 01 01 01 01 01 01 01 49
+0x00007ffd8d3fc973:   0f af d1 0f ba 25 da 4d 0a 00 02 0f 82 9c 00 00 
+
+
+
+---------------  P R O C E S S  ---------------
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+
+[error occurred during error reporting (printing compressed oops mode), id 0xc0000006]
+
+Deoptimization events (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (0 events):
+No events
+
+
+Dynamic libraries:
+0x00007ff61bcb0000 - 0x00007ff61bcee000 	c:\program files (x86)\smartgit\jre\bin\java.exe
+0x00007ffdc0180000 - 0x00007ffdc0361000 	C:\WINDOWS\SYSTEM32\ntdll.dll
+0x00007ffdbe000000 - 0x00007ffdbe0b1000 	C:\WINDOWS\System32\KERNEL32.DLL
+0x00007ffdbd390000 - 0x00007ffdbd603000 	C:\WINDOWS\System32\KERNELBASE.dll
+0x00007ffdbdbb0000 - 0x00007ffdbdc51000 	C:\WINDOWS\System32\ADVAPI32.dll
+0x00007ffdbdf60000 - 0x00007ffdbdffe000 	C:\WINDOWS\System32\msvcrt.dll
+0x00007ffdbddc0000 - 0x00007ffdbde1b000 	C:\WINDOWS\System32\sechost.dll
+0x00007ffdbe0f0000 - 0x00007ffdbe214000 	C:\WINDOWS\System32\RPCRT4.dll
+0x00007ffdbda20000 - 0x00007ffdbdbb0000 	C:\WINDOWS\System32\USER32.dll
+0x00007ffdbc660000 - 0x00007ffdbc680000 	C:\WINDOWS\System32\win32u.dll
+0x00007ffdc0050000 - 0x00007ffdc0078000 	C:\WINDOWS\System32\GDI32.dll
+0x00007ffdbcae0000 - 0x00007ffdbcc72000 	C:\WINDOWS\System32\gdi32full.dll
+0x00007ffdbc800000 - 0x00007ffdbc89f000 	C:\WINDOWS\System32\msvcp_win.dll
+0x00007ffdbc700000 - 0x00007ffdbc7f8000 	C:\WINDOWS\System32\ucrtbase.dll
+0x00007ffda9a30000 - 0x00007ffda9c99000 	C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.17134.706_none_fb43a2cb30647007\COMCTL32.dll
+0x00007ffdb4460000 - 0x00007ffdb446a000 	C:\WINDOWS\SYSTEM32\VERSION.dll
+0x00007ffdbd6f0000 - 0x00007ffdbda12000 	C:\WINDOWS\System32\combase.dll
+0x00007ffdbc680000 - 0x00007ffdbc6fa000 	C:\WINDOWS\System32\bcryptPrimitives.dll
+0x00007ffdbe0c0000 - 0x00007ffdbe0ed000 	C:\WINDOWS\System32\IMM32.DLL
+0x00007ffd8d3c0000 - 0x00007ffd8d4af000 	c:\program files (x86)\smartgit\jre\bin\msvcr120.dll
+0x00007ffd8cfd0000 - 0x00007ffd8d076000 	c:\program files (x86)\smartgit\jre\bin\msvcp120.dll
+0x00000000668e0000 - 0x0000000067350000 	c:\program files (x86)\smartgit\jre\bin\server\jvm.dll
+0x00007ffdbf8a0000 - 0x00007ffdbf8a8000 	C:\WINDOWS\System32\PSAPI.DLL
+0x00007ffda6c80000 - 0x00007ffda6c89000 	C:\WINDOWS\SYSTEM32\WSOCK32.dll
+0x00007ffdb1790000 - 0x00007ffdb17b3000 	C:\WINDOWS\SYSTEM32\WINMM.dll
+0x00007ffdbde20000 - 0x00007ffdbde8c000 	C:\WINDOWS\System32\WS2_32.dll
+0x00007ffdb1760000 - 0x00007ffdb178a000 	C:\WINDOWS\SYSTEM32\WINMMBASE.dll
+0x00007ffdbca90000 - 0x00007ffdbcad9000 	C:\WINDOWS\System32\cfgmgr32.dll
+0x00007ffdb6810000 - 0x00007ffdb681f000 	c:\program files (x86)\smartgit\jre\bin\verify.dll
+0x00007ffdb6320000 - 0x00007ffdb64e9000 	C:\WINDOWS\SYSTEM32\DBGHELP.DLL
+0x00007ffdb6150000 - 0x00007ffdb6179000 	C:\WINDOWS\SYSTEM32\dbgcore.DLL
+0x00007ffda5220000 - 0x00007ffda5247000 	c:\program files (x86)\smartgit\jre\bin\java.dll
+
+dbghelp: loaded successfully - version: 4.0.5 - missing functions: none
+symbol engine: initialized successfully - sym options: 0x614 - pdb path: .;c:\program files (x86)\smartgit\jre\bin;C:\WINDOWS\SYSTEM32;C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.17134.706_none_fb43a2cb30647007;c:\program files (x86)\smartgit\jre\bin\server
+
+VM Arguments:
+jvm_args: -XX:ErrorFile=C:\Users\cagat\AppData\Roaming\syntevo\SmartGit\18.2\hs_err_pid%p.log -Xms1m -Djava.net.preferIPv4Stack=true -Dsmartgit.logging=true 
+java_command: com.syntevo.smartgit.transport.askpass.SgCredentialsHelperMain get
+java_class_path (initial): C:\Users\cagat\AppData\Roaming\syntevo\SmartGit\updates\repo\trilead.jar.789d9f50015c1ac150a5a28d827f0a373a152262;C:\Users\cagat\AppData\Roaming\syntevo\SmartGit\updates\repo\smartgit.jar.7cf41849dad22fef2b7241ecad4759e9b032a0cd
+Launcher Type: SUN_STANDARD
+
+Logging:
+Log output configuration:
+#0: stdout all=warning uptime,level,tags
+#1: stderr all=off uptime,level,tags
+
+Environment Variables:
+JAVA_HOME=C:\Program Files\Java\jdk1.8.0_144
+JRE_HOME=C:\Program Files\Java\jdk1.8.0_144\jre
+PATH=C:\Program Files (x86)\SmartGit\git\mingw64\libexec\git-core;C:\Program Files (x86)\SmartGit\git\mingw64\libexec\git-core;C:\Program Files (x86)\SmartGit\git\mingw64\bin;C:\Program Files (x86)\SmartGit\git\usr\bin;C:\Users\cagat\bin;C:\Program Files (x86)\SmartGit\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\libnvvp;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Razer Chroma SDK\bin;C:\Program Files\Razer Chroma SDK\bin;C:\Program Files\Python37\Scripts;C:\Program Files\Python37;C:\Program Files\Haskell\bin;C:\Program Files\Haskell Platform\8.0.1\lib\extralibs\bin;C:\Program Files\Haskell Platform\8.0.1\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\Intel\iCLS Client;C:\Program Files\Intel\iCLS Client;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\GtkSharp\2.12\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\Program Files\Java\jdk1.8.0_102\jre\bin\server;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Haskell Platform\8.0.1\mingw\bin;D:\Program Files\OpenVPN\bin;D:\Program Files\MATLAB\R2017a\runtime\win64;D:\Program Files\MATLAB\R2017a\bin;C:\Program Files\Microsoft\Web Platform Installer;C:\Program Files\Microsoft SQL Server\130\Tools\Binn;C:\Program Files\dotnet;D:\Program Files\PuTTY;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;D:\Program Files\nodejs;C:\Program Files\Git\cmd;C:\Users\cagat\AppData\Local\Microsoft\WindowsApps;C:\Users\
+USERNAME=cagat
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 94 Stepping 3, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 10 , 64 bit Build 17134 (10.0.17134.706)
+
+CPU:total 8 (initial active 8) 
+
+Memory: 4k page, physical 33457952k(19262372k free), swap 38438688k(18749512k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (10.0.2+13) for windows-amd64 JRE (10.0.2+13), built on Jun 28 2018 01:57:56 by "mach5one" with MS VC++ 12.0 (VS2013)
+
+END.

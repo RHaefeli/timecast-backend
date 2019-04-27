@@ -2,6 +2,8 @@ package wodss.timecastbackend.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import wodss.timecastbackend.util.BadRequestException;
@@ -12,7 +14,8 @@ import wodss.timecastbackend.util.RessourceNotFoundException;
 public class ExceptionAdviceHandler {
     @ExceptionHandler(PreconditionFailedException.class)
     public ResponseEntity<String> handlePreconditionFailedException(PreconditionFailedException e) {
-        return new ResponseEntity<String>("Precondition for the ressource failed", HttpStatus.PRECONDITION_FAILED);
+        return new ResponseEntity<String>(
+                "Precondition for the ressource failed", HttpStatus.PRECONDITION_FAILED);
     }
     @ExceptionHandler(RessourceNotFoundException.class)
     public ResponseEntity<String> handleRessourceNotFoundException(RessourceNotFoundException e) {
@@ -21,6 +24,16 @@ public class ExceptionAdviceHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<String> handleBadRequestException(BadRequestException e) {
         return new ResponseEntity<String>("Bad Request", HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException e) {
+        return new ResponseEntity<String>(
+                "Employee not found or invalid password", HttpStatus.PRECONDITION_FAILED);
+    }
+    @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
+    public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException e) {
+        return new ResponseEntity<String>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
     }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {

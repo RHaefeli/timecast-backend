@@ -57,7 +57,7 @@ public class EmployeeDTO {
     }
 
     public void setRole(String role) {
-        this.role = role;
+        this.role = role.toUpperCase();
     }
 
     public boolean getActive() { return active; }

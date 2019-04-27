@@ -60,4 +60,5 @@ public class ContractDTO {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
+
 }

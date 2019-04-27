@@ -38,10 +38,10 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDTO> createUser(@RequestBody EmployeeDTO employeeDto, @RequestParam String role)  throws Exception{
-
-        Employee e = employeeService.createEmployee(employeeDto, role);
-
+    public ResponseEntity<EmployeeDTO> createUser(@RequestBody EmployeeDTO employeeDto,
+                                                  @RequestParam(required = true) String role,
+                                                  @RequestParam(required = true) String password)  throws Exception{
+        Employee e = employeeService.createEmployee(employeeDto, role, password);
         employeeDto.setId(e.getId());
         employeeDto.setRole(role);
         return new ResponseEntity<EmployeeDTO>(employeeDto, HttpStatus.OK);
