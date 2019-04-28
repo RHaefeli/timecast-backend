@@ -61,6 +61,7 @@ public class ExceptionAdviceHandler {
     public ResponseEntity<String> handleFrobiddenException(ForbiddenException e) {
         logger.error(e.getMessage());
         return new ResponseEntity<String>(e.getMessage(), HttpStatus.FORBIDDEN);
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         logger.error(e.getMessage());

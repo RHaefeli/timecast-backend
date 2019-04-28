@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -111,7 +112,7 @@ public class EmployeeService {
      * @throws ResourceNotFoundException Employee with id does not exist
      * @throws PreconditionFailedException Email Address already exists
      */
-    public EmployeeDTO updateEmployee(Employee employeeDTO, Long id) throws ForbiddenException,
+    public EmployeeDTO updateEmployee(EmployeeDTO employeeDTO, Long id) throws ForbiddenException,
             ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmployee = employeeSession.getEmployee();
 

@@ -116,7 +116,7 @@ public class ContractService {
             //checks
             Employee employee = checkIfEmployeeExists(contractDTO.getEmployeeId());
             checkPensumPercentage(contractDTO.getPensumPercentage());
-            checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
+            checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId(), -1);
             //Creating contract
             Contract contract = new Contract(employee, contractDTO.getPensumPercentage(), contractDTO.getStartDate(), contractDTO.getEndDate());
             contract = contractRepository.save(contract);
@@ -180,7 +180,7 @@ public class ContractService {
             Contract contract = checkIfContractExists(id);
             Employee employee = checkIfEmployeeExists(contractDTO.getEmployeeId());
             checkPensumPercentage(contractDTO.getPensumPercentage());
-            checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId());
+            checkDates(contractDTO.getStartDate(), contractDTO.getEndDate(), contractDTO.getEmployeeId(), contractDTO.getId());
             //Applying changes
             contract.setEmployee(employee);
             contract.setPensumPercentage(contractDTO.getPensumPercentage());
@@ -216,7 +216,7 @@ public class ContractService {
             throw new ResourceNotFoundException();
     }
 
-    public void checkPensumPercentage(int percentage) throws PreconditionFailedException{
+    public int checkPensumPercentage(int percentage) throws PreconditionFailedException{
         //Should this be handled inside of service? What if constraints are changed in model?
         if(percentage < 0 || percentage > 100){
             throw new PreconditionFailedException("The pensum percentage must lie within a range of 0 and 100.");
@@ -224,9 +224,7 @@ public class ContractService {
         return percentage;
     }
 
-    }
-
-    public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID) throws PreconditionFailedException{
+    public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID, long contractID) throws PreconditionFailedException{
 
         boolean startDateLiesAfterEndDate = startDate.isAfter(endDate);
         //boolean startDateIsInPast = startDate.isBefore(LocalDate.now());

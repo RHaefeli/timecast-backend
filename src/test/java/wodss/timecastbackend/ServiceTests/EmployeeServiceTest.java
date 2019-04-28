@@ -7,8 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.ModelMap;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.EmployeeDTO;
@@ -16,11 +14,9 @@ import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.service.EmployeeService;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.RessourceNotFoundException;
+import wodss.timecastbackend.util.ResourceNotFoundException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -62,7 +58,7 @@ public class EmployeeServiceTest {
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "New", "new.user@mail.ch","DEVELOPER",true );
         Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER, ""));
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             assert(createEmployeeDTO1.getFirstName().equals(created.getFirstName()));
         }
         catch(Exception e){
@@ -76,7 +72,7 @@ public class EmployeeServiceTest {
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "New", "new.user@mail.ch","InvalidRole",true );
         Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER, ""));
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             fail("The employee should not have been created. This role does not exist. Error in checkRoles");
         }
         catch(Exception e){
@@ -88,7 +84,7 @@ public class EmployeeServiceTest {
     public void testCreateEmployeeWithoutLasttName(){
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "", "New", "new.user@mail.ch","DEVELOPER",true );
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             fail("The employee should not have been created. Last name must not be empty. Error in checkStrings (nullOrEmpty)");
         }
         catch(Exception e){
@@ -100,7 +96,7 @@ public class EmployeeServiceTest {
     public void testCreateEmployeeWithoutFirstName(){
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "", "new.user@mail.ch","DEVELOPER",true );
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() , "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() , "");
             fail("The employee should not have been created. First name must not be empty. Error in checkStrings (nullOrEmpty)");
         }
         catch(Exception e){
@@ -128,7 +124,7 @@ public class EmployeeServiceTest {
         EmployeeDTO createEmployeeDTO8 = new EmployeeDTO(null, "User", "New", "new%user@mail.ch","DEVELOPER",true );
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             fail("1 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => There was no @ sign in the email)");
         }
         catch(Exception e){
@@ -136,7 +132,7 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO2,createEmployeeDTO1.getRole(), "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO2,createEmployeeDTO1.getRole(), "");
             fail("2 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no . before region identifier)");
         }
         catch(Exception e){
@@ -144,7 +140,7 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO3,createEmployeeDTO1.getRole(), "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO3,createEmployeeDTO1.getRole(), "");
             fail("3 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no name)");
         }
         catch(Exception e){
@@ -152,21 +148,21 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO4,createEmployeeDTO1.getRole(), "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO4,createEmployeeDTO1.getRole(), "");
             fail("4 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no name and no @ sign)");
         }
         catch(Exception e){
             assert(e.getClass() == PreconditionFailedException.class);
         }
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO5,createEmployeeDTO1.getRole(), "" );
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO5,createEmployeeDTO1.getRole(), "" );
             fail("5 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => No name and no . before region identifier)");
         }
         catch(Exception e){
             assert(e.getClass() == PreconditionFailedException.class);
         }
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO6,createEmployeeDTO1.getRole(), "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO6,createEmployeeDTO1.getRole(), "");
             fail("6 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => only a string with no . or @)");
         }
         catch(Exception e){
@@ -174,7 +170,7 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO7,createEmployeeDTO1.getRole(), "");
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO7,createEmployeeDTO1.getRole(), "");
             fail("7 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => Empty string)");
         }
         catch(Exception e){
@@ -182,7 +178,7 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO8,createEmployeeDTO1.getRole(), "" );
+            EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO8,createEmployeeDTO1.getRole(), "" );
             fail("8 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => email with invalid symbols)");
         }
         catch(Exception e){
@@ -213,7 +209,7 @@ public class EmployeeServiceTest {
             fail("User should not be found.");
         }
         catch(Exception e){
-            assert(e.getClass() == RessourceNotFoundException.class);
+            assert(e.getClass() == ResourceNotFoundException.class);
         }
     }
 
@@ -347,7 +343,7 @@ public class EmployeeServiceTest {
             fail("User should not have been found");
         }
         catch(Exception e){
-            assert(e.getClass() == RessourceNotFoundException.class);
+            assert(e.getClass() == ResourceNotFoundException.class);
         }
     }
 
@@ -358,7 +354,7 @@ public class EmployeeServiceTest {
             fail("Should have thrown an exception");
         }
         catch(Exception e){
-            assert(e.getClass() == RessourceNotFoundException.class);
+            assert(e.getClass() == ResourceNotFoundException.class);
         }
     }
 
