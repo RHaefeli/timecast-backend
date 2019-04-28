@@ -70,7 +70,6 @@ public class ProjectServiceTest {
         testAllocation2 = new Allocation(testProject1, testContract2, 50, testProject1.getStartDate(), testProject1.getEndDate() );
 
 
-        Mockito.when(employeeRepository.findAll()).thenReturn(Arrays.asList(testEmployee1, testEmployee2));
         Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
         Mockito.when(employeeRepository.findById((long)2)).thenReturn(Optional.of(testEmployee2));
 
@@ -106,7 +105,6 @@ public class ProjectServiceTest {
     public void testCreateProjectWithInvalidEmployeeID(){
         Project createProject = new Project("Create Project", testEmployee1, LocalDate.now(), LocalDate.now().plusYears(1L), 1000);
         ProjectDTO createProjectDTO = new ProjectDTO(createProject.getId(), 999L, createProject.getName(), createProject.getStartDate(), createProject.getEndDate(), createProject.getFtePercentage());
-        Mockito.when(projectRepository.save(Mockito.any(Project.class))).thenReturn(createProject);
         try{
             Project create = projectService.createProject(createProjectDTO);
             fail("Should have thrown an exception. Employee does not exist. Error in checkEmployee");
@@ -120,7 +118,6 @@ public class ProjectServiceTest {
     public void testCreateProjectWithEmployeeWhoIsNotAManager(){
         Project createProject = new Project("Create Project", testEmployee2, LocalDate.now(), LocalDate.now().plusYears(1L), 1000);
         ProjectDTO createProjectDTO = new ProjectDTO(createProject.getId(), 2, createProject.getName(), createProject.getStartDate(), createProject.getEndDate(), createProject.getFtePercentage());
-        Mockito.when(projectRepository.save(Mockito.any(Project.class))).thenReturn(createProject);
         try{
             Project create = projectService.createProject(createProjectDTO);
             fail("Should have thrown an exception. Employee is not a project manager. Error in checkEmployee");
@@ -186,9 +183,6 @@ public class ProjectServiceTest {
 
     @Test
     public void testFindByIDWithNonexistantProject(){
-        Optional<Project> projectOptional = Optional.of(testProject1);
-        Mockito.when(projectRepository.findById((long)1)).thenReturn(projectOptional);
-        Mockito.when(mapper.projectToProjectDTO(projectOptional.get())).thenReturn(testProject1DTO);
         try{
             ProjectDTO found = projectService.getProject(999L);
             fail("Should have thrown exception: Project does not exist.");
@@ -220,7 +214,6 @@ public class ProjectServiceTest {
     public void testEditProjectWithNonExistentID(){
         Project editProject1 = new Project("new Project Name", testEmployee1, testProject1.getStartDate().plusDays(1l), testProject1.getEndDate().plusDays(1l), 2000);
         ProjectDTO editProjectDTO = new ProjectDTO(1L, 1L, editProject1.getName(), editProject1.getStartDate(), editProject1.getEndDate(), editProject1.getFtePercentage());
-        Mockito.when(mapper.projectToProjectDTO(Mockito.any(Project.class))).thenReturn(editProjectDTO);
         try{
             ProjectDTO edit = projectService.updateProject(editProjectDTO, 999L);
             fail("Should have thrown exception: Project must have name");
@@ -234,7 +227,6 @@ public class ProjectServiceTest {
     public void testEditProjectWithoutName(){
         Project editProject1 = new Project("", testEmployee1, testProject1.getStartDate().plusDays(1l), testProject1.getEndDate().plusDays(1l), 2000);
         ProjectDTO editProjectDTO = new ProjectDTO(1L, 1L, editProject1.getName(), editProject1.getStartDate(), editProject1.getEndDate(), editProject1.getFtePercentage());
-        Mockito.when(mapper.projectToProjectDTO(Mockito.any(Project.class))).thenReturn(editProjectDTO);
         try{
             ProjectDTO edit = projectService.updateProject(editProjectDTO, 1L);
             fail("Should have thrown exception: Project must have name. Error in checkStrings");
@@ -247,7 +239,6 @@ public class ProjectServiceTest {
     public void testEditProjectWithNonExistentEmployee(){
         Project editProject1 = new Project("new Project Name", testEmployee1, testProject1.getStartDate().plusDays(1l), testProject1.getEndDate().plusDays(1l), 2000);
         ProjectDTO editProjectDTO = new ProjectDTO(1L, 999L, editProject1.getName(), editProject1.getStartDate(), editProject1.getEndDate(), editProject1.getFtePercentage());
-        Mockito.when(mapper.projectToProjectDTO(Mockito.any(Project.class))).thenReturn(editProjectDTO);
         try{
             ProjectDTO edit = projectService.updateProject(editProjectDTO, 1L);
             fail("Should have thrown exception: Employee does not exist. Error in CheckEmployee");
@@ -261,7 +252,6 @@ public class ProjectServiceTest {
     public void testEditProjectWithEmployeeWhoIsNotProjectManager(){
         Project editProject1 = new Project("new Project Name", testEmployee2, testProject1.getStartDate().plusDays(1l), testProject1.getEndDate().plusDays(1l), 2000);
         ProjectDTO editProjectDTO = new ProjectDTO(1L, 2L, editProject1.getName(), editProject1.getStartDate(), editProject1.getEndDate(), editProject1.getFtePercentage());
-        Mockito.when(mapper.projectToProjectDTO(Mockito.any(Project.class))).thenReturn(editProjectDTO);
         try{
             ProjectDTO edit = projectService.updateProject(editProjectDTO, 1L);
             fail("Should have thrown exception: Employee must be project manager. Error in checkEmployee");
@@ -275,7 +265,6 @@ public class ProjectServiceTest {
     public void testEditProjectWithCrossedDates(){
         Project editProject1 = new Project("new Project Name", testEmployee1, testProject1.getStartDate().plusDays(1l), testProject1.getEndDate().minusYears(1l), 2000);
         ProjectDTO editProjectDTO = new ProjectDTO(1L, 1L, editProject1.getName(), editProject1.getStartDate(), editProject1.getEndDate(), editProject1.getFtePercentage());
-        Mockito.when(mapper.projectToProjectDTO(Mockito.any(Project.class))).thenReturn(editProjectDTO);
         try{
             ProjectDTO edit = projectService.updateProject(editProjectDTO, 1L);
             fail("Should have thrown exception: Dates are crossed. Error in checkDates");
@@ -289,7 +278,6 @@ public class ProjectServiceTest {
     public void testEditProjectWhereFTEIsTooSmallForFTESum(){
         Project editProject1 = new Project("New project name", testEmployee1, testProject1.getStartDate(), testProject1.getEndDate(), 50);
         ProjectDTO editProjectDTO = new ProjectDTO(1L, 1L, editProject1.getName(), editProject1.getStartDate(), editProject1.getEndDate(), editProject1.getFtePercentage());
-        Mockito.when(mapper.projectToProjectDTO(Mockito.any(Project.class))).thenReturn(editProjectDTO);
 
         testAllocation1.setProject(generateMockProject(1l, testProject1));
         testAllocation2.setProject(generateMockProject(1l, testProject1));
@@ -306,7 +294,6 @@ public class ProjectServiceTest {
     public void testEditProjectWithWhereFTEIsNegative(){
         Project editProject1 = new Project("new Project Name", testEmployee1, testProject1.getStartDate(), testProject1.getEndDate(), -1);
         ProjectDTO editProjectDTO = new ProjectDTO(1L, 1L, editProject1.getName(), editProject1.getStartDate(), editProject1.getEndDate(), editProject1.getFtePercentage());
-        Mockito.when(mapper.projectToProjectDTO(Mockito.any(Project.class))).thenReturn(editProjectDTO);
         try{
             ProjectDTO edit = projectService.updateProject(editProjectDTO, 1L);
             fail("Should have thrown exception: Dates are crossed. Error in checkDates");

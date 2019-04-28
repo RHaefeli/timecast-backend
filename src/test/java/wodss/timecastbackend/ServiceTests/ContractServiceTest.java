@@ -58,7 +58,7 @@ public class ContractServiceTest {
         testContract2 = generateMockContract(new Contract(testEmployee1, 100, testContract1.getEndDate().plusYears(1L), testContract1.getEndDate().plusYears(2L)), 2l);
         testContractDTO1 = new ContractDTO(1L, 1L, testContract1.getPensumPercentage(), testContract1.getStartDate(), testContract1.getEndDate());
 
-        Mockito.when(employeeRepository.findAll()).thenReturn(Arrays.asList(testEmployee1));
+        //Mockito.when(employeeRepository.findAll()).thenReturn(Arrays.asList(testEmployee1));
         Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
 
         Mockito.when(contractRepository.findAll()).thenReturn(Arrays.asList(testContract1, testContract2));

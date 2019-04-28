@@ -87,7 +87,6 @@ public class EmployeeServiceTest {
     @Test
     public void testCreateEmployeeWithoutLasttName(){
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "", "New", "new.user@mail.ch","DEVELOPER",true );
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER));
         try{
             Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() );
             fail("The employee should not have been created. Last name must not be empty. Error in checkStrings (nullOrEmpty)");
@@ -100,7 +99,6 @@ public class EmployeeServiceTest {
     @Test
     public void testCreateEmployeeWithoutFirstName(){
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "", "new.user@mail.ch","DEVELOPER",true );
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER));
         try{
             Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() );
             fail("The employee should not have been created. First name must not be empty. Error in checkStrings (nullOrEmpty)");
@@ -210,8 +208,6 @@ public class EmployeeServiceTest {
     @Test
     public void testFindByIDWithNonexistentEmployee(){
         Optional<Employee> empOptional = Optional.of(testEmployee1);
-        Mockito.when(employeeRepository.findById((long)1)).thenReturn(empOptional);
-        Mockito.when(mapper.employeeToEmployeeDTO(empOptional.get())).thenReturn(testEmployee1DTO);
         try{
             EmployeeDTO found = employeeService.getEmployee((long)5);
             fail("User should not be found.");
@@ -240,8 +236,6 @@ public class EmployeeServiceTest {
     @Test
     public void testEditEmployeeWithoutLastName(){
         EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)1, "", "Moritz", "fritz.ziegler@mail.ch", "InvalidRole", true);
-        Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
-        Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);
         try{
             EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, (long)1);
             fail("User should not have been edited. Last name must be filled out (Error in check Strings)");
@@ -254,8 +248,6 @@ public class EmployeeServiceTest {
     @Test
     public void testEditEmployeeWithoutFirstName(){
         EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)1, "", "Moritz", "fritz.ziegler@mail.ch", "InvalidRole", true);
-        Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
-        Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);
         try{
             EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, (long)1);
             fail("User should not have been edited. First name must be filled out (Error in check Strings)");
@@ -349,11 +341,9 @@ public class EmployeeServiceTest {
 
     @Test
     public void testEditEmployeeWithNonexistentUser(){
-        EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)1, "Fritz", "Moritz", "fritz.ziegler@mail.ch", "InvalidRole", true);
-        Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
-        Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);
+        EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)999, "Fritz", "Moritz", "fritz.ziegler@mail.ch", "InvalidRole", true);
         try{
-            EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, (long)999);
+            EmployeeDTO edit = employeeService.updateEmployee(editEmployeeDTO1, editEmployeeDTO1.getId());
             fail("User should not have been found");
         }
         catch(Exception e){
