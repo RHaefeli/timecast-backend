@@ -158,6 +158,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTNOTFOUND, e.getMessage());
 
         }
     }
@@ -173,7 +174,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(RessourceNotFoundException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_PROJECTNOTFOUND, e.getMessage());
         }
     }
 
@@ -188,6 +189,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
+            assertEquals(AllocationService.ERR_MSG_PENSUMNEGATIVE, e.getMessage());
 
         }
     }
@@ -202,7 +204,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_DATESCROSSED, e.getMessage());
         }
     }
 
@@ -216,7 +218,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_PROJECT_FTE_EXCEEDED, e.getMessage());
         }
     }
 
@@ -295,7 +297,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, e.getMessage());
         }
         try{
             AllocationDTO create = allocationService.createAllocation(createAllocationDTO2);
@@ -303,7 +305,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, e.getMessage());
         }
         try{
             AllocationDTO create = allocationService.createAllocation(createAllocationDTO3);
@@ -311,7 +313,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, e.getMessage());
         }
         try{
             AllocationDTO create = allocationService.createAllocation(createAllocationDTO4);
@@ -319,7 +321,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, e.getMessage());
         }
     }
 
@@ -340,7 +342,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, e.getMessage());
         }
         try{
             AllocationDTO create = allocationService.createAllocation(createAllocationDTO2);
@@ -348,7 +350,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, e.getMessage());
         }
         try{
             AllocationDTO create = allocationService.createAllocation(createAllocationDTO3);
@@ -356,7 +358,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, e.getMessage());
         }
         try{
             AllocationDTO create = allocationService.createAllocation(createAllocationDTO4);
@@ -364,7 +366,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, e.getMessage());
         }
     }
 
@@ -378,7 +380,7 @@ public class AllocationServiceTest {
         }
         catch (Exception e){
             assertEquals(PreconditionFailedException.class, e.getClass());
-
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, e.getMessage());
         }
     }
 
@@ -407,7 +409,7 @@ public class AllocationServiceTest {
             assertEquals(testAllocation1DTO.getId(), found.getId());
         }
         catch(Exception e){
-            fail("Failure finding project");
+            fail("Failure finding Allocation");
             e.printStackTrace();
         }
     }
@@ -419,6 +421,7 @@ public class AllocationServiceTest {
         }
         catch(Exception e){
             assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(AllocationService.ERR_MSG_ALLOCATIONNOTFOUND, e.getMessage());
         }
     }
 
@@ -451,6 +454,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_ALLOCATIONNOTFOUND, ex.getMessage());
         }
     }
 
@@ -465,6 +469,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTNOTFOUND, ex.getMessage());
         }
     }
 
@@ -479,6 +484,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_PROJECTNOTFOUND, ex.getMessage());
         }
     }
 
@@ -493,6 +499,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_PENSUMNEGATIVE, ex.getMessage());
         }
     }
 
@@ -507,6 +514,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_DATESCROSSED, ex.getMessage());
         }
     }
 
@@ -535,6 +543,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_PROJECT_FTE_EXCEEDED, ex.getMessage());
         }
     }
 
@@ -619,6 +628,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
             AllocationDTO edit = allocationService.editAllocation(editAllocationDTO2.getId(), editAllocationDTO2);
@@ -627,6 +637,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
             AllocationDTO edit = allocationService.editAllocation(editAllocationDTO3.getId(), editAllocationDTO3);
@@ -635,6 +646,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
             AllocationDTO edit = allocationService.editAllocation(editAllocationDTO4.getId(), editAllocationDTO4);
@@ -643,6 +655,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
     }
 
@@ -666,6 +679,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
             AllocationDTO edit = allocationService.editAllocation(editAllocationDTO2.getId(), editAllocationDTO2);
@@ -674,6 +688,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
             AllocationDTO edit = allocationService.editAllocation(editAllocationDTO3.getId(), editAllocationDTO3);
@@ -682,6 +697,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
             AllocationDTO edit = allocationService.editAllocation(editAllocationDTO4.getId(), editAllocationDTO4);
@@ -690,6 +706,7 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
     }
 
@@ -706,6 +723,8 @@ public class AllocationServiceTest {
         }
         catch(Exception ex){
             assertEquals(PreconditionFailedException.class, ex.getClass());
+            assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
+
         }
     }
 
@@ -734,6 +753,7 @@ public class AllocationServiceTest {
         }
         catch(Exception e){
             assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(AllocationService.ERR_MSG_ALLOCATIONNOTFOUND, e.getMessage());
         }
     }
 }
