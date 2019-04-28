@@ -80,8 +80,7 @@ public class AllocationService {
 
         //ADMINISTRATOR, PROJECTMANAGER
         if(currentEmployee.getRole() == Role.ADMINISTRATOR || currentEmployee.getRole() == Role.PROJECTMANAGER) {
-            if((projectId != null && !projectRepository.existsById(projectId)) ||
-                (employeeId != null && !contractRepository.existsByEmployeeId(employeeId))){
+            if((projectId != null && !projectRepository.existsById(projectId))){
                 throw new ResourceNotFoundException("Employee or project not found");
             }
             allocations = allocationRepository.findByQuery(employeeId, projectId, fromDate, toDate);
