@@ -17,7 +17,6 @@ import wodss.timecastbackend.util.PreconditionFailedException;
 import wodss.timecastbackend.util.RessourceNotFoundException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +24,19 @@ import java.util.stream.Collectors;
 @Service
 @Component
 public class AllocationService {
+    //TODO: Check if allocation lies outside of project dates.
+    public static final String ERR_MSG_ALLOCATIONNOTFOUND = "Allocation not found.";
+    public static final String ERR_MSG_PROJECTNOTFOUND = "Project not found";
+    public static final String ERR_MSG_CONTRACTNOTFOUND = "Contract not found";
+    public static final String ERR_MSG_PENSUMNEGATIVE = "Pensum percentage is negative.";
+    public static final String ERR_MSG_DATESCROSSED = "Start date lies after end date.";
+    public static final String ERR_MSG_PROJECT_FTE_EXCEEDED = "Project FTE has been exceeded.";
+    public static final String ERR_MSG_STARTDATEOUTSIDEOFCONTRACT = "Start date of allocation lies outside of contract.";
+    public static final String ERR_MSG_ENDDATEOUTSIDEOFCONTRACT = "End date of allocation lies outside of contract.";
+    public static final String ERR_MSG_STARTDATEOUTSIDEOFPROJECT = "Start date of allocation lies outside of contract.";
+    public static final String ERR_MSG_ENDDATEOUTSIDEOFPROJECT = "End date of allocation lies outside of contract.";
+    public static final String ERR_MSG_CONTRACTLIMITEXCEEDED = "Pensum percentage of allocation exceeds contract limit";
+
 
     @Autowired
     private AllocationRepository allocationRepository;
@@ -86,7 +98,7 @@ public class AllocationService {
         if(oAllocation.isPresent())
             return oAllocation.get();
         else
-            throw new RessourceNotFoundException("Allocation does not exist");
+            throw new RessourceNotFoundException(ERR_MSG_ALLOCATIONNOTFOUND);
     }
 
     private Contract checkIfContractExists(long id) throws Exception {
@@ -94,7 +106,7 @@ public class AllocationService {
         if(oContract.isPresent())
             return oContract.get();
         else
-            throw new RessourceNotFoundException("Contract does not exist");
+            throw new RessourceNotFoundException(ERR_MSG_CONTRACTNOTFOUND);
     }
 
     private Project checkIfProjectExists(long id) throws Exception {
@@ -102,43 +114,52 @@ public class AllocationService {
         if(oProject.isPresent())
             return oProject.get();
         else
-            throw new RessourceNotFoundException("Project does not exist");
+            throw new RessourceNotFoundException(ERR_MSG_PROJECTNOTFOUND);
     }
 
     private void checkIfAllocationIsValid(AllocationDTO allocationDTO, Project project, Contract contract) throws Exception{
         //Do all checks in one method.
         checkIfAllocationPensumPercentageIsNegative(allocationDTO.getPensumPercentage());
         checkDates(allocationDTO.getStartDate(), allocationDTO.getEndDate());
-        checkIfAllocationExceedsFTE(project, allocationDTO.getPensumPercentage());
+        checkIfAllocationExceedsFTEOfProject(project, allocationDTO.getPensumPercentage(), allocationDTO.getId());
         checkIfAllocationFitsInContract(allocationDTO.getStartDate() , allocationDTO.getEndDate(), contract);
-        checkIfAllocationExeedsEmployeeLimit(contract, allocationDTO.getStartDate(), allocationDTO.getEndDate(), allocationDTO.getPensumPercentage());
+        checkIfAllocationFitsInProject(allocationDTO.getStartDate(), allocationDTO.getEndDate(), project);
+        checkIfAllocationExceedsContractLimit(contract, allocationDTO.getStartDate(), allocationDTO.getEndDate(), allocationDTO.getPensumPercentage());
     }
 
     private void checkIfAllocationPensumPercentageIsNegative(int allocationPensumPercentage) throws Exception{
-        if(allocationPensumPercentage < 0) throw new PreconditionFailedException("Pensum must not be negative");
+        if(allocationPensumPercentage < 0) throw new PreconditionFailedException(ERR_MSG_PENSUMNEGATIVE);
     }
 
     private void checkDates(LocalDate startDate, LocalDate endDate) throws Exception{
         if(startDate.isAfter(endDate)){
-            throw new PreconditionFailedException("Start date lies after end date.");
+            throw new PreconditionFailedException(ERR_MSG_DATESCROSSED);
         }
     }
 
-    private void checkIfAllocationExceedsFTE(Project project, int allocationPensumPercentage) throws Exception{
+
+    private void checkIfAllocationExceedsFTEOfProject(Project project, int allocationPensumPercentage, long allocationID) throws Exception{
         int FTEs = allocationRepository.findAll().stream()
-                .filter(allocation -> allocation.getProject().getId() == project.getId())
+                .filter(allocation -> (allocation.getProject().getId() == project.getId()) && (allocation.getId() != allocationID))
                 .mapToInt(allocation -> allocation.getPensumPercentage())
                 .sum();
         if(FTEs + allocationPensumPercentage > project.getFtePercentage()){
-            throw new PreconditionFailedException("The allocation's pensum percentage exceeds the planned FTEs of the project");
+            throw new PreconditionFailedException(ERR_MSG_PROJECT_FTE_EXCEEDED);
         }
     }
 
     private void checkIfAllocationFitsInContract(LocalDate startDate, LocalDate endDate, Contract contract) throws Exception{
         boolean startDateLiesOutsideOfContract = startDate.isBefore(contract.getStartDate());
         boolean endDateLiesOutsideOfContract = endDate.isAfter(contract.getEndDate());
-        if(startDateLiesOutsideOfContract) throw new PreconditionFailedException("The start date of this allocation lies outside of the employee's contract.");
-        if(endDateLiesOutsideOfContract) throw new PreconditionFailedException("The end date of this allocation lies outside of the employee's contract.");
+        if(startDateLiesOutsideOfContract) throw new PreconditionFailedException(ERR_MSG_STARTDATEOUTSIDEOFCONTRACT);
+        if(endDateLiesOutsideOfContract) throw new PreconditionFailedException(ERR_MSG_ENDDATEOUTSIDEOFCONTRACT);
+    }
+
+    private void checkIfAllocationFitsInProject(LocalDate startDate, LocalDate endDate, Project project) throws Exception{
+        boolean startDateLiesOutsideOfContract = startDate.isBefore(project.getStartDate());
+        boolean endDateLiesOutsideOfContract = endDate.isAfter(project.getEndDate());
+        if(startDateLiesOutsideOfContract) throw new PreconditionFailedException(ERR_MSG_STARTDATEOUTSIDEOFPROJECT);
+        if(endDateLiesOutsideOfContract) throw new PreconditionFailedException(ERR_MSG_ENDDATEOUTSIDEOFPROJECT);
     }
 
 
@@ -146,7 +167,7 @@ public class AllocationService {
         return allocations.stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
     }
 
-    private void checkIfAllocationExeedsEmployeeLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage) throws Exception {
+    private void checkIfAllocationExceedsContractLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage) throws Exception {
 
         //TODO: Define an SQL statement in Repository interface
         List<Allocation> overlappingAllocations = allocationRepository.findAll().stream().filter(a ->
@@ -165,13 +186,18 @@ public class AllocationService {
             || getTotalPensumAtDate(a.getEndDate(), overlappingAllocations) + allocationPensumPercentage > contract.getPensumPercentage()){
                 System.out.println("aa: " + aa);
                 System.out.println("bb " + bb);
-                throw new PreconditionFailedException("The allocation exceeds the employees pensum limit.");
+                throw new PreconditionFailedException(ERR_MSG_CONTRACTLIMITEXCEEDED);
             }
         }
     }
 
 
     private int getTotalPensumAtDate(LocalDate date, List<Allocation> overlappingAllocations){
+        //TODO: remove aa after debug
+        int aa = overlappingAllocations.stream().filter(a ->
+                (a.getStartDate().isBefore(date) || a.getStartDate().equals(date))
+                        && (a.getEndDate().isAfter(date) || a.getEndDate().equals(date))
+        ).mapToInt(a -> a.getPensumPercentage()).sum();
         return overlappingAllocations.stream().filter(a ->
                 (a.getStartDate().isBefore(date) || a.getStartDate().equals(date))
                 && (a.getEndDate().isAfter(date) || a.getEndDate().equals(date))

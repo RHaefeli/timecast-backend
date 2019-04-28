@@ -52,7 +52,7 @@ public class ProjectController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ProjectDTO> update(@RequestBody Project projectUpdate, @PathVariable Long id) throws Exception{
+    public ResponseEntity<ProjectDTO> update(@RequestBody ProjectDTO projectUpdate, @PathVariable Long id) throws Exception{
         return new ResponseEntity<ProjectDTO>(projectService.updateProject(projectUpdate,id ), HttpStatus.OK);
     }
 

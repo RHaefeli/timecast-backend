@@ -19,6 +19,7 @@ public class Allocation {
         this.endDate = endDate;
     }
 
+
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @ManyToOne(optional = false)
