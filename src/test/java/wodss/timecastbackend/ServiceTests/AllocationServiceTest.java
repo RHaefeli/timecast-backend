@@ -7,30 +7,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.ui.ModelMap;
 import wodss.timecastbackend.domain.*;
 import wodss.timecastbackend.dto.AllocationDTO;
-import wodss.timecastbackend.dto.ContractDTO;
-import wodss.timecastbackend.dto.EmployeeDTO;
-import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.ContractRepository;
-import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
 import wodss.timecastbackend.service.AllocationService;
-import wodss.timecastbackend.service.ContractService;
-import wodss.timecastbackend.service.EmployeeService;
-import wodss.timecastbackend.service.ProjectService;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.RessourceNotFoundException;
+import wodss.timecastbackend.util.ResourceNotFoundException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -157,7 +146,7 @@ public class AllocationServiceTest {
             fail("Should have thrown an exception: Contract does not exist. Error in checkIfContractExists");
         }
         catch (Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
             assertEquals(AllocationService.ERR_MSG_CONTRACTNOTFOUND, e.getMessage());
 
         }
@@ -173,7 +162,7 @@ public class AllocationServiceTest {
             fail("Should have thrown an exception: Project does not exist. Error in checkIfProjectExists");
         }
         catch (Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
             assertEquals(AllocationService.ERR_MSG_PROJECTNOTFOUND, e.getMessage());
         }
     }
@@ -420,7 +409,7 @@ public class AllocationServiceTest {
             fail("Should have thrown exception: allocation with this id does not exist. Error in findById()");
         }
         catch(Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
             assertEquals(AllocationService.ERR_MSG_ALLOCATIONNOTFOUND, e.getMessage());
         }
     }
@@ -434,7 +423,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 1l, 1l, editAllocation.getPensumPercentage(), editAllocation.getStartDate(), editAllocation.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             assertEquals(editAllocationDTO.getId(),edit.getId() );
 
         }
@@ -448,12 +437,12 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(999l, 1l, 1l, 10, testAllocation1.getStartDate(), testAllocation1.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: Allocation does not exist. Error in checkIfAllocationExists.");
 
         }
         catch(Exception ex){
-            assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(ResourceNotFoundException.class, ex.getClass());
             assertEquals(AllocationService.ERR_MSG_ALLOCATIONNOTFOUND, ex.getMessage());
         }
     }
@@ -463,12 +452,12 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 1l, 999l, 10, testAllocation1.getStartDate(), testAllocation1.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: Contract does not exist. Error in checkIfContractExists");
 
         }
         catch(Exception ex){
-            assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(ResourceNotFoundException.class, ex.getClass());
             assertEquals(AllocationService.ERR_MSG_CONTRACTNOTFOUND, ex.getMessage());
         }
     }
@@ -478,12 +467,12 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 999l, 1l, 10, testAllocation1.getStartDate(), testAllocation1.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: Project does not exist. Error in checkIfProjectExists");
 
         }
         catch(Exception ex){
-            assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(ResourceNotFoundException.class, ex.getClass());
             assertEquals(AllocationService.ERR_MSG_PROJECTNOTFOUND, ex.getMessage());
         }
     }
@@ -493,7 +482,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 1l, 1l, -1, testAllocation1.getStartDate(), testAllocation1.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: Pensum percentage must not be negative. Error in checkIfPensumPercentageIsPositive");
 
         }
@@ -508,7 +497,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 1l, 1l, 10, testAllocation1.getEndDate(), testAllocation1.getStartDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: StartDate must lie before endDate. Error in checkDates");
 
         }
@@ -524,7 +513,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 1l, 1l, 10, testAllocation1.getStartDate(), testAllocation1.getStartDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
 
         }
         catch(Exception ex){
@@ -537,7 +526,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 1l, 1l, 71, testAllocation1.getStartDate(), testAllocation1.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: The project FTE limit of testProject1 is set to 70, but the edit would have lead to an exceedance. Error in checkIfAllocationExceedsFTEOfProject");
 
         }
@@ -552,7 +541,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 2l, 1l, 10, testContract1.getStartDate().minusDays(1), testContract1.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: Start date is outside of given contract. Error in checkIfAllocationFitsInContract");
 
         }
@@ -567,7 +556,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 2l, 1l, 10, testContract1.getStartDate(), testContract1.getEndDate().plusDays(1));
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: EndDate is outside of given contract. Error in checkIfAllocationFitInContract");
 
         }
@@ -582,7 +571,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 1l, 2l, 10, testProject1.getStartDate().minusDays(1), testProject1.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: Start date is outside of given Project. Error in checkIfAllocationFitInProject");
 
         }
@@ -597,7 +586,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(1l, 1l, 2l, 10, testProject1.getStartDate(), testProject1.getEndDate().plusDays(1));
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: EndDate is outside of given project. Error in checkIfAllocationFitInProject");
 
         }
@@ -622,7 +611,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO4 = new AllocationDTO(4l, 3l, 3l, 50, testAllocation3.getEndDate(), testAllocation4.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO1.getId(), editAllocationDTO1);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO1.getId(), editAllocationDTO1);
             fail("Should have thrown exception: Pensum percentage of allocation exceeds contract limit. (Edited start date equals start date of TA3, which causes exceedence. Error in checkIfAllocationExceedsContractLimit");
 
         }
@@ -631,7 +620,7 @@ public class AllocationServiceTest {
             assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO2.getId(), editAllocationDTO2);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO2.getId(), editAllocationDTO2);
             fail("Should have thrown exception: Pensum percentage of allocation exceeds contract limit. (Edited start date lies one day after start date of TA3, which causes exceedence. Error in checkIfAllocationExceedsContractLimit");
 
         }
@@ -640,7 +629,7 @@ public class AllocationServiceTest {
             assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO3.getId(), editAllocationDTO3);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO3.getId(), editAllocationDTO3);
             fail("Should have thrown exception: Pensum percentage of allocation exceeds contract limit. (Edited start date lies one day before end date of TA3, which causes exceedence. Error in checkIfAllocationExceedsContractLimit");
 
         }
@@ -649,7 +638,7 @@ public class AllocationServiceTest {
             assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO4.getId(), editAllocationDTO4);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO4.getId(), editAllocationDTO4);
             fail("Should have thrown exception: Pensum percentage of allocation exceeds contract limit. (Edited start date equals end date of TA3, which causes exceedence. Error in checkIfAllocationExceedsContractLimit");
 
         }
@@ -673,7 +662,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO4 = new AllocationDTO(3l, 3l, 3l, 50, testAllocation3.getStartDate(), testAllocation4.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO1.getId(), editAllocationDTO1);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO1.getId(), editAllocationDTO1);
             fail("Should have thrown exception: Pensum percentage of allocation exceeds contract limit. (Edited end date equals start date of TA4, which causes exceedence. Error in checkIfAllocationExceedsContractLimit");
 
         }
@@ -682,7 +671,7 @@ public class AllocationServiceTest {
             assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO2.getId(), editAllocationDTO2);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO2.getId(), editAllocationDTO2);
             fail("Should have thrown exception: Pensum percentage of allocation exceeds contract limit. (Edited end date lies one day after start date of TA4, which causes exceedence. Error in checkIfAllocationExceedsContractLimit");
 
         }
@@ -691,7 +680,7 @@ public class AllocationServiceTest {
             assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO3.getId(), editAllocationDTO3);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO3.getId(), editAllocationDTO3);
             fail("Should have thrown exception: Pensum percentage of allocation exceeds contract limit. (Edited end date lies one day before end date of TA4, which causes exceedence. Error in checkIfAllocationExceedsContractLimit");
 
         }
@@ -700,7 +689,7 @@ public class AllocationServiceTest {
             assertEquals(AllocationService.ERR_MSG_CONTRACTLIMITEXCEEDED, ex.getMessage());
         }
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO4.getId(), editAllocationDTO4);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO4.getId(), editAllocationDTO4);
             fail("Should have thrown exception: Pensum percentage of allocation exceeds contract limit. (Edited end date equals end date of TA4, which causes exceedence. Error in checkIfAllocationExceedsContractLimit");
 
         }
@@ -717,7 +706,7 @@ public class AllocationServiceTest {
         AllocationDTO editAllocationDTO = new AllocationDTO(3l, 3l, 3l, 50, testAllocation3.getStartDate(), testContract3.getEndDate());
 
         try{
-            AllocationDTO edit = allocationService.editAllocation(editAllocationDTO.getId(), editAllocationDTO);
+            AllocationDTO edit = allocationService.updateAllocation(editAllocationDTO.getId(), editAllocationDTO);
             fail("Should have thrown exception: Pensum percentage of allocation exceeds contract limit. (Another allocation is contained within the edited allocation's date range, which causes exceedence. Error in checkIfAllocationExceedsContractLimit");
 
         }
@@ -752,7 +741,7 @@ public class AllocationServiceTest {
             fail("Should have thrown exception: Allocation does not exist.");
         }
         catch(Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
             assertEquals(AllocationService.ERR_MSG_ALLOCATIONNOTFOUND, e.getMessage());
         }
     }

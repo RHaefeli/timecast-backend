@@ -6,13 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import wodss.timecastbackend.domain.Contract;
 import wodss.timecastbackend.dto.ContractDTO;
 import wodss.timecastbackend.service.ContractService;
-import wodss.timecastbackend.util.AuthentificationException;
-import wodss.timecastbackend.util.PreconditionFailedException;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,11 +28,12 @@ public class ContractController {
             @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                     LocalDate toDate)
             throws Exception {
+
         return contractService.findByQuery(fromDate, toDate);
     }
 
     @PostMapping
-    public @ResponseBody ContractDTO createContract(@RequestBody ContractDTO contractDTO,
+    public @ResponseBody ContractDTO createContract(@Valid @RequestBody ContractDTO contractDTO,
                                                     HttpServletResponse response) throws Exception {
         response.setStatus(201);
         return contractService.createContract(contractDTO);
@@ -52,7 +51,7 @@ public class ContractController {
     }
 
     @PutMapping(value = "/{id}")
-    public @ResponseBody ContractDTO editContract(@PathVariable long id, @RequestBody ContractDTO contractDTO) throws Exception {
-        return contractService.editContract(id, contractDTO);
+    public @ResponseBody ContractDTO editContract(@PathVariable long id,@Valid @RequestBody ContractDTO contractDTO) throws Exception {
+        return contractService.updateContract(id, contractDTO);
     }
 }

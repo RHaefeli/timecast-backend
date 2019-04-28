@@ -2,13 +2,23 @@ package wodss.timecastbackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public class ContractDTO {
     @JsonProperty("id") private long id;
+    @NotNull
+    @Min(0)
     @JsonProperty("employeeId") private Long employeeId;
+    @NotNull
+    @Min(0)
+    @Max(100)
     @JsonProperty("pensumPercentage") private int pensumPercentage;
+    @NotNull
     @JsonProperty("startDate") private LocalDate startDate;
+    @NotNull
     @JsonProperty("endDate") private LocalDate endDate;
 
     public ContractDTO(Long id, long employeeId, int pensumPercentage, LocalDate startDate, LocalDate endDate) {

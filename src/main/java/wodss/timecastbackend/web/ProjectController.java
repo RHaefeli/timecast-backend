@@ -11,6 +11,7 @@ import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.service.ProjectService;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -39,26 +40,27 @@ public class ProjectController {
 
     @GetMapping(value="/{id}")
     public ResponseEntity<ProjectDTO>getProject(@PathVariable Long id) throws Exception{
-        return new ResponseEntity<ProjectDTO>(projectService.getProject(id), HttpStatus.OK);
+        return new ResponseEntity<ProjectDTO>(projectService.findById(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDto,
+    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDto,
                                                     HttpServletResponse response) throws Exception{
         Project project = projectService.createProject(projectDto);
         projectDto.setId(project.getId());
-        response.setStatus(201);
-        return new ResponseEntity<ProjectDTO>(projectDto, HttpStatus.OK);
+        return new ResponseEntity<ProjectDTO>(projectDto, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ProjectDTO> update(@RequestBody ProjectDTO projectUpdate, @PathVariable Long id) throws Exception{
-        return new ResponseEntity<ProjectDTO>(projectService.updateProject(projectUpdate,id ), HttpStatus.OK);
+    public ResponseEntity<ProjectDTO> update(@Valid @RequestBody ProjectDTO projectDto, @PathVariable Long id) throws Exception{
+        return new ResponseEntity<ProjectDTO>(projectService.updateProject(projectDto, id), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) throws Exception{
-        return projectService.deleteProject(id);
+        projectService.deleteProject(id);
+        return new ResponseEntity<String>(
+                "Project and allocations successfully deleted (ADMINISTRATOR)", HttpStatus.NO_CONTENT);
     }
 
 }

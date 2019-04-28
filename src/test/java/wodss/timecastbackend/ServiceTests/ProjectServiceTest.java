@@ -7,27 +7,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.ModelMap;
 import wodss.timecastbackend.domain.*;
-import wodss.timecastbackend.dto.ContractDTO;
-import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.persistence.AllocationRepository;
-import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
-import wodss.timecastbackend.service.ContractService;
-import wodss.timecastbackend.service.EmployeeService;
 import wodss.timecastbackend.service.ProjectService;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.RessourceNotFoundException;
+import wodss.timecastbackend.util.ResourceNotFoundException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -110,7 +101,7 @@ public class ProjectServiceTest {
             fail("Should have thrown an exception. Employee does not exist. Error in checkEmployee");
         }
         catch (Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
         }
     }
 
@@ -172,7 +163,7 @@ public class ProjectServiceTest {
         Mockito.when(projectRepository.findById((long)1)).thenReturn(projectOptional);
         Mockito.when(mapper.projectToProjectDTO(projectOptional.get())).thenReturn(testProject1DTO);
         try{
-            ProjectDTO found = projectService.getProject((long)1);
+            ProjectDTO found = projectService.findById((long)1);
             assertEquals(testProject1DTO.getId(), found.getId());
         }
         catch(Exception e){
@@ -184,11 +175,11 @@ public class ProjectServiceTest {
     @Test
     public void testFindByIDWithNonexistantProject(){
         try{
-            ProjectDTO found = projectService.getProject(999L);
+            ProjectDTO found = projectService.findById(999L);
             fail("Should have thrown exception: Project does not exist.");
         }
         catch(Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
 
         }
     }
@@ -219,7 +210,7 @@ public class ProjectServiceTest {
             fail("Should have thrown exception: Project must have name");
         }
         catch(Exception ex){
-            assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(ResourceNotFoundException.class, ex.getClass());
         }
     }
 
@@ -244,7 +235,7 @@ public class ProjectServiceTest {
             fail("Should have thrown exception: Employee does not exist. Error in CheckEmployee");
         }
         catch(Exception ex){
-            assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(ResourceNotFoundException.class, ex.getClass());
         }
     }
 
@@ -310,7 +301,7 @@ public class ProjectServiceTest {
             fail("Should have thrown exception: No such project available");
         }
         catch(Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
         }
     }
 

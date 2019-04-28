@@ -3,9 +3,9 @@ package wodss.timecastbackend.domain;
 import java.util.List;
 
 public enum Role{
-    ADMINISTRATOR("administrator"),
-    DEVELOPER("developer"),
-    PROJECTMANAGER("projectmanager");
+    ADMINISTRATOR("ADMINISTRATOR"),
+    DEVELOPER("DEVELOPER"),
+    PROJECTMANAGER("PROJECTMANAGER");
 
     private String value;
 
