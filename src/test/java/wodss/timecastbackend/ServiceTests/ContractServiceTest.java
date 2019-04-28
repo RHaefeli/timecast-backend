@@ -14,6 +14,7 @@ import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.ContractDTO;
 import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
+import wodss.timecastbackend.security.EmployeeSession;
 import wodss.timecastbackend.service.ContractService;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
@@ -37,7 +38,8 @@ public class ContractServiceTest {
     EmployeeRepository employeeRepository;
     @Mock
     ModelMapper mapper;
-
+    @Mock
+    EmployeeSession employeeSession;
     @InjectMocks
     ContractService contractService;
 
@@ -61,6 +63,11 @@ public class ContractServiceTest {
         Mockito.when(contractRepository.findAll()).thenReturn(Arrays.asList(testContract1, testContract2));
         Mockito.when(contractRepository.findById((long)1)).thenReturn(Optional.of(testContract1));
         Mockito.when(contractRepository.findById((long)2)).thenReturn(Optional.of(testContract2));
+
+        Employee admin = new Employee(
+                "Mustermann", "Max", "admin@gmx.ch", Role.ADMINISTRATOR, "12345");
+
+        Mockito.when(employeeSession.getEmployee()).thenReturn(admin);
     }
 
     private Employee generateMockEmployee(Employee e, long id){

@@ -12,6 +12,7 @@ import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
+import wodss.timecastbackend.security.EmployeeSession;
 import wodss.timecastbackend.service.ProjectService;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
@@ -34,6 +35,8 @@ public class ProjectServiceTest {
     AllocationRepository allocationRepository;
     @Mock
     ModelMapper mapper;
+    @Mock
+    EmployeeSession employeeSession;
     @InjectMocks
     ProjectService projectService;
 
@@ -68,6 +71,11 @@ public class ProjectServiceTest {
         Mockito.when(projectRepository.findById((long)1)).thenReturn(Optional.of(testProject1));
 
         Mockito.when(allocationRepository.findAll()).thenReturn(Arrays.asList(testAllocation1, testAllocation2));
+
+        Employee admin = new Employee(
+                "Mustermann", "Max", "admin@gmx.ch", Role.ADMINISTRATOR, "12345");
+
+        Mockito.when(employeeSession.getEmployee()).thenReturn(admin);
     }
 
     private Project generateMockProject(long id, Project p){
