@@ -32,11 +32,23 @@ public class EmployeeService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Uses a query to return all employees with a certain role.
+     * @param sRole The role that the filtered employees must have in string form.
+     * @return A filtered list of EmployeeDTOs where all employees have the specified role.
+     * @throws Exception
+     */
     public List<EmployeeDTO> findByQuery(String sRole) throws Exception {
         Role role = convertStringToRoleEnum(sRole);
         return modelsToDTOs(employeeRepository.findByQuery(role));
     }
 
+    /**
+     * Returns the employee with a given id in form of a DTO.
+     * @param id the ID of the employee
+     * @return the found employee in form of a DTO
+     * @throws Exception Throws a RessourceNotFoundException if the employee was not found.
+     */
     public EmployeeDTO getEmployee(Long id) throws Exception{
         Optional<Employee> employeeOptional = employeeRepository.findById(id);
         if(employeeOptional.isPresent()){
@@ -44,6 +56,7 @@ public class EmployeeService {
         }
         throw new RessourceNotFoundException();
     }
+
 
     public Employee createEmployee(EmployeeDTO employeeDTO, String role, String password) throws Exception{
         employeeDTO.outputDTODebug();
@@ -88,20 +101,34 @@ public class EmployeeService {
         throw new RessourceNotFoundException();
     }
 
+    /**
+     * Checks if the passed string can be translated to a valid role. (ADMINISTRATOR, DEVELOPER, PROJECTMANAGER)
+     * If role was not found, a PreconditionFailedException is thrown.
+     * @param role the role string
+     * @return The found role, if available.
+     * @throws Exception Throws a PreconditionFailedException if role is not found.
+     */
     private Role checkIfRoleExists(String role) throws Exception{
         Optional<Role> oRole = Arrays.stream(Role.values())
                 .filter(v -> role.toLowerCase().equals(v.getValue().toLowerCase()))
                 .findFirst();
 
         if(oRole.isPresent()){
-            System.out.println("Exists, role = " + oRole.get().getValue());
             return oRole.get();
         }
         else{
-
-            throw new PreconditionFailedException("Invalid Role id was passed");
+            throw new PreconditionFailedException("Invalid Role was passed");
         }
     }
+
+    /**
+     * Checks if the given strings for firstName, lastName and emailAdress are valid.
+     * A string is valid if they are not null or empty and, in case of the emailAdress, pass through the regex.
+     * @param firstName The first name that needs to be checked
+     * @param lastName the last name that needs to be checked
+     * @param emailAddress the email that needs to be checked.
+     * @throws Exception Throws a PreconditionFailedException if any one of these tests fails.
+     */
     private void checkStrings(String firstName, String lastName, String emailAddress) throws Exception{
         if(isNullOrEmpty(firstName)){
             throw new PreconditionFailedException("Invalid first name");
@@ -113,10 +140,22 @@ public class EmployeeService {
             throw new PreconditionFailedException("invalid email");
         }
     }
+
+    /**
+     * Checks if a string is null or Empty
+     * @param s the string that needs to be checked.
+     * @return true if the string is null or empty, false if it isn't.
+     */
     private boolean isNullOrEmpty(String s){
         return s.trim().isEmpty() || s == null;
     }
 
+    /**
+     * Checks if the given string is a valid email address.
+     * Source of the regex: https://www.geeksforgeeks.org/check-email-address-valid-not-java/
+     * @param email the email string
+     * @return true if the string is a valid email address, false if it is not.
+     */
     private boolean isValid(String email)
     {
         //Source: https://www.geeksforgeeks.org/check-email-address-valid-not-java/
@@ -131,11 +170,21 @@ public class EmployeeService {
         return pat.matcher(email).matches();
     }
 
-    private void checkIfMailIsUnique(String emailAdress) throws Exception {
-        if(employeeRepository.existsByEmailAddress(emailAdress))
+    /**
+     * Checks if a given email address is unique in the repository.
+     * @param emailAddress the email address string
+     * @throws Exception Throws a PreconditionFailedException if the email was found in the repository.
+     */
+    private void checkIfMailIsUnique(String emailAddress) throws Exception {
+        if(employeeRepository.existsByEmailAddress(emailAddress))
             throw new PreconditionFailedException();
     }
 
+    /**
+     * Takes a list of Employee objects and converts them to DTOs
+     * @param employees the list of employees that needs to be converted into DTOs
+     * @return a list which contains the given employees, converted into DTOs.
+     */
     private List<EmployeeDTO> modelsToDTOs(List<Employee> employees) {
         return employees.stream().map(e -> mapper.employeeToEmployeeDTO(e)).collect(Collectors.toList());
     }

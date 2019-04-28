@@ -53,18 +53,14 @@ public class ProjectService {
         throw new RessourceNotFoundException();
     }
 
-    //TODO: Uneinheitlich. Rückgabetyp zu DTO wechseln?
     public Project createProject(ProjectDTO projectDto) throws Exception{
-
-        //TODO: Can you assign a project manager if their contract(s) run out before the project ends?
 
         checkDates(projectDto.getStartDate(), projectDto.getEndDate() );
 
         checkString(projectDto.getName());
-        //TODO: Check if FTE is positive. Check if name is not null or empty.
         Project p = new Project(
                 checkString(projectDto.getName()),
-                checkEmployee(projectDto.getProjectManagerId()),
+                checkIfEmployeeIsAProjectManager(checkEmployee(projectDto.getProjectManagerId())),
                 projectDto.getStartDate(),
                 projectDto.getEndDate(),
                 checkIfFTEIsPositive(projectDto.getFtePercentage()));
@@ -76,19 +72,18 @@ public class ProjectService {
 
         Optional<Project> projectOptional = projectRepository.findById(id);
 
-
         if (projectOptional.isPresent()) {
             checkDates(projectUpdate.getStartDate(), projectUpdate.getEndDate() );
 
             Project p = projectOptional.get();
             p.setName(checkString(projectUpdate.getName()));
-            p.setProjectManager(checkEmployee(projectUpdate.getProjectManagerId()));
+            p.setProjectManager(checkIfEmployeeIsAProjectManager(checkEmployee(projectUpdate.getProjectManagerId())));
             p.setStartDate(projectUpdate.getStartDate());
             p.setEndDate(projectUpdate.getEndDate());
             p.setFtePercentage(checkIfNewFTEIsLargerThanSumOfAllocationFTEs(checkIfFTEIsPositive(projectUpdate.getFtePercentage()), id));
 
             projectRepository.save(p);
-            checkForFutureAllocations(p.getEndDate(), p.getId());
+            deleteFutureAllocations(p.getEndDate(), p.getId());
             return mapper.projectToProjectDTO(p);
         }
         throw new RessourceNotFoundException();
@@ -104,20 +99,41 @@ public class ProjectService {
         throw new RessourceNotFoundException();
     }
 
-
+    /**
+     * Checks if the repository contains an employee with the given id
+     * @param employeeID the id of the employee that needs to be checked.
+     * @return The employee object if it was found in the repository
+     * @throws Exception Throws a ResourceNotFoundException if the employee was not found.
+     */
     private Employee checkEmployee(long employeeID) throws Exception{
 
         Optional<Employee> oProjectManager = employeeRepository.findById(employeeID);
         if(!oProjectManager.isPresent()){
             throw new RessourceNotFoundException();
         }
-        else if(!oProjectManager.get().getRole().equals(Role.PROJECTMANAGER)){
-            throw new PreconditionFailedException("Chosen Employee is not a project manager!");
-        }
         return oProjectManager.get();
     }
+
+    /**
+     * Checks if a given employee is a project manager
+     * @param e the employee that needs to be checked
+     * @return The employee if they are a project manager.
+     * @throws Exception Throws a PreconditionFailedException if the employee is not a project manager.
+     */
+    private Employee checkIfEmployeeIsAProjectManager(Employee e) throws Exception{
+        if(e.getRole().equals(Role.PROJECTMANAGER)){
+            return e;
+        }
+        throw new PreconditionFailedException("The employee is not a project manager");
+    }
+
+    /**
+     * Checks if the the start date lies before end date and if the end date lies after or is equal to the current date.
+     * @param startDate the start date that needs to be checked
+     * @param endDate the end date that needs to be checked
+     * @throws Exception Throws a PreconditionFailedException if the dates are crossed or if the end date lies in the past.
+     */
     private void checkDates(LocalDate startDate, LocalDate endDate) throws Exception{
-        //TODO: Can start dates lie in the past?
         boolean startDateOverlapsEndDate = startDate.isAfter(endDate);
         boolean endDateIsBeforeNow = endDate.isBefore(LocalDate.now());
         if(startDateOverlapsEndDate){
@@ -128,23 +144,44 @@ public class ProjectService {
         }
     }
 
-    public float checkIfFTEIsPositive(float FTE) throws Exception {
+    /**
+     * Checks if the given float (FTE) is positive
+     * @param FTE the float value that needs to be checked
+     * @return the same float value if it is positive
+     * @throws Exception Throws a PreconditionFailedException if the FTE is negative.
+     */
+    private float checkIfFTEIsPositive(float FTE) throws Exception {
         if(FTE < 0){
             throw new PreconditionFailedException("FTEs must not be negative");
         }
         return FTE;
     }
 
-    public String checkString(String name) throws Exception{
+    /**
+     * Checks if the given string is null or empty.
+     * @param name the string that needs to be checked
+     * @return the same string if it is not null and not empty
+     * @throws Exception Throws a PreconditionFailedException if the string is either null or empty.
+     */
+    private String checkString(String name) throws Exception{
         if(isNullOrEmpty(name)){
             throw new PreconditionFailedException("String must not be empty");
         }
         return name;
     }
 
-    public float checkIfNewFTEIsLargerThanSumOfAllocationFTEs(float FTE, long projectID) throws Exception{
+    /**
+     * Checks if the given FTE limit is larger or equal to the sum of pensum percentages of all assigned allocation for this project.
+     * @param FTE The FTE limit of the project
+     * @param projectID the id of the project
+     * @return the same FTE limit if the sum of pensum percentages of all assigned allocations if smaller or equal to the FTE limit.
+     * @throws Exception throws a PreconditionFailedException if the sum of pensum percentages is larger than the FTE limit.
+     */
+    private float checkIfNewFTEIsLargerThanSumOfAllocationFTEs(float FTE, long projectID) throws Exception{
+        //The stream filters for all allocations that belong to the given project and sums up their pensum percentage.
         int currentFTESum = allocationRepository.findAll().stream().filter(allocation ->
-                allocation.getProject().getId() == projectID).mapToInt(a -> a.getPensumPercentage())
+                allocation.getProject().getId() == projectID)
+                .mapToInt(a -> a.getPensumPercentage())
                 .sum();
         if(currentFTESum > FTE){
             throw new PreconditionFailedException("The FTE is smaller than the sum of FTEs across the allocations for this project");
@@ -153,31 +190,32 @@ public class ProjectService {
     }
 
     /**
-     * Deletes all allocations of the given project that lie after the given end date and adjusts the enddate of running allocations
-     * This is used during editProject, if the end date is edited. any future allocations must be deleted.
-     * @param enddate
+     * Deletes all allocations of the given project that start after the given end date and adjusts the end date of running allocations
+     * This is used during editProject, if the end date is edited.
+     * @param enddate the new end date of the project
+     * @param projectID the id of the edited project
      */
-    public void checkForFutureAllocations(LocalDate enddate, long projectID){
-        //TODO: Define SQL queries for these.
+    private void deleteFutureAllocations(LocalDate enddate, long projectID){
         //TODO: NOT tested in service tests. Needs to be tested in integration test.
-        List<Allocation> affectedAllocations = allocationRepository.findAll().stream().filter(allocation ->
-                allocation.getProject().getId() == projectID
-                        && (allocation.getStartDate().isBefore(enddate)) && allocation.getEndDate().isAfter(enddate)).collect(Collectors.toList());
-        List<Allocation> deleteAllocations = allocationRepository.findAll().stream().filter(allocation ->
-                allocation.getProject().getId() == projectID && allocation.getStartDate().isAfter(enddate)).collect(Collectors.toList());
+        List<Allocation> affectedAllocations = allocationRepository.findAll().stream()
+                .filter(allocation ->
+                                allocation.getProject().getId() == projectID
+                                && (allocation.getStartDate().isBefore(enddate))
+                                && allocation.getEndDate().isAfter(enddate))
+                .collect(Collectors.toList());
+
+        List<Allocation> deleteAllocations = allocationRepository.findAll().stream()
+                .filter(allocation ->
+                        allocation.getProject().getId() == projectID
+                        && allocation.getStartDate().isAfter(enddate))
+                .collect(Collectors.toList());
+
         for(Allocation a : affectedAllocations){
             a.setEndDate(enddate);
         }
         for(Allocation a : deleteAllocations){
             allocationRepository.delete(a);
         }
-    }
-
-    public LocalDate checkIfEndDateLiesBeforeNow(LocalDate endDate) throws Exception{
-        if(endDate.isBefore(LocalDate.now())){
-            throw new PreconditionFailedException("The end date of the project cannot be before the current date.");
-        }
-        return endDate;
     }
 
     private boolean isNullOrEmpty(String s){

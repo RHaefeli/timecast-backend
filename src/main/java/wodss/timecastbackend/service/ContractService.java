@@ -39,14 +39,7 @@ public class ContractService {
     }
 
     public ContractDTO findById(long id) throws Exception {
-        //TODO: Maybe refactor so that this uses checkIfContractExists?
-        ContractDTO contractDTO = null;
-        Optional<Contract> oContract = contractRepository.findById(id);
-        if(oContract.isPresent())
-            contractDTO = mapper.contractToContractDTO(oContract.get());
-        else
-            throw new RessourceNotFoundException();
-        return contractDTO;
+        return mapper.contractToContractDTO(checkIfContractExists(id));
     }
 
     public ContractDTO createContract(ContractDTO contractDTO) throws Exception {
@@ -82,6 +75,12 @@ public class ContractService {
         return contractDTO;
     }
 
+    /**
+     * Checks if the repository contains a contract with the given id
+     * @param id the id of the contract
+     * @return the contract if it was found in the repository
+     * @throws Exception Throws a ResourceNotFoundException if there was no contract found with the given id.
+     */
     public Contract checkIfContractExists(long id) throws Exception {
         Optional<Contract> oContract = contractRepository.findById(id);
         if(oContract.isPresent())
@@ -90,6 +89,12 @@ public class ContractService {
             throw new RessourceNotFoundException();
     }
 
+    /**
+     * Checks if the repository contains an employee with the given id
+     * @param id the id of the employee
+     * @return the employee if it was found in the repository
+     * @throws Exception Throws a ResourceNotFoundException if there was no employee found with the given id.
+     */
     public Employee checkIfEmployeeExists(long id) throws Exception {
         Optional<Employee> oEmployee = employeeRepository.findById(id);
         if(oEmployee.isPresent())
@@ -98,6 +103,12 @@ public class ContractService {
             throw new RessourceNotFoundException();
     }
 
+    /**
+     * Checks if the pensum percentage lies within the restrictions. (0 <= percentage <= 100)
+     * @param percentage the percentage that needs to be checked
+     * @return the same percentage if it lies within the restrictions
+     * @throws Exception Throws a PreconditionFailedException if the percentage does not lie within the restriction range.
+     */
     public int checkPensumPercentage(int percentage) throws Exception{
         //Should this be handled inside of service? What if constraints are changed in model?
         if(percentage < 0 || percentage > 100){
@@ -106,6 +117,20 @@ public class ContractService {
         return percentage;
     }
 
+    /**
+     * This method checks whether or not a new contract can be allocated within the given dates.
+     * There are 4 different possible error cases.
+     * 1: The start date and end date are crossed.
+     * 2: The start date overlaps with another contract of the same employee
+     * 3: The end date overlaps with another contract of the same employee
+     * 4: There is another contract contained within the date range of the new/edited contract.
+     * if any one of these checks fails, the method will throw a preconditionFailedException.
+     * @param startDate
+     * @param endDate
+     * @param employeeID
+     * @param contractID
+     * @throws Exception
+     */
     public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID, long contractID) throws Exception{
 
         boolean startDateLiesAfterEndDate = startDate.isAfter(endDate);
