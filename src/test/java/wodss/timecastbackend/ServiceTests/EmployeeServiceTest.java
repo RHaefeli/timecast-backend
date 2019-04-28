@@ -47,10 +47,10 @@ public class EmployeeServiceTest {
 
     @Before
     public void setUp(){
-        testEmployee1 = new Employee("Ziegler", "Fritz", "fritz.ziegler@mail.ch", Role.DEVELOPER);
+        testEmployee1 = new Employee("Ziegler", "Fritz", "fritz.ziegler@mail.ch", Role.DEVELOPER, "");
         testEmployee1DTO = new EmployeeDTO(null, "Ziegler", "Fritz", "fritz.ziegler@mail.ch", "DEVELOPER", true);
-        testEmployee2 = new Employee("Mueller", "Hans", "hans.mueller@mail.ch", Role.ADMINISTRATOR);
-        testEmployee3 = new Employee("Meier", "Peter", "peter.meier@mail.ch", Role.PROJECTMANAGER);
+        testEmployee2 = new Employee("Mueller", "Hans", "hans.mueller@mail.ch", Role.ADMINISTRATOR, "");
+        testEmployee3 = new Employee("Meier", "Peter", "peter.meier@mail.ch", Role.PROJECTMANAGER, "");
 
         Mockito.when(employeeRepository.findAll()).thenReturn(Arrays.asList(testEmployee1, testEmployee2, testEmployee3));
         Mockito.when(employeeRepository.findById(1l)).thenReturn(Optional.of(testEmployee1));
@@ -60,9 +60,9 @@ public class EmployeeServiceTest {
     @Test
     public void testCreateEmployee(){
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "New", "new.user@mail.ch","DEVELOPER",true );
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER));
+        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER, ""));
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             assert(createEmployeeDTO1.getFirstName().equals(created.getFirstName()));
         }
         catch(Exception e){
@@ -74,9 +74,9 @@ public class EmployeeServiceTest {
     @Test
     public void testCreateEmployeeWithInvalidRole(){
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "New", "new.user@mail.ch","InvalidRole",true );
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER));
+        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER, ""));
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             fail("The employee should not have been created. This role does not exist. Error in checkRoles");
         }
         catch(Exception e){
@@ -88,7 +88,7 @@ public class EmployeeServiceTest {
     public void testCreateEmployeeWithoutLasttName(){
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "", "New", "new.user@mail.ch","DEVELOPER",true );
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             fail("The employee should not have been created. Last name must not be empty. Error in checkStrings (nullOrEmpty)");
         }
         catch(Exception e){
@@ -100,7 +100,7 @@ public class EmployeeServiceTest {
     public void testCreateEmployeeWithoutFirstName(){
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "", "new.user@mail.ch","DEVELOPER",true );
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() , "");
             fail("The employee should not have been created. First name must not be empty. Error in checkStrings (nullOrEmpty)");
         }
         catch(Exception e){
@@ -128,7 +128,7 @@ public class EmployeeServiceTest {
         EmployeeDTO createEmployeeDTO8 = new EmployeeDTO(null, "User", "New", "new%user@mail.ch","DEVELOPER",true );
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             fail("1 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => There was no @ sign in the email)");
         }
         catch(Exception e){
@@ -136,7 +136,7 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO2,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO2,createEmployeeDTO1.getRole(), "");
             fail("2 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no . before region identifier)");
         }
         catch(Exception e){
@@ -144,7 +144,7 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO3,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO3,createEmployeeDTO1.getRole(), "");
             fail("3 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no name)");
         }
         catch(Exception e){
@@ -152,21 +152,21 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO4,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO4,createEmployeeDTO1.getRole(), "");
             fail("4 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => no name and no @ sign)");
         }
         catch(Exception e){
             assert(e.getClass() == PreconditionFailedException.class);
         }
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO5,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO5,createEmployeeDTO1.getRole(), "" );
             fail("5 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => No name and no . before region identifier)");
         }
         catch(Exception e){
             assert(e.getClass() == PreconditionFailedException.class);
         }
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO6,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO6,createEmployeeDTO1.getRole(), "");
             fail("6 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => only a string with no . or @)");
         }
         catch(Exception e){
@@ -174,7 +174,7 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO7,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO7,createEmployeeDTO1.getRole(), "");
             fail("7 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => Empty string)");
         }
         catch(Exception e){
@@ -182,7 +182,7 @@ public class EmployeeServiceTest {
         }
 
         try{
-            Employee created = employeeService.createEmployee(createEmployeeDTO8,createEmployeeDTO1.getRole() );
+            Employee created = employeeService.createEmployee(createEmployeeDTO8,createEmployeeDTO1.getRole(), "" );
             fail("8 - The employee should not have been created. The email must be vaild. Error in checkStrings (isValid regex expression failed => email with invalid symbols)");
         }
         catch(Exception e){
@@ -220,7 +220,7 @@ public class EmployeeServiceTest {
     @Test
     public void testEditEmployee(){
         //Edit should still work even if roles in editEmployeeAreInvalid, since roles are ignored during edit
-        Employee editEmployee1 = new Employee("Ziegler", "Moritz", "fritz.ziegler@mail.ch", null);
+        Employee editEmployee1 = new Employee("Ziegler", "Moritz", "fritz.ziegler@mail.ch", null, "");
         EmployeeDTO editEmployeeDTO1 = new EmployeeDTO((long)1, "Ziegler", "Moritz", "fritz.ziegler@mail.ch", "", true);
         Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
         Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(editEmployeeDTO1);

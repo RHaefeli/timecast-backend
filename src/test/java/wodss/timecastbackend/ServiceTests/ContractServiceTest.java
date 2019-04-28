@@ -53,7 +53,7 @@ public class ContractServiceTest {
 
     @Before
     public void setUp(){
-        testEmployee1 = generateMockEmployee(new Employee("Ziegler", "Fritz", "fritz.ziegler@mail.ch", Role.DEVELOPER), 1l);
+        testEmployee1 = generateMockEmployee(new Employee("Ziegler", "Fritz", "fritz.ziegler@mail.ch", Role.DEVELOPER, ""), 1l);
         testContract1 = generateMockContract(new Contract(testEmployee1, 100, LocalDate.now(), LocalDate.now().plusYears(1)), 1l);
         testContract2 = generateMockContract(new Contract(testEmployee1, 100, testContract1.getEndDate().plusYears(1L), testContract1.getEndDate().plusYears(2L)), 2l);
         testContractDTO1 = new ContractDTO(1L, 1L, testContract1.getPensumPercentage(), testContract1.getStartDate(), testContract1.getEndDate());
