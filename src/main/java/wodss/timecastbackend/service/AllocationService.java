@@ -124,7 +124,7 @@ public class AllocationService {
         checkIfAllocationExceedsFTEOfProject(project, allocationDTO.getPensumPercentage(), allocationDTO.getId());
         checkIfAllocationFitsInContract(allocationDTO.getStartDate() , allocationDTO.getEndDate(), contract);
         checkIfAllocationFitsInProject(allocationDTO.getStartDate(), allocationDTO.getEndDate(), project);
-        checkIfAllocationExceedsContractLimit(contract, allocationDTO.getStartDate(), allocationDTO.getEndDate(), allocationDTO.getPensumPercentage());
+        checkIfAllocationExceedsContractLimit(contract, allocationDTO.getStartDate(), allocationDTO.getEndDate(), allocationDTO.getPensumPercentage(), allocationDTO.getId());
     }
 
     private void checkIfAllocationPensumPercentageIsNegative(int allocationPensumPercentage) throws Exception{
@@ -167,11 +167,12 @@ public class AllocationService {
         return allocations.stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
     }
 
-    private void checkIfAllocationExceedsContractLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage) throws Exception {
+    private void checkIfAllocationExceedsContractLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage, long allocationID) throws Exception {
 
         //TODO: Define an SQL statement in Repository interface
         List<Allocation> overlappingAllocations = allocationRepository.findAll().stream().filter(a ->
-                a.getContract().getId() == contract.getId()
+                a.getId() != allocationID
+                && a.getContract().getId() == contract.getId()
                 && (
                         dateIsWithinRange(a, startDate)
                         || dateIsWithinRange(a, endDate)

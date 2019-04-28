@@ -58,8 +58,8 @@ public class ProjectServiceTest {
 
     @Before
     public void setUp(){
-        testEmployee1 = new Employee("Ziegler", "Fritz", "fritz.ziegler@mail.ch", Role.PROJECTMANAGER);
-        testEmployee2 = new Employee("Mueller", "Max", "max.mueller@mail.ch", Role.DEVELOPER);
+        testEmployee1 = new Employee("Ziegler", "Fritz", "fritz.ziegler@mail.ch", Role.PROJECTMANAGER, null);
+        testEmployee2 = new Employee("Mueller", "Max", "max.mueller@mail.ch", Role.DEVELOPER, null);
         testProject1 = new Project("Test Project 1", testEmployee1, LocalDate.now(), LocalDate.now().plusYears(1L), 100);
         testProject1DTO = new ProjectDTO(1L, 1L, testProject1.getName(), testProject1.getStartDate(), testProject1.getEndDate(), testProject1.getFtePercentage());
 
