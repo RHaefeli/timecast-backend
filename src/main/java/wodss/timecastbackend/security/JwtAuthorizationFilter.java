@@ -60,7 +60,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 String emailAdress = parsedEmployee.getEmailAddress();
 
                 List<GrantedAuthority> role = Arrays.asList(
-                        new SimpleGrantedAuthority(parsedEmployee.getRole().toString()));
+                        new SimpleGrantedAuthority(parsedEmployee.getRole()));
 
                 if (!StringUtils.isEmpty(emailAdress)) {
                     return new UsernamePasswordAuthenticationToken(emailAdress, null, role);

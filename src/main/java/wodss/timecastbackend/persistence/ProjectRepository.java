@@ -19,4 +19,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             @Param("projectManagerId") Long projectManagerId,
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate);
+
 }
