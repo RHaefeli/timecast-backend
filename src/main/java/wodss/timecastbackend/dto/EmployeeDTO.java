@@ -3,12 +3,21 @@ package wodss.timecastbackend.dto;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @JsonAutoDetect
 public class EmployeeDTO {
     //TODO: Roles are only passes as string
     @JsonProperty("id") private Long id;
+    @NotBlank
+    @NotNull
     @JsonProperty("lastName") private String lastName;
+    @NotBlank
+    @NotNull
     @JsonProperty("firstName") private String firstName;
+    @NotBlank
+    @NotNull
     @JsonProperty("emailAddress") private String emailAddress;
     @JsonProperty("role") private String role;
     @JsonProperty("active") private boolean active;

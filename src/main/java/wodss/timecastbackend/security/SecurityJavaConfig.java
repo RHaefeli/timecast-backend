@@ -44,7 +44,7 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity webSecurity) {
-        webSecurity.ignoring().antMatchers(HttpMethod.POST, "/token"); //Still expects header, ignore header
+        webSecurity.ignoring().antMatchers(HttpMethod.POST, "/token");
     }
 
     @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
@@ -61,7 +61,7 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
             .authenticationEntryPoint(restAuthenticationEntryPoint)
             .and()
             .authorizeRequests()
-            .antMatchers(HttpMethod.POST,"/api/token").permitAll()
+            .antMatchers(HttpMethod.POST,"/employee").permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilter(new JwtAuthorizationFilter(authenticationManager()))

@@ -10,6 +10,7 @@ import wodss.timecastbackend.dto.AllocationDTO;
 import wodss.timecastbackend.service.AllocationService;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class AllocationController {
     }
 
     @PostMapping
-    public @ResponseBody AllocationDTO createAllocation(@RequestBody AllocationDTO allocationDto,
+    public @ResponseBody AllocationDTO createAllocation(@Valid @RequestBody AllocationDTO allocationDto,
                                                         HttpServletResponse response) throws Exception {
         response.setStatus(201);
         return allocationService.createAllocation(allocationDto);
@@ -51,8 +52,8 @@ public class AllocationController {
     }
 
     @PutMapping(value = "/{id}")
-    public @ResponseBody AllocationDTO editAllocation(@PathVariable long id, @RequestBody AllocationDTO allocationDTO)
+    public @ResponseBody AllocationDTO editAllocation(@PathVariable long id, @Valid @RequestBody AllocationDTO allocationDTO)
             throws Exception {
-        return allocationService.editAllocation(id, allocationDTO);
+        return allocationService.updateAllocation(id, allocationDTO);
     }
 }

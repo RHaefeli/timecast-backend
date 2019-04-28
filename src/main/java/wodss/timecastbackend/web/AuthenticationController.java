@@ -10,7 +10,7 @@ import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.security.JwtUtil;
 import wodss.timecastbackend.service.AuthenticationService;
-import wodss.timecastbackend.util.RessourceNotFoundException;
+import wodss.timecastbackend.util.ResourceNotFoundException;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -40,7 +40,7 @@ public class AuthenticationController {
                                                       HttpServletResponse response) throws Exception {
         JSONObject requestJson = new JSONObject(requestJsonStr);
         String token = authenticationService.authenticate((String)requestJson.get("emailAddress"),
-                (String)requestJson.get("password"));
+                ((String)requestJson.get("rawPassword")).toLowerCase());
         Map<String, String> responseData = new HashMap<>();
         responseData.put("token", token);
         return ResponseEntity.status(201)
@@ -54,7 +54,7 @@ public class AuthenticationController {
         JwtUtil jwtUtil = new JwtUtil();
         Optional<Employee> oEmployee  = employeeRepository.findByEmailAddress(principal.getName());
         if(!oEmployee.isPresent())
-            throw new RessourceNotFoundException();
+            throw new ResourceNotFoundException();
         String token = authenticationService.generateToken(oEmployee.get());
         Map<String, String> responseData = new HashMap<>();
         responseData.put("token", token);

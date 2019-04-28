@@ -9,14 +9,13 @@ import wodss.timecastbackend.domain.Allocation;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Project;
 import wodss.timecastbackend.domain.Role;
+import wodss.timecastbackend.dto.AllocationDTO;
 import wodss.timecastbackend.dto.ProjectDTO;
 import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
-import wodss.timecastbackend.util.BadRequestException;
-import wodss.timecastbackend.util.ModelMapper;
-import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.RessourceNotFoundException;
+import wodss.timecastbackend.security.EmployeeSession;
+import wodss.timecastbackend.util.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,93 +29,240 @@ public class ProjectService {
     private final EmployeeRepository employeeRepository;
     private final AllocationRepository allocationRepository;
     private final ModelMapper mapper;
+    private final EmployeeSession employeeSession;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, EmployeeRepository employeeRepository, AllocationRepository allocationRepository, ModelMapper mapper){
+    public ProjectService(ProjectRepository projectRepository, EmployeeRepository employeeRepository,
+                          AllocationRepository allocationRepository, ModelMapper mapper,
+                          EmployeeSession employeeSession){
         this.projectRepository = projectRepository;
         this.employeeRepository = employeeRepository;
         this.allocationRepository = allocationRepository;
         this.mapper = mapper;
+        this.employeeSession = employeeSession;
     }
 
-    public List<ProjectDTO> findByQuery(Long projectManagerId, LocalDate fromDate, LocalDate toDate) throws Exception{
+    /**
+     * Find projects with optional query parameters. The qeury options do stack (AND association).
+     * ADMINISTRATOR, PROJECTMANAGER: Access all projects. Gets informed with 404 if id in query
+     *      *                         projectManagerId does not exist.
+     * DEVELOPER: Access only involved project. Can only set query parameters projectManagerId from employees that
+     *            are projectmanager in involved project. Gets 403 otherwise.
+     * @param projectManagerId Get all projects with projectManagerId
+     * @param fromDate Get all projects starting from date
+*      *               (Contracts with start date before and end date after are included)
+     * @param toDate Get all contracts until date
+     *               (Contracts with start date before and end date after are included)
+     * @return List of project DTOs
+     * @throws ForbiddenException Developer tried to access foreign project or used projectManagerId that are not
+     *                            involved in developers projects.
+     * @throws ResourceNotFoundException Query parameter projectManagerId does not exist
+     * @throws PreconditionFailedException Query parameter fromDate is after toDate
+     */
+    public List<ProjectDTO> findByQuery(Long projectManagerId, LocalDate fromDate, LocalDate toDate)
+            throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException{
         if(fromDate != null && toDate != null && fromDate.isAfter(toDate))
-            throw new BadRequestException();
-        return modelsToDTOs(projectRepository.findByQuery(projectManagerId, fromDate, toDate));
-    }
+            throw new PreconditionFailedException();
+        Employee currentEmployee = employeeSession.getEmployee();
+        List<Project> projects = null;
 
-    public ProjectDTO getProject(Long id) throws Exception{
-        Optional<Project> projectOptional = projectRepository.findById(id);
-        if(projectOptional.isPresent()){
-            return mapper.projectToProjectDTO(projectOptional.get());
+        //ADMINISTRATOR, PROJECTMANAGER
+        if(currentEmployee.getRole() == Role.ADMINISTRATOR || currentEmployee.getRole() == Role.PROJECTMANAGER) {
+            if(projectManagerId != null && !employeeRepository.existsById(projectManagerId))
+                throw new ResourceNotFoundException("Project manager not found");
+            projects = projectRepository.findByQuery(projectManagerId, fromDate, toDate);
         }
-        throw new RessourceNotFoundException();
+
+        //DEVELOPER
+        else {
+            //Checks if the employee tries to access other projectManagers via query parameters
+            List<Long> involvedProjectManager = getInvolvedProjectManagerIds(currentEmployee);
+            if(projectManagerId != null && !involvedProjectManager.contains(projectManagerId))
+                throw new ForbiddenException(
+                    "Missing permission to get the allocation (DEVELOPER: Other uninvolved employee or project)");
+
+            projects = allocationRepository.findByQuery(currentEmployee.getId(), null, fromDate, toDate)
+                    .stream()
+                    .filter(a -> a.getContract().getEmployee().getId() == currentEmployee.getId())
+                    .filter(a -> isActiveProject(a.getProject()))
+                    .filter(a -> (projectManagerId == null) || (projectManagerId == a.getProject().getProjectManager().getId()))
+                    .map(Allocation::getProject)
+                    .collect(Collectors.toList());
+        }
+        return modelsToDTOs(projects);
     }
 
-    //TODO: Uneinheitlich. Rückgabetyp zu DTO wechseln?
-    public Project createProject(ProjectDTO projectDto) throws Exception{
+    /**
+     * Find project by id.
+     * ADMINISTRATOR, PROJECTMANAGER: Access to all contracts. Get informed if contract does not exists.
+     * DEVELOPER: Access to only involved projects. Gets 403 if accesses to any other project (even if it does not
+     *            exist).
+     * @param id Identifier of the requested project
+     * @return Allocation DTO of requested allocation
+     * @throws ForbiddenException Developer tries to access foreign project
+     * @throws ResourceNotFoundException Administrator or projectmanager access to non existing contract
+     */
+    public ProjectDTO findById(Long id) throws ForbiddenException, ResourceNotFoundException {
+        Employee currentEmployee = employeeSession.getEmployee();
+        Project project = null;
 
-        //TODO: Can you assign a project manager if their contract(s) run out before the project ends?
+        //ADMINISTRATOR, PROJECTMANAGER
+        if(currentEmployee.getRole() == Role.ADMINISTRATOR || currentEmployee.getRole() == Role.PROJECTMANAGER) {
+            project = checkIfProjectExists(id);
+        }
 
-        checkDates(projectDto.getStartDate(), projectDto.getEndDate() );
-
-        checkString(projectDto.getName());
-        //TODO: Check if FTE is positive. Check if name is not null or empty.
-        Project p = new Project(
-                checkString(projectDto.getName()),
-                checkEmployee(projectDto.getProjectManagerId()),
-                projectDto.getStartDate(),
-                projectDto.getEndDate(),
-                checkIfFTEIsPositive(projectDto.getFtePercentage()));
-        p = projectRepository.save(p);
-        return p;
+        //DEVELOPER
+        else {
+            try {
+                project = checkIfProjectExists(id);
+                List<Long> involvedProjectIds = getInvolvedProjects(currentEmployee)
+                        .stream()
+                        .map(Project::getId)
+                        .collect(Collectors.toList());
+                if(!involvedProjectIds.contains(id))
+                    throw new Exception();
+            } catch (Exception e) {
+                throw new ForbiddenException("Missing permission to get the project (DEVELOPER: Not assigned project)");
+            }
+        }
+        return mapper.projectToProjectDTO(project);
     }
 
-    public ProjectDTO updateProject(ProjectDTO projectUpdate, Long id) throws Exception{
+    /**
+     * Create a new project.
+     * ADMIN: Able to create projects.
+     * PROJECTMANAGER, DEVELOPER: Not able to create projects at all.
+     * @param projectDto Received and validated project DTO object
+     * @return Contract DTO of newly created contract
+     * @throws ForbiddenException Developer or projectmanager tried to create new project
+     * @throws ResourceNotFoundException projectManager employee referred to does not exist
+     * @throws PreconditionFailedException fromDate is after toDate
+     */
+    public Project createProject(ProjectDTO projectDto)
+            throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
+        Employee currentEmploye = employeeSession.getEmployee();
 
-        Optional<Project> projectOptional = projectRepository.findById(id);
+        //ADMINISTRATOR
+        if(currentEmploye.getRole() == Role.ADMINISTRATOR) {
+            checkDates(projectDto.getStartDate(), projectDto.getEndDate() );
+			
+			
+            Project p = new Project(
+                    checkString(projectDto.getName()),
+                    checkEmployee(projectDto.getProjectManagerId()),
+                    projectDto.getStartDate(),
+                    projectDto.getEndDate(),
+                    checkIfFTEIsPositive(projectDto.getFtePercentage()));
+            p = projectRepository.save(p);
+            return p;
+        }
+
+        //PROJECTMANAGER, DEVELOPER
+        else {
+            throw new ForbiddenException(
+                    "Missing permission to create a project (PROJECTMANAGER, DEVELOPER)");
+        }
+    }
 
 
-        if (projectOptional.isPresent()) {
-            checkDates(projectUpdate.getStartDate(), projectUpdate.getEndDate() );
+    /**
+     * Update an project.
+     * ADMINISTRATOR: Able to update all projects.
+     * PROJECTMANAGER: Able to update  projects in which assigned as project manager.
+     * DEVELOPER: Nt able to update allocations at all.
+     * @param projectDTO Validated project DTO from request with updated fields
+     * @return Project DTO of the updated project
+     * @throws ForbiddenException Developer tried to update a project or projectmanager tried to update
+     *                            foreign projects
+     * @throws ResourceNotFoundException Employee referred to does not exist
+     * @throws PreconditionFailedException start and end date overlap
+     */
+    public ProjectDTO updateProject(ProjectDTO projectDTO, long id)
+            throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
+        Employee currentEmployee = employeeSession.getEmployee();
 
-            Project p = projectOptional.get();
-            p.setName(checkString(projectUpdate.getName()));
-            p.setProjectManager(checkEmployee(projectUpdate.getProjectManagerId()));
-            p.setStartDate(projectUpdate.getStartDate());
-            p.setEndDate(projectUpdate.getEndDate());
-            p.setFtePercentage(checkIfNewFTEIsLargerThanSumOfAllocationFTEs(checkIfFTEIsPositive(projectUpdate.getFtePercentage()), id));
+        //ADMINISTRATOR, PROJECTMANAGER
+        if(currentEmployee.getRole() == Role.ADMINISTRATOR || currentEmployee.getRole() == Role.PROJECTMANAGER)
+        {
+            checkDates(projectDTO.getStartDate(), projectDTO.getEndDate() );
+            Project p = checkIfProjectExists(id);
 
+            //PROJECTMANAGER
+            if(currentEmployee.getRole() == Role.PROJECTMANAGER &&
+                currentEmployee.getId() != p.getProjectManager().getId()) {
+                throw new ForbiddenException(
+                        "Missing permission to update the project " +
+                        "(PROJECTMANAGER: Somebody else's project, DEVELOPER: All");
+            }
+
+            p.setName(checkString(projectDTO.getName()));
+            p.setProjectManager(checkEmployee(projectDTO.getProjectManagerId()));
+            p.setStartDate(projectDTO.getStartDate());
+            p.setEndDate(projectDTO.getEndDate());
+            p.setFtePercentage(checkIfNewFTEIsLargerThanSumOfAllocationFTEs(checkIfFTEIsPositive(projectDTO.getFtePercentage()), id));
             projectRepository.save(p);
             checkForFutureAllocations(p.getEndDate(), p.getId());
             return mapper.projectToProjectDTO(p);
         }
-        throw new RessourceNotFoundException();
-    }
 
-    public ResponseEntity<String> deleteProject(Long id) throws Exception{
-        Optional<Project> projectOptional = projectRepository.findById(id);
-        if (projectOptional.isPresent()) {
-            Project project = projectOptional.get();
-            projectRepository.delete(project);
-            return new ResponseEntity<String>(HttpStatus.OK);
+        //DEVELOPER
+        else {
+            throw new ForbiddenException(
+                    "Missing permission to update the project " +
+                    "(PROJECTMANAGER: Somebody else's project, DEVELOPER: All");
         }
-        throw new RessourceNotFoundException();
     }
 
+    /**
+     * Delete a project.
+     * ADMIN: Able to delete projects.
+     * PROJECTMANAGER, DEVELOPER: Not able to delete projects at all.
+     * @param id Identifier of the requested contract to delete
+     * @throws ForbiddenException Developer or projectmanager tried to delete a project
+     * @throws ResourceNotFoundException Project with id does not exist
+     */
+    public void deleteProject(Long id) throws ForbiddenException, ResourceNotFoundException{
+        Employee currentEmployee = employeeSession.getEmployee();
 
-    private Employee checkEmployee(long employeeID) throws Exception{
+        //ADMINISTRATOR
+        if(currentEmployee.getRole() == Role.ADMINISTRATOR) {
+            Optional<Project> projectOptional = projectRepository.findById(id);
+            if (projectOptional.isPresent()) {
+                Project project = projectOptional.get();
+                projectRepository.delete(project);
+            }
+            throw new ResourceNotFoundException();
+        }
+
+        //PROJECTMANAGER, DEVELOPER
+        else {
+            throw new ForbiddenException("Missing permission to delete the project (PROJECTMANAGER, DEVELOPER)");
+        }
+    }
+
+    //Helper Methods
+
+    private Project checkIfProjectExists(long projectId) throws ResourceNotFoundException {
+        Optional<Project> projectOptional = projectRepository.findById(projectId);
+        if(projectOptional.isPresent()){
+            return projectOptional.get();
+        }
+        throw new ResourceNotFoundException();
+    }
+
+    private Employee checkEmployee(long employeeID) throws ResourceNotFoundException, PreconditionFailedException{
 
         Optional<Employee> oProjectManager = employeeRepository.findById(employeeID);
         if(!oProjectManager.isPresent()){
-            throw new RessourceNotFoundException();
+            throw new ResourceNotFoundException();
         }
         else if(!oProjectManager.get().getRole().equals(Role.PROJECTMANAGER)){
             throw new PreconditionFailedException("Chosen Employee is not a project manager!");
         }
         return oProjectManager.get();
     }
-    private void checkDates(LocalDate startDate, LocalDate endDate) throws Exception{
+    
+    private void checkDates(LocalDate startDate, LocalDate endDate) throws PreconditionFailedException{
         //TODO: Can start dates lie in the past?
         boolean startDateOverlapsEndDate = startDate.isAfter(endDate);
         boolean endDateIsBeforeNow = endDate.isBefore(LocalDate.now());
@@ -128,21 +274,21 @@ public class ProjectService {
         }
     }
 
-    public float checkIfFTEIsPositive(float FTE) throws Exception {
+    public float checkIfFTEIsPositive(float FTE) throws PreconditionFailedException {
         if(FTE < 0){
             throw new PreconditionFailedException("FTEs must not be negative");
         }
         return FTE;
     }
 
-    public String checkString(String name) throws Exception{
+    public String checkString(String name) throws PreconditionFailedException {
         if(isNullOrEmpty(name)){
             throw new PreconditionFailedException("String must not be empty");
         }
         return name;
     }
 
-    public float checkIfNewFTEIsLargerThanSumOfAllocationFTEs(float FTE, long projectID) throws Exception{
+    public float checkIfNewFTEIsLargerThanSumOfAllocationFTEs(float FTE, long projectID) throws PreconditionFailedException{
         int currentFTESum = allocationRepository.findAll().stream().filter(allocation ->
                 allocation.getProject().getId() == projectID).mapToInt(a -> a.getPensumPercentage())
                 .sum();
@@ -186,5 +332,24 @@ public class ProjectService {
 
     public List<ProjectDTO> modelsToDTOs(List<Project> projects) {
         return projects.stream().map(p -> mapper.projectToProjectDTO(p)).collect(Collectors.toList());
+    }
+
+    private boolean isActiveProject(Project project) {
+        LocalDate now = LocalDate.now();
+        return now.isAfter(project.getStartDate()) && now.isBefore(project.getEndDate());
+    }
+
+    private List<Long> getInvolvedProjectManagerIds(Employee employee) {
+        return getInvolvedProjects(employee)
+                .stream()
+                .map(p -> p.getProjectManager().getId()).collect(Collectors.toList());
+    }
+
+    private List<Project> getInvolvedProjects(Employee employee){
+        return allocationRepository.findByQuery(employee.getId(), null, null, null)
+                .stream()
+                .filter(a -> a.getContract().getEmployee().getId() == employee.getId())
+                .filter(a -> isActiveProject(a.getProject()))
+                .map(Allocation::getProject).collect(Collectors.toList());
     }
 }

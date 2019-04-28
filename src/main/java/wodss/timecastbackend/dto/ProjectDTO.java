@@ -1,16 +1,33 @@
 package wodss.timecastbackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import wodss.timecastbackend.util.DateSerializer;
+import wodss.timecastbackend.validator.DateConstraint;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public class ProjectDTO {
     @JsonProperty("id") private long id;
+    @NotNull
+    @NotBlank
     @JsonProperty("name") private String name;
+    @NotNull
+    @Min(0)
     @JsonProperty("projectManagerId") private long projectManagerId;
+    @NotNull
+    @Min(0)
     @JsonProperty("ftePercentage") private float ftePercentage;
+    @NotNull
     @JsonProperty("startDate") private LocalDate startDate;
+    @NotNull
     @JsonProperty("endDate") private LocalDate endDate;
 
     public ProjectDTO(long id, long projectManagerId, String name, LocalDate startDate, LocalDate endDate, float ftePercentage) {
