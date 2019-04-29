@@ -435,7 +435,6 @@ public class AllocationService {
      * @param allocationID the allocation's id
      * @throws Exception Throws a PreconditionFailedException is the contract limit is exceeded at any point
      */
-
     private void checkIfAllocationExceedsContractLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage, long allocationID) throws PreconditionFailedException {
         List<Allocation> overlappingAllocations = allocationRepository.findAll().stream().filter(a ->
                 a.getId() != allocationID
@@ -493,7 +492,7 @@ public class AllocationService {
         return (a.getStartDate().isAfter(startDate) && a.getEndDate().isBefore(endDate));
     }
 
-    
+
     private Role getRole() {
         String sRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
         sRole = sRole.replace("[", "").replace("]", "");

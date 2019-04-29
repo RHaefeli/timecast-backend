@@ -66,7 +66,7 @@ public class EmployeeService {
         if(employeeOptional.isPresent()){
             return mapper.employeeToEmployeeDTO(employeeOptional.get());
         }
-        throw new ResourceNotFoundException();
+        throw new ResourceNotFoundException("Employee was not found.");
     }
 
 
@@ -166,7 +166,7 @@ public class EmployeeService {
                 Employee emp = employeeOptional.get();
                 employeeRepository.delete(emp);
             }
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException("Employee was not found");
         }
 
         //PROJECTMANAGER, DEVELOPER
