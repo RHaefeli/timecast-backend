@@ -78,6 +78,13 @@ public class ProjectServiceTest {
         Mockito.when(employeeSession.getEmployee()).thenReturn(admin);
     }
 
+    /**
+     * Generates a mock object which spies on the given project and mocks the getID method.
+     * This is necessary, since certain checks in the ProjectService perform id comparisons and the id cannot be set from outside.
+     * @param id the id the mock should return upon calling getId()
+     * @param p the project which should be mocked
+     * @return A mocked project object which returns the given id upon calling getID()
+     */
     private Project generateMockProject(long id, Project p){
         Project project = Mockito.spy(p);
         Mockito.when(project.getId()).thenReturn(id);

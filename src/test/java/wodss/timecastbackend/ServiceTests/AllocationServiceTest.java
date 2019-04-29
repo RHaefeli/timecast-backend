@@ -91,8 +91,15 @@ public class AllocationServiceTest {
         Mockito.when(employeeSession.getEmployee()).thenReturn(admin);
     }
 
+    /**
+     * Sets up a mocked repository by preparing the findAll() and the findById methods.
+     * @param repository the mock repository which needs to be set up
+     * @param entities the entities which should be contained within the repository
+     * @param <T> The type contained within the repository
+     */
     private <T>void doMockRepoSetup(JpaRepository<T, Long> repository, T... entities){
         Mockito.when(repository.findAll()).thenReturn(Arrays.asList(entities));
+        //The id's start with 1 and are then gradually counted upwards in the order that they were passed via the parameters.
         long count = 1;
         for(T entity : entities){
             Mockito.when(repository.findById(count++)).thenReturn(Optional.of(entity));
@@ -111,12 +118,26 @@ public class AllocationServiceTest {
         return a;
     }
 
+    /**
+     * Generates a mock object which spies on the given project and mocks the getID method.
+     * This is necessary, since certain checks perform id comparisons and the id cannot be set from outside.
+     * @param id the id the mock should return upon calling getId()
+     * @param project the project which should be mocked
+     * @return A mocked project object which returns the given id upon calling getID()
+     */
     private Project generateMockedProject(long id, Project project){
         Project p = Mockito.spy(project);
         Mockito.when(p.getId()).thenReturn(id);
         return p;
     }
 
+    /**
+     * Generates a mock object which spies on the given contract and mocks the getID method.
+     * This is necessary, since certain checks perform id comparisons and the id cannot be set from outside.
+     * @param id the id the mock should return upon calling getId()
+     * @param contract the contract which should be mocked
+     * @return A mocked contract object which returns the given id upon calling getID()
+     */
     private Contract generateMockedContract(long id, Contract contract){
         Contract c = Mockito.spy(contract);
         Mockito.when(c.getId()).thenReturn(id);

@@ -70,11 +70,25 @@ public class ContractServiceTest {
         Mockito.when(employeeSession.getEmployee()).thenReturn(admin);
     }
 
+    /**
+     * Generates a mocked employee object which spies on the given employee and mocks the getID() method.
+     * This is necessary for performing id checks, since the id cannot be set from outside.
+     * @param e the employee object which needs to be mocked
+     * @param id the id that should be returned upon calling getId()
+     * @return a mocked employee object which returns teh given id upon calling getId()
+     */
     private Employee generateMockEmployee(Employee e, long id){
         Employee mock = Mockito.spy(e);
         Mockito.when(mock.getId()).thenReturn(id);
         return mock;
     }
+    /**
+     * Generates a mocked contract object which spies on the given contract and mocks the getID() method.
+     * This is necessary for performing id checks, since the id cannot be set from outside.
+     * @param c the contract object which needs to be mocked
+     * @param id the id that should be returned upon calling getId()
+     * @return a mocked contract object which returns teh given id upon calling getId()
+     */
     private Contract generateMockContract(Contract c, long id){
         Contract mock = Mockito.spy(c);
         Mockito.when(mock.getId()).thenReturn(id);

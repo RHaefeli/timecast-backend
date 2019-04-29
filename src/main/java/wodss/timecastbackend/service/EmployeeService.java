@@ -38,6 +38,7 @@ public class EmployeeService {
         this.employeeSession = employeeSession;
     }
 
+
     /**
      * Find contracts with optional query parameter.
      * ALL: Access all employees.
@@ -47,10 +48,17 @@ public class EmployeeService {
     public List<EmployeeDTO> findByQuery(String sRole) {
 
         //ALL
+
         Role role = convertStringToRoleEnum(sRole);
         return modelsToDTOs(employeeRepository.findByQuery(role));
     }
 
+    /**
+     * Returns the employee with a given id in form of a DTO.
+     * @param id the ID of the employee
+     * @return the found employee in form of a DTO
+     * @throws Exception Throws a RessourceNotFoundException if the employee was not found.
+     */
     public EmployeeDTO getEmployee(Long id) throws Exception{
 
         //ALL
@@ -58,8 +66,9 @@ public class EmployeeService {
         if(employeeOptional.isPresent()){
             return mapper.employeeToEmployeeDTO(employeeOptional.get());
         }
-        throw new ResourceNotFoundException();
+        throw new ResourceNotFoundException("Employee was not found.");
     }
+
 
     /**
      * Create a new employee. This service is available for anonymous user in purpouse to create new credentials.
@@ -121,6 +130,7 @@ public class EmployeeService {
             Optional<Employee> employeeOptional = employeeRepository.findById(id);
             if (employeeOptional.isPresent()) {
                 checkIfMailIsUnique(employeeDTO.getEmailAddress());
+                checkStrings(employeeDTO.getFirstName(), employeeDTO.getLastName(), employeeDTO.getEmailAddress());
                 Employee e = employeeOptional.get();
                 e.setFirstName(employeeDTO.getFirstName());
                 e.setLastName((employeeDTO.getLastName()));
@@ -156,7 +166,7 @@ public class EmployeeService {
                 Employee emp = employeeOptional.get();
                 employeeRepository.delete(emp);
             }
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException("Employee was not found");
         }
 
         //PROJECTMANAGER, DEVELOPER
@@ -165,9 +175,17 @@ public class EmployeeService {
         }
     }
 
-    //Helper Methods
+
+    /**
+     * Checks if the passed string can be translated to a valid role. (ADMINISTRATOR, DEVELOPER, PROJECTMANAGER)
+     * If role was not found, a PreconditionFailedException is thrown.
+     * @param role the role string
+     * @return The found role, if available.
+     * @throws Exception Throws a PreconditionFailedException if role is not found.
+     */
 
     private Role checkIfRoleExists(String role) throws PreconditionFailedException{
+
         Optional<Role> oRole = Arrays.stream(Role.values())
                 .filter(v -> role.toLowerCase().equals(v.getValue().toLowerCase()))
                 .findFirst();
@@ -176,10 +194,20 @@ public class EmployeeService {
             return oRole.get();
         }
         else{
-
-            throw new PreconditionFailedException("Invalid Role id was passed");
+            throw new PreconditionFailedException("Invalid Role was passed");
         }
     }
+
+
+    /**
+     * Checks if the given strings for firstName, lastName and emailAdress are valid.
+     * A string is valid if they are not null or empty and, in case of the emailAdress, pass through the regex.
+     * @param firstName The first name that needs to be checked
+     * @param lastName the last name that needs to be checked
+     * @param emailAddress the email that needs to be checked.
+     * @throws Exception Throws a PreconditionFailedException if any one of these tests fails.
+     */
+
     private void checkStrings(String firstName, String lastName, String emailAddress)
             throws PreconditionFailedException{
         if(isNullOrEmpty(firstName)){
@@ -192,10 +220,22 @@ public class EmployeeService {
             throw new PreconditionFailedException("Invalid email");
         }
     }
+
+    /**
+     * Checks if a string is null or Empty
+     * @param s the string that needs to be checked.
+     * @return true if the string is null or empty, false if it isn't.
+     */
     private boolean isNullOrEmpty(String s){
         return s.trim().isEmpty() || s == null;
     }
 
+    /**
+     * Checks if the given string is a valid email address.
+     * Source of the regex: https://www.geeksforgeeks.org/check-email-address-valid-not-java/
+     * @param email the email string
+     * @return true if the string is a valid email address, false if it is not.
+     */
     private boolean isValid(String email)
     {
         //Source: https://www.geeksforgeeks.org/check-email-address-valid-not-java/
@@ -210,11 +250,21 @@ public class EmployeeService {
         return pat.matcher(email).matches();
     }
 
-    private void checkIfMailIsUnique(String emailAdress) throws PreconditionFailedException {
-        if(employeeRepository.existsByEmailAddress(emailAdress))
+    /**
+     * Checks if a given email address is unique in the repository.
+     * @param emailAddress the email address string
+     * @throws Exception Throws a PreconditionFailedException if the email was found in the repository.
+     */
+    private void checkIfMailIsUnique(String emailAddress) throws PreconditionFailedException {
+        if(employeeRepository.existsByEmailAddress(emailAddress))
             throw new PreconditionFailedException("Mail is not unique");
     }
 
+    /**
+     * Takes a list of Employee objects and converts them to DTOs
+     * @param employees the list of employees that needs to be converted into DTOs
+     * @return a list which contains the given employees, converted into DTOs.
+     */
     private List<EmployeeDTO> modelsToDTOs(List<Employee> employees) {
         return employees.stream().map(e -> mapper.employeeToEmployeeDTO(e)).collect(Collectors.toList());
     }

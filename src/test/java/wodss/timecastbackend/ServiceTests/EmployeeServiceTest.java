@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.EmployeeDTO;
@@ -31,6 +32,8 @@ public class EmployeeServiceTest {
     ModelMapper mapper;
     @Mock
     EmployeeSession employeeSession;
+    @Mock
+    PasswordEncoder passwordEncoder;
     @InjectMocks
     EmployeeService employeeService;
 
@@ -54,13 +57,15 @@ public class EmployeeServiceTest {
                 "Mustermann", "Max", "admin@gmx.ch", Role.ADMINISTRATOR, "12345");
 
         Mockito.when(employeeSession.getEmployee()).thenReturn(admin);
+        Mockito.when(passwordEncoder.encode(Mockito.anyString())).thenReturn("");
     }
 
 
     @Test
     public void testCreateEmployee(){
-        EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "New", "new.user@mail.ch","DEVELOPER",true );
+        EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(1l, "User", "New", "new.user@mail.ch","DEVELOPER",true );
         Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER, ""));
+        Mockito.when(mapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(createEmployeeDTO1);
         try{
             EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             assert(createEmployeeDTO1.getFirstName().equals(created.getFirstName()));
@@ -187,6 +192,19 @@ public class EmployeeServiceTest {
         }
         catch(Exception e){
             assert(e.getClass() == PreconditionFailedException.class);
+        }
+    }
+
+    @Test
+    public void testCreateEmployeeWhereEmailAlreadyExists(){
+        EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "New", testEmployee1.getEmailAddress(),"DEVELOPER",true );
+        Mockito.when(employeeRepository.existsByEmailAddress(testEmployee1.getEmailAddress())).thenReturn(true);
+        try{
+            employeeService.createEmployee(createEmployeeDTO1, createEmployeeDTO1.getRole(), "12345");
+            fail("Should have thrown exception: Email already exists in repository. Error in checkIfEmailIsUnique");
+        }
+        catch(Exception e){
+            assertEquals(PreconditionFailedException.class, e.getClass());
         }
     }
 
@@ -338,6 +356,8 @@ public class EmployeeServiceTest {
             assert(e.getClass() == PreconditionFailedException.class);
         }
     }
+
+
 
     @Test
     public void testEditEmployeeWithNonexistentUser(){
