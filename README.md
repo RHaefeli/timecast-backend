@@ -74,6 +74,8 @@ Command to generate RSA keys:  ```openssl genpkey -algorithm RSA -out private_ke
 
 Command to extract public key from private key: ```openssl rsa -pubout -in private_key.pem -out public_key.pem```
 
+Tha backend API needs a private_key.pem file in ```/src/main/resources/keystore/```
+
 <br>
 
 #### Project Structure
@@ -99,7 +101,7 @@ Example keystore structure
 
     .
     └──keystore
-       ├── jwt_privkey.pem                     # The entities used in the application
+       ├── private_key.pem                     # The entities used in the application
        ├── timecast_backend.p12                # The Exception definitions which are specific for the application
        └── timecast_frontend.p12               # All Security related classes, such as Authentication, JWT and RSA utils.
 
