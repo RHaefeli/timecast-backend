@@ -3,6 +3,7 @@ package wodss.timecastbackend.domain;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 public class Employee {
@@ -26,8 +27,9 @@ public class Employee {
     private String firstName;
     @NotNull
     private String emailAddress;
-    //@OneToOne(optional = false)
 
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Contract> contracts;
     @NotNull
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -75,6 +77,4 @@ public class Employee {
     public void setActive(boolean active) { this.active = active; }
 
     public String getPassword() { return password; }
-
-    public void setPassword(String password) { this.password = password; }
 }

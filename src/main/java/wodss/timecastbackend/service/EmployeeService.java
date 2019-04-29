@@ -1,14 +1,15 @@
 package wodss.timecastbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.EmployeeDTO;
+import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
+import wodss.timecastbackend.persistence.ProjectRepository;
 import wodss.timecastbackend.security.EmployeeSession;
 import wodss.timecastbackend.util.ForbiddenException;
 import wodss.timecastbackend.util.ModelMapper;
@@ -16,7 +17,6 @@ import wodss.timecastbackend.util.PreconditionFailedException;
 import wodss.timecastbackend.util.ResourceNotFoundException;
 
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -25,14 +25,19 @@ import java.util.stream.Collectors;
 @Service
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
+    private final AllocationRepository allocationRepository;
+    private final ProjectRepository projectRepository;
     private final ModelMapper mapper;
-    private PasswordEncoder passwordEncoder;
-    private EmployeeSession employeeSession;
+    private final PasswordEncoder passwordEncoder;
+    private final EmployeeSession employeeSession;
 
     @Autowired
     public EmployeeService(EmployeeRepository employeeRepository, ModelMapper mapper, PasswordEncoder passwordEncoder,
+                           AllocationRepository allocationRepository, ProjectRepository projectRepository,
                            EmployeeSession employeeSession) {
         this.employeeRepository = employeeRepository;
+        this.allocationRepository = allocationRepository;
+        this.projectRepository = projectRepository;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
         this.employeeSession = employeeSession;
@@ -81,6 +86,7 @@ public class EmployeeService {
      * @return Employee DTO of newly created employee
      * @throws Exception
      */
+    @Transactional
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO, String role, String password)
             throws PreconditionFailedException {
         String defRole = "developer";
@@ -121,25 +127,21 @@ public class EmployeeService {
      * @throws ResourceNotFoundException Employee with id does not exist
      * @throws PreconditionFailedException Email Address already exists
      */
+    @Transactional
     public EmployeeDTO updateEmployee(EmployeeDTO employeeDTO, Long id) throws ForbiddenException,
             ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmployee = employeeSession.getEmployee();
 
         //ADMINISTRATOR
         if(currentEmployee.getRole() == Role.ADMINISTRATOR) {
-            Optional<Employee> employeeOptional = employeeRepository.findById(id);
-            if (employeeOptional.isPresent()) {
-                checkStrings(employeeDTO.getFirstName(), employeeDTO.getLastName(), employeeDTO.getEmailAddress());
-                checkIfMailIsUnique(employeeDTO.getEmailAddress(), employeeOptional.get().getEmailAddress());
-                Employee e = employeeOptional.get();
-                e.setFirstName(employeeDTO.getFirstName());
-                e.setLastName((employeeDTO.getLastName()));
-                e.setEmailAddress(employeeDTO.getEmailAddress());
-                employeeRepository.save(e);
-
-                return mapper.employeeToEmployeeDTO(e);
-            }
-            throw new ResourceNotFoundException();
+            Employee employee = checkEmployee(employeeDTO.getId());
+            checkIfMailIsUnique(employeeDTO.getEmailAddress(), employeeOptional.get().getEmailAddress());
+            checkStrings(employeeDTO.getFirstName(), employeeDTO.getLastName(), employeeDTO.getEmailAddress());
+            employee.setFirstName(employeeDTO.getFirstName());
+            employee.setLastName((employeeDTO.getLastName()));
+            employee.setEmailAddress(employeeDTO.getEmailAddress());
+            employeeRepository.save(employee);
+            return mapper.employeeToEmployeeDTO(employee);
         }
         //PROJECTMANAGER, DEVELOPER
         else {
@@ -156,17 +158,16 @@ public class EmployeeService {
      * @throws ForbiddenException Developer or projectmanager tried to delete an employee
      * @throws ResourceNotFoundException Employee with id does not exist
      */
-    public void deleteEmployee(Long id) throws ForbiddenException, ResourceNotFoundException {
+    @Transactional
+    public void deleteEmployee(Long id) throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmployee = employeeSession.getEmployee();
 
         //ADMINISTRATOR
         if(currentEmployee.getRole() == Role.ADMINISTRATOR) {
-            Optional<Employee> employeeOptional = employeeRepository.findById(id);
-            if (employeeOptional.isPresent()) {
-                Employee emp = employeeOptional.get();
-                employeeRepository.delete(emp);
-            }
-            throw new ResourceNotFoundException("Employee was not found");
+            Employee employee = checkEmployee(id);
+            checkIfEmployeeIsAnActiveProjectManager(employee);
+            checkIfEmployeeHasNoAllocations(employee);
+            employeeRepository.delete(employee);
         }
 
         //PROJECTMANAGER, DEVELOPER
@@ -177,13 +178,26 @@ public class EmployeeService {
 
 
     /**
+     * Check if the employee exists.
+     * @param id Identifier of the employee to check
+     * @return Employee object
+     * @throws ResourceNotFoundException Employee was not found
+     */
+    private Employee checkEmployee(long id) throws ResourceNotFoundException {
+        Optional<Employee> employeeOptional = employeeRepository.findById(id);
+        if (employeeOptional.isPresent()) {
+            return employeeOptional.get();
+        }
+        throw new ResourceNotFoundException("Employee was not found");
+    }
+
+    /**
      * Checks if the passed string can be translated to a valid role. (ADMINISTRATOR, DEVELOPER, PROJECTMANAGER)
      * If role was not found, a PreconditionFailedException is thrown.
      * @param role the role string
      * @return The found role, if available.
      * @throws Exception Throws a PreconditionFailedException if role is not found.
      */
-
     private Role checkIfRoleExists(String role) throws PreconditionFailedException{
 
         Optional<Role> oRole = Arrays.stream(Role.values())
@@ -266,12 +280,33 @@ public class EmployeeService {
      * @return a list which contains the given employees, converted into DTOs.
      */
     private List<EmployeeDTO> modelsToDTOs(List<Employee> employees) {
-        return employees.stream().map(e -> mapper.employeeToEmployeeDTO(e)).collect(Collectors.toList());
+        return employees.stream().map(mapper::employeeToEmployeeDTO).collect(Collectors.toList());
     }
 
     private Role convertStringToRoleEnum(String sRole) {
         if(sRole != null)
             return Role.valueOf(sRole.toUpperCase());
         return null;
+    }
+
+    /**
+     * Checks if the employee has no allocations.
+     * @param employee Employee object to check the allocations
+     * @throws PreconditionFailedException Employee object is referred indirectly by allocations.
+     */
+    private void checkIfEmployeeHasNoAllocations(Employee employee) throws PreconditionFailedException {
+        if(allocationRepository.existsByEmployeeId(employee.getId()))
+            throw new PreconditionFailedException("An allocation for employee exists");
+    }
+
+    /**
+     * Checks if a given employee is a project manager
+     * @param e the employee that needs to be checked
+     * @return The employee if they are a project manager.
+     * @throws Exception Throws a PreconditionFailedException if the employee is not a project manager.
+     */
+    private void checkIfEmployeeIsAnActiveProjectManager(Employee e) throws PreconditionFailedException {
+        if(e.getRole() == Role.PROJECTMANAGER && employeeRepository.existsById(e.getId()))
+            throw new PreconditionFailedException("The employee is an active project manager");
     }
 }

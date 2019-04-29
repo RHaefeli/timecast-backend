@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import wodss.timecastbackend.domain.Allocation;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Project;
@@ -140,6 +141,7 @@ public class ProjectService {
      * @throws ResourceNotFoundException projectManager employee referred to does not exist
      * @throws PreconditionFailedException fromDate is after toDate
      */
+    @Transactional
     public Project createProject(ProjectDTO projectDto)
             throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmploye = employeeSession.getEmployee();
@@ -180,6 +182,7 @@ public class ProjectService {
      * @throws ResourceNotFoundException Employee referred to does not exist
      * @throws PreconditionFailedException start and end date overlap
      */
+    @Transactional
     public ProjectDTO updateProject(ProjectDTO projectDTO, long id)
             throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmployee = employeeSession.getEmployee();
@@ -224,17 +227,14 @@ public class ProjectService {
      * @throws ForbiddenException Developer or projectmanager tried to delete a project
      * @throws ResourceNotFoundException Project with id does not exist
      */
+    @Transactional
     public void deleteProject(Long id) throws ForbiddenException, ResourceNotFoundException{
         Employee currentEmployee = employeeSession.getEmployee();
 
         //ADMINISTRATOR
         if(currentEmployee.getRole() == Role.ADMINISTRATOR) {
-            Optional<Project> projectOptional = projectRepository.findById(id);
-            if (projectOptional.isPresent()) {
-                Project project = projectOptional.get();
-                projectRepository.delete(project);
-            }
-            throw new ResourceNotFoundException();
+            Project project = checkIfProjectExists(id);
+            projectRepository.delete(project);
         }
 
         //PROJECTMANAGER, DEVELOPER
@@ -256,18 +256,23 @@ public class ProjectService {
         if(projectOptional.isPresent()){
             return projectOptional.get();
         }
-        throw new ResourceNotFoundException();
+        throw new ResourceNotFoundException("Project not found");
     }
 
+    /**
+     * Check if the employee exists.
+     * @param employeeID Identifier of the employee to check
+     * @return Employee object
+     * @throws ResourceNotFoundException Employee was not found
+     */
     private Employee checkEmployee(long employeeID) throws ResourceNotFoundException, PreconditionFailedException{
 
         Optional<Employee> oProjectManager = employeeRepository.findById(employeeID);
         if(!oProjectManager.isPresent()){
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException("Project manager not found");
         }
         return oProjectManager.get();
     }
-
 
     /**
      * Checks if a given employee is a project manager

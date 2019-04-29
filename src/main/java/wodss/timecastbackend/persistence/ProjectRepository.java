@@ -20,4 +20,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate);
 
+    @Query("SELECT CASE WHEN count(p)>0 THEN true ELSE false END from Project p where :projectManagerId = p.projectManager.id")
+    boolean existsByProjectManagerId(@Param("projectManagerId") long id);
 }

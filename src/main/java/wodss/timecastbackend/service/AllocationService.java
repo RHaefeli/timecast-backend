@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import wodss.timecastbackend.domain.*;
 import wodss.timecastbackend.dto.AllocationDTO;
 import wodss.timecastbackend.persistence.AllocationRepository;
@@ -154,6 +155,7 @@ public class AllocationService {
      * @throws PreconditionFailedException Project FTE or contract pensumPercentage exceeded, allocation date range is
      *                                     not within project date range.
      */
+    @Transactional
     public AllocationDTO createAllocation(AllocationDTO allocationDTO)
             throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmployee = employeeSession.getEmployee();
@@ -196,6 +198,7 @@ public class AllocationService {
 *    *                            for foreign projects
      * @throws ResourceNotFoundException Allocation with id does not exist
      */
+    @Transactional
     public void deleteAllocation(long id) throws ForbiddenException, ResourceNotFoundException {
         Employee currentEmployee = employeeSession.getEmployee();
 
@@ -235,6 +238,7 @@ public class AllocationService {
      * @throws PreconditionFailedException Project FTE or contract pensumPercentage exceeded, allocation date range is
 *    *                                     not within project date range.
      */
+    @Transactional
     public AllocationDTO updateAllocation(long id, AllocationDTO allocationDTO)
             throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmployee = employeeSession.getEmployee();

@@ -3,6 +3,7 @@ package wodss.timecastbackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import wodss.timecastbackend.domain.Contract;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Role;
@@ -109,6 +110,7 @@ public class ContractService {
      * @throws PreconditionFailedException Contract date range overlaps with another contract date range on the same
      *                                     employee
      */
+    @Transactional
     public ContractDTO createContract(ContractDTO contractDTO)
             throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmployee = employeeSession.getEmployee();
@@ -142,6 +144,7 @@ public class ContractService {
      * @throws ResourceNotFoundException Contract with id does not exist
      * @throws PreconditionFailedException The contract is in use by an allocation
      */
+    @Transactional
     public void deleteContract(long id)
             throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmployee = employeeSession.getEmployee();
@@ -172,6 +175,7 @@ public class ContractService {
      * @throws PreconditionFailedException Contract date range overlaps with another contract date range on the same
      *                                     employee
      */
+    @Transactional
     public ContractDTO updateContract(long id, ContractDTO contractDTO)
             throws ForbiddenException, ResourceNotFoundException, PreconditionFailedException {
         Employee currentEmployee = employeeSession.getEmployee();
@@ -214,7 +218,7 @@ public class ContractService {
         if(oContract.isPresent())
             return oContract.get();
         else
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException("Contract or employee not found");
     }
 
 
@@ -231,7 +235,7 @@ public class ContractService {
         if(oEmployee.isPresent())
             return oEmployee.get();
         else
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException("Contract or employee not found");
     }
 
 

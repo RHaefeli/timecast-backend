@@ -29,12 +29,12 @@ public class ExceptionAdviceHandler {
     public ResponseEntity<String> handlePreconditionFailedException(Exception e) {
         logger.error(e.getMessage());
         return new ResponseEntity<String>(
-                "Precondition for the ressource failed", HttpStatus.PRECONDITION_FAILED);
+                e.getMessage(), HttpStatus.PRECONDITION_FAILED);
     }
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleRessourceNotFoundException(ResourceNotFoundException e) {
         logger.error(e.getMessage());
-        return new ResponseEntity<String>("Ressource not found", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<String> handleBadRequestException(BadRequestException e) {
