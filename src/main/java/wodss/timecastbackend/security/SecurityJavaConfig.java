@@ -62,6 +62,7 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
             .and()
             .authorizeRequests()
             .antMatchers(HttpMethod.POST,"/employee").permitAll()
+            .antMatchers(HttpMethod.POST,"/token").permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilter(new JwtAuthorizationFilter(authenticationManager()))
