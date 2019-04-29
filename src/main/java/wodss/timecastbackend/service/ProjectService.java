@@ -151,7 +151,7 @@ public class ProjectService {
 			
             Project p = new Project(
                     checkString(projectDto.getName()),
-                    checkEmployee(projectDto.getProjectManagerId()),
+                    checkIfEmployeeIsAProjectManager(checkEmployee(projectDto.getProjectManagerId())),
                     projectDto.getStartDate(),
                     projectDto.getEndDate(),
                     checkIfFTEIsPositive(projectDto.getFtePercentage()));
@@ -199,7 +199,7 @@ public class ProjectService {
             }
 
             p.setName(checkString(projectDTO.getName()));
-            p.setProjectManager(checkEmployee(projectDTO.getProjectManagerId()));
+            p.setProjectManager(checkIfEmployeeIsAProjectManager(checkEmployee(projectDTO.getProjectManagerId())));
             p.setStartDate(projectDTO.getStartDate());
             p.setEndDate(projectDTO.getEndDate());
             p.setFtePercentage(checkIfNewFTEIsLargerThanSumOfAllocationFTEs(checkIfFTEIsPositive(projectDTO.getFtePercentage()), id));
@@ -275,7 +275,7 @@ public class ProjectService {
      * @return The employee if they are a project manager.
      * @throws Exception Throws a PreconditionFailedException if the employee is not a project manager.
      */
-    private Employee checkIfEmployeeIsAProjectManager(Employee e) throws Exception{
+    private Employee checkIfEmployeeIsAProjectManager(Employee e) throws PreconditionFailedException{
         if(e.getRole().equals(Role.PROJECTMANAGER)){
             return e;
         }
