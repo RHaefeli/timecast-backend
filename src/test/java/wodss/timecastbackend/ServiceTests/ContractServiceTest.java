@@ -17,13 +17,11 @@ import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.security.EmployeeSession;
 import wodss.timecastbackend.service.ContractService;
 import wodss.timecastbackend.util.ModelMapper;
-import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.ResourceNotFoundException;
+import wodss.timecastbackend.exception.PreconditionFailedException;
+import wodss.timecastbackend.exception.ResourceNotFoundException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;

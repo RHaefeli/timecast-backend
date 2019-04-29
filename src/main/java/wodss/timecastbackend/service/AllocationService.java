@@ -7,15 +7,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wodss.timecastbackend.domain.*;
 import wodss.timecastbackend.dto.AllocationDTO;
+import wodss.timecastbackend.exception.ForbiddenException;
 import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
 import wodss.timecastbackend.security.EmployeeSession;
-import wodss.timecastbackend.util.*;
 
 import wodss.timecastbackend.util.ModelMapper;
-import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.ResourceNotFoundException;
+import wodss.timecastbackend.exception.PreconditionFailedException;
+import wodss.timecastbackend.exception.ResourceNotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;

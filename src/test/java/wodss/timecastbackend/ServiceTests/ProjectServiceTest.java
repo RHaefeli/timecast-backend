@@ -15,8 +15,8 @@ import wodss.timecastbackend.persistence.ProjectRepository;
 import wodss.timecastbackend.security.EmployeeSession;
 import wodss.timecastbackend.service.ProjectService;
 import wodss.timecastbackend.util.ModelMapper;
-import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.ResourceNotFoundException;
+import wodss.timecastbackend.exception.PreconditionFailedException;
+import wodss.timecastbackend.exception.ResourceNotFoundException;
 
 import java.time.LocalDate;
 import java.util.Arrays;

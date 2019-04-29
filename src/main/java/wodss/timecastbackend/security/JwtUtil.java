@@ -2,9 +2,10 @@ package wodss.timecastbackend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Value;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.dto.EmployeeDTO;
-import wodss.timecastbackend.util.TimecastInternalServerErrorException;
+import wodss.timecastbackend.exception.TimecastInternalServerErrorException;
 
 import java.security.PrivateKey;
 import java.util.Calendar;
@@ -17,8 +18,8 @@ public class JwtUtil {
     private ObjectMapper objectMapper = new ObjectMapper();
     private PrivateKey privateKey;
 
-    public JwtUtil() {
-        String privateKeyPEM = RsaUtil.getKey("classpath:keystore/private_key.pem");
+    public JwtUtil(@Value("${wodss.timecastfrontend.jwt.key-store}") String publicKeyLocation) {
+        String privateKeyPEM = RsaUtil.getKey(publicKeyLocation);
         privateKey = RsaUtil.getPrivateKeyFromString(privateKeyPEM);
     }
     public EmployeeDTO parseToken(String token) throws JwtException {

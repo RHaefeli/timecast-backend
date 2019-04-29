@@ -10,7 +10,7 @@ import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.security.JwtUtil;
 import wodss.timecastbackend.service.AuthenticationService;
-import wodss.timecastbackend.util.ResourceNotFoundException;
+import wodss.timecastbackend.exception.ResourceNotFoundException;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;

@@ -1,4 +1,4 @@
-package wodss.timecastbackend.util;
+package wodss.timecastbackend.exception;
 
 import org.springframework.security.core.AuthenticationException;
 

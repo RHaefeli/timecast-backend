@@ -8,6 +8,9 @@ import wodss.timecastbackend.domain.Contract;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.ContractDTO;
+import wodss.timecastbackend.exception.ForbiddenException;
+import wodss.timecastbackend.exception.PreconditionFailedException;
+import wodss.timecastbackend.exception.ResourceNotFoundException;
 import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
@@ -17,7 +20,6 @@ import wodss.timecastbackend.util.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service

@@ -2,7 +2,7 @@ package wodss.timecastbackend.security;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.util.ResourceUtils;
-import wodss.timecastbackend.util.TimecastInternalServerErrorException;
+import wodss.timecastbackend.exception.TimecastInternalServerErrorException;
 
 import java.io.*;
 import java.security.KeyFactory;

@@ -3,22 +3,20 @@ package wodss.timecastbackend.advice;
 import org.codehaus.jackson.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.provider.token.store.jwk.JwkException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import wodss.timecastbackend.util.BadRequestException;
-import wodss.timecastbackend.util.ForbiddenException;
-import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.ResourceNotFoundException;
+import wodss.timecastbackend.exception.BadRequestException;
+import wodss.timecastbackend.exception.ForbiddenException;
+import wodss.timecastbackend.exception.PreconditionFailedException;
+import wodss.timecastbackend.exception.ResourceNotFoundException;
 
 @ControllerAdvice
 public class ExceptionAdviceHandler {

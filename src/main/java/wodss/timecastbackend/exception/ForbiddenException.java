@@ -1,4 +1,4 @@
-package wodss.timecastbackend.util;
+package wodss.timecastbackend.exception;
 
 public class ForbiddenException extends Exception {
 

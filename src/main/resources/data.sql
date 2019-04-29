@@ -22,10 +22,10 @@ INSERT INTO employee(last_name, first_name, email_Address, role, active, passwor
 ('Dietrich', 'Hans', 'handiet@timecast.ch', 'DEVELOPER', true, '$2a$10$6VpQNR89YEB5xez0blGgd.eL8JZiIj08xMfWPJCXD4qKVlzKhGgha');
 
 INSERT INTO project(name, fte_percentage, start_date, end_date, project_manager_id) VALUES
-('aWall', 3, '2016-01-01', '2021-12-31', 2),
-('Bobbahn', 5, '2017-01-01', '2022-12-31', 3),
-('Half Life 3', 4, '2020-01-01', '2030-12-31', 4),
-('Reddit clone', 5, '2015-01-01', '2018-12-31', 5);
+('aWall', 300, '2016-01-01', '2021-12-31', 2),
+('Bobbahn', 500, '2017-01-01', '2022-12-31', 3),
+('Half Life 3', 400, '2020-01-01', '2030-12-31', 4),
+('Reddit clone', 500, '2015-01-01', '2018-12-31', 5);
 
 INSERT INTO contract(employee_id, pensum_percentage, start_date, end_date) VALUES
 (2, 100, '2014-01-01', '2020-12-31'),

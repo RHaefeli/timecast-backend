@@ -11,10 +11,10 @@ import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
 import wodss.timecastbackend.security.EmployeeSession;
-import wodss.timecastbackend.util.ForbiddenException;
+import wodss.timecastbackend.exception.ForbiddenException;
 import wodss.timecastbackend.util.ModelMapper;
-import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.ResourceNotFoundException;
+import wodss.timecastbackend.exception.PreconditionFailedException;
+import wodss.timecastbackend.exception.ResourceNotFoundException;
 
 import java.util.Arrays;
 import java.util.List;
