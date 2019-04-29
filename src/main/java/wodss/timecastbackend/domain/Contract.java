@@ -18,7 +18,7 @@ public class Contract {
         this.endDate = endDate;
     }
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @ManyToOne(optional = false)
     private Employee employee;
