@@ -130,6 +130,7 @@ public class EmployeeService {
             Optional<Employee> employeeOptional = employeeRepository.findById(id);
             if (employeeOptional.isPresent()) {
                 checkIfMailIsUnique(employeeDTO.getEmailAddress());
+                checkStrings(employeeDTO.getFirstName(), employeeDTO.getLastName(), employeeDTO.getEmailAddress());
                 Employee e = employeeOptional.get();
                 e.setFirstName(employeeDTO.getFirstName());
                 e.setLastName((employeeDTO.getLastName()));
@@ -254,11 +255,9 @@ public class EmployeeService {
      * @param emailAddress the email address string
      * @throws Exception Throws a PreconditionFailedException if the email was found in the repository.
      */
-
-    private void checkIfMailIsUnique(String emailAdress) throws PreconditionFailedException {
-        if(employeeRepository.existsByEmailAddress(emailAdress))
+    private void checkIfMailIsUnique(String emailAddress) throws PreconditionFailedException {
+        if(employeeRepository.existsByEmailAddress(emailAddress))
             throw new PreconditionFailedException("Mail is not unique");
-
     }
 
     /**

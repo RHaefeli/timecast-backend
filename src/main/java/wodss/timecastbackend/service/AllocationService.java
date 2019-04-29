@@ -278,7 +278,6 @@ public class AllocationService {
      * @return The allocation object of the given id if it was found in the repository
      * @throws Exception Throws a RessourceNotFoundException if the allocation was not found.
      */
-
     private Allocation checkIfAllocationExists(long id) throws ResourceNotFoundException {
 
         Optional<Allocation> oAllocation = allocationRepository.findById(id);
@@ -295,7 +294,6 @@ public class AllocationService {
      * @return The contract object of the given id if it was found in the repository
      * @throws Exception Throws a RessourceNotFoundException if the contract was not found.
      */
-
     private Contract checkIfContractExists(long id) throws ResourceNotFoundException {
 
         Optional<Contract> oContract = contractRepository.findById(id);
@@ -325,11 +323,16 @@ public class AllocationService {
     /**
      * Performs several checks to see if the allocation can be created.
      * 1: Checks if the allocation pensum is negative
-     * 2: Checks the dates of the
-     * @param allocationDTO
-     * @param project
-     * @param contract
-     * @throws Exception
+     * 2: Checks if the dates of the allocation are crossed
+     * 3: checks if the allocation exceeds the FTE limit of its project
+     * 4: checks if the allocation fits within the dates of its contract
+     * 5: checks if the allocation fits within the dates of its project
+     * 6: checks if the the pensum exceeds the contracts pensum limit during at any point of the allocation's duration.
+     * If any one of these checks fails, the method will throw a PreconditionFailedException
+     * @param allocationDTO the DTO of the new or edited allocation
+     * @param project the Project that is associated with the allocation
+     * @param contract the contract that is associated with the allocation
+     * @throws Exception throws a PreconditionFailed exception if a check fails.
      */
     private void checkIfAllocationIsValid(AllocationDTO allocationDTO, Project project, Contract contract) throws PreconditionFailedException{
         //Do all checks in one method.
@@ -341,28 +344,56 @@ public class AllocationService {
         checkIfAllocationExceedsContractLimit(contract, allocationDTO.getStartDate(), allocationDTO.getEndDate(), allocationDTO.getPensumPercentage(), allocationDTO.getId());
     }
 
+    /**
+     * Checks if the given pensum is negative
+     * @param allocationPensumPercentage the pensum that needs to be checked
+     * @throws PreconditionFailedException if the pensum percentage is negative
+     */
     private void checkIfAllocationPensumPercentageIsNegative(int allocationPensumPercentage)
     		throws PreconditionFailedException {
         if(allocationPensumPercentage < 0) throw new PreconditionFailedException(ERR_MSG_PENSUMNEGATIVE);
     }
 
+    /**
+     * Checks if the start date and end date are crossed (startDate.isAfter(endDate))
+     * @param startDate the start date of the allocation
+     * @param endDate the end date of the allocation
+     * @throws PreconditionFailedException if the dates are crossed (end date lies before start date)
+     */
     private void checkDates(LocalDate startDate, LocalDate endDate) throws PreconditionFailedException{
         if(startDate.isAfter(endDate)){
             throw new PreconditionFailedException(ERR_MSG_DATESCROSSED);
         }
     }
 
+    /**
+     * Checks if the allocation's pensum percentage would exceed the FTE limit of the project it is associated with.
+     * @param project The project that is associated with the allocation
+     * @param allocationPensumPercentage the pensum percentage of the new/edited allocation
+     * @param allocationID the ID of the created/edited allocation (set to null/invalid id during an edit)
+     * @throws PreconditionFailedException
+     */
     private void checkIfAllocationExceedsFTEOfProject(Project project, int allocationPensumPercentage, long allocationID)
             throws PreconditionFailedException{
+        //Stream filters for all allocations that are associated with the given project (excludes the given allocation in case of an edit),
+        //then sums up all pensum percentages of the filtered allocations.
         int FTEs = allocationRepository.findAll().stream()
                 .filter(allocation -> (allocation.getProject().getId() == project.getId()) && (allocation.getId() != allocationID))
                 .mapToInt(allocation -> allocation.getPensumPercentage())
                 .sum();
+
         if(FTEs + allocationPensumPercentage > project.getFtePercentage()){
             throw new PreconditionFailedException(ERR_MSG_PROJECT_FTE_EXCEEDED);
        }
     }
 
+    /**
+     * Checks if the allocation's start and end date lie within the date range of its associated contract
+     * @param startDate the start date of the allocation
+     * @param endDate the end date of the allocation
+     * @param contract the contract associated with the allocation
+     * @throws PreconditionFailedException If either the start or end date of the allocation (or both) lie outside of the contract's date range.
+     */
     private void checkIfAllocationFitsInContract(LocalDate startDate, LocalDate endDate, Contract contract)
             throws PreconditionFailedException{
         boolean startDateLiesOutsideOfContract = startDate.isBefore(contract.getStartDate());
@@ -371,6 +402,13 @@ public class AllocationService {
         if(endDateLiesOutsideOfContract) throw new PreconditionFailedException(ERR_MSG_ENDDATEOUTSIDEOFCONTRACT);
     }
 
+    /**
+     * Checks if the allocation's start and end date lie within the date range of its associated project
+     * @param startDate the start date of the allocation
+     * @param endDate the end date of the allocation
+     * @param project the project associated with the allocation
+     * @throws PreconditionFailedException If either the start or end date of the allocation (or both) lie outside of the project's date range.
+     */
     private void checkIfAllocationFitsInProject(LocalDate startDate, LocalDate endDate, Project project) throws PreconditionFailedException{
         boolean startDateLiesOutsideOfContract = startDate.isBefore(project.getStartDate());
         boolean endDateLiesOutsideOfContract = endDate.isAfter(project.getEndDate());
@@ -379,24 +417,26 @@ public class AllocationService {
     }
 
 
+    /**
+     * Tales a list of allocation objects and generates a list that contains the given allocations converted into AllocationDTOs
+     * @param allocations the allocations that need to be converted
+     * @return a list of the given allocations converted into DTOs.
+     */
      public List<AllocationDTO> modelsToDTOs(List<Allocation> allocations) {
         return allocations.stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
     }
 
     /**
-     *
-     * @param contract
-     * @param startDate
-     * @param endDate
-     * @param allocationPensumPercentage
-     * @throws Exception
+     * Checks if the pensum percentage of the created/edited allocation would exceed the pensum limit of the contract at any point
+     * @param contract the contract associated with the allocation
+     * @param startDate the start date of the allocation
+     * @param endDate the end date of the allocation
+     * @param allocationPensumPercentage the allocation0s pensum percentage
+     * @param allocationID the allocation's id
+     * @throws Exception Throws a PreconditionFailedException is the contract limit is exceeded at any point
      */
 
     private void checkIfAllocationExceedsContractLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage, long allocationID) throws PreconditionFailedException {
-
-
-        //TODO: Define an SQL statement in Repository interface
-
         List<Allocation> overlappingAllocations = allocationRepository.findAll().stream().filter(a ->
                 a.getId() != allocationID
                 && a.getContract().getId() == contract.getId()
@@ -416,12 +456,17 @@ public class AllocationService {
     }
 
 
+    /**
+     * Sums up the total pensum of all allocations at a certain date.
+     * @param date the date at which the pensum needs to be summed up.
+     * @param overlappingAllocations the allocations that overlap with the date.
+     * @return The total pensum sum of the overlapping allocations at the date.
+     */
     private int getTotalPensumAtDate(LocalDate date, List<Allocation> overlappingAllocations){
         return overlappingAllocations.stream().filter(a ->
                 (a.getStartDate().isBefore(date) || a.getStartDate().equals(date))
                 && (a.getEndDate().isAfter(date) || a.getEndDate().equals(date))
                 ).mapToInt(a -> a.getPensumPercentage()).sum();
-        //TODO: Check behavior if sum is used on an empty list.
     }
 
 
@@ -448,6 +493,7 @@ public class AllocationService {
         return (a.getStartDate().isAfter(startDate) && a.getEndDate().isBefore(endDate));
     }
 
+    
     private Role getRole() {
         String sRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
         sRole = sRole.replace("[", "").replace("]", "");
@@ -463,8 +509,15 @@ public class AllocationService {
                 .map(AllocationDTO::getProjectId).collect(Collectors.toList());
     }
 
+    /**
+     * Checks if the project is currently running
+     * @param project The project which needs to be checked
+     * @return true if the project is currently running, false if it is inactive (Lies in the past or the future)
+     */
     private boolean isActiveProject(Project project) {
         LocalDate now = LocalDate.now();
-        return now.isAfter(project.getStartDate()) && now.isBefore(project.getEndDate());
+        return     (now.isAfter(project.getStartDate()) && now.isBefore(project.getEndDate()))
+                || (now.equals(project.getStartDate()) || now.equals(project.getEndDate())
+        );
     }
 }
