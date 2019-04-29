@@ -67,7 +67,7 @@ public class ProjectServiceTest {
         Mockito.when(employeeRepository.findById((long)1)).thenReturn(Optional.of(testEmployee1));
         Mockito.when(employeeRepository.findById((long)2)).thenReturn(Optional.of(testEmployee2));
 
-        Mockito.when(projectRepository.findAll()).thenReturn(Arrays.asList(testProject1));
+       // Mockito.when(projectRepository.findAll()).thenReturn(Arrays.asList(testProject1));
         Mockito.when(projectRepository.findById((long)1)).thenReturn(Optional.of(testProject1));
 
         Mockito.when(allocationRepository.findAll()).thenReturn(Arrays.asList(testAllocation1, testAllocation2));

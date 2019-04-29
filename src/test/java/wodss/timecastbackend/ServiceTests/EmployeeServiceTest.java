@@ -50,7 +50,7 @@ public class EmployeeServiceTest {
         testEmployee2 = new Employee("Mueller", "Hans", "hans.mueller@mail.ch", Role.ADMINISTRATOR, "");
         testEmployee3 = new Employee("Meier", "Peter", "peter.meier@mail.ch", Role.PROJECTMANAGER, "");
 
-        Mockito.when(employeeRepository.findAll()).thenReturn(Arrays.asList(testEmployee1, testEmployee2, testEmployee3));
+        //Mockito.when(employeeRepository.findAll()).thenReturn(Arrays.asList(testEmployee1, testEmployee2, testEmployee3));
         Mockito.when(employeeRepository.findById(1l)).thenReturn(Optional.of(testEmployee1));
 
         Employee admin = new Employee(
@@ -79,7 +79,6 @@ public class EmployeeServiceTest {
     @Test
     public void testCreateEmployeeWithInvalidRole(){
         EmployeeDTO createEmployeeDTO1 = new EmployeeDTO(null, "User", "New", "new.user@mail.ch","InvalidRole",true );
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(new Employee(createEmployeeDTO1.getLastName(), createEmployeeDTO1.getFirstName(), createEmployeeDTO1.getEmailAddress(), Role.DEVELOPER, ""));
         try{
             EmployeeDTO created = employeeService.createEmployee(createEmployeeDTO1,createEmployeeDTO1.getRole(), "");
             fail("The employee should not have been created. This role does not exist. Error in checkRoles");

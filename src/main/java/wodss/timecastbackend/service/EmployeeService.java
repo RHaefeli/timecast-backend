@@ -96,7 +96,7 @@ public class EmployeeService {
         //EVERYONE
         Role r = checkIfRoleExists(defRole);
         checkStrings(employeeDTO.getFirstName(), employeeDTO.getLastName(), employeeDTO.getEmailAddress());
-        checkIfMailIsUnique(employeeDTO.getEmailAddress());
+        checkIfMailIsUnique(employeeDTO.getEmailAddress(), "");
         String pw = passwordEncoder.encode(password);
         Employee e = new Employee(
                 employeeDTO.getLastName(),
@@ -129,8 +129,8 @@ public class EmployeeService {
         if(currentEmployee.getRole() == Role.ADMINISTRATOR) {
             Optional<Employee> employeeOptional = employeeRepository.findById(id);
             if (employeeOptional.isPresent()) {
-                checkIfMailIsUnique(employeeDTO.getEmailAddress());
                 checkStrings(employeeDTO.getFirstName(), employeeDTO.getLastName(), employeeDTO.getEmailAddress());
+                checkIfMailIsUnique(employeeDTO.getEmailAddress(), employeeOptional.get().getEmailAddress());
                 Employee e = employeeOptional.get();
                 e.setFirstName(employeeDTO.getFirstName());
                 e.setLastName((employeeDTO.getLastName()));
@@ -255,8 +255,8 @@ public class EmployeeService {
      * @param emailAddress the email address string
      * @throws Exception Throws a PreconditionFailedException if the email was found in the repository.
      */
-    private void checkIfMailIsUnique(String emailAddress) throws PreconditionFailedException {
-        if(employeeRepository.existsByEmailAddress(emailAddress))
+    private void checkIfMailIsUnique(String emailAddress, String previousEmail) throws PreconditionFailedException {
+        if(!emailAddress.equals(previousEmail) && employeeRepository.existsByEmailAddress(emailAddress))
             throw new PreconditionFailedException("Mail is not unique");
     }
 
