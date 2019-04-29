@@ -23,4 +23,7 @@ public interface AllocationRepository extends JpaRepository<Allocation, Long> {
 
     @Query("SELECT CASE WHEN count(a)>0 THEN true ELSE false END from Allocation a where :contractId = a.contract.id")
     boolean existsByContractId(@Param("contractId") long contractId);
+
+    @Query("SELECT CASE WHEN count(a)>0 THEN true ELSE false END from Allocation a where :employeeId = a.contract.employee.id")
+    boolean existsByEmployeeId(@Param("employeeId") long employeeId);
 }
