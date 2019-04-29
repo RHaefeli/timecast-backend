@@ -8,3 +8,5 @@ store timecast.p12 -validity 3650
 Put it in /src/main/resources/keystore
 
 Adjust application.properties if necessary
+
+To run the application without certificates just comment ssl properties in ```application.properties```.

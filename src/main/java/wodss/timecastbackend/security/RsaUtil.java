@@ -1,8 +1,8 @@
 package wodss.timecastbackend.security;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.util.ResourceUtils;
+import wodss.timecastbackend.util.TimecastInternalServerErrorException;
 
 import java.io.*;
 import java.security.KeyFactory;
@@ -24,7 +24,7 @@ public class RsaUtil {
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
             return (RSAPrivateKey) kf.generatePrivate(keySpec);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-            throw new InternalException("Incorrect RSA Private Key: " + ex.getMessage());
+            throw new TimecastInternalServerErrorException("Incorrect RSA Private Key: " + ex.getMessage());
         }
     }
 
@@ -37,7 +37,7 @@ public class RsaUtil {
             KeyFactory kf = KeyFactory.getInstance("RSA");
             return (RSAPublicKey) kf.generatePublic(new X509EncodedKeySpec(encoded));
         } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-            throw new InternalException("Incorrect RSA Public Key: " + ex.getMessage());
+            throw new TimecastInternalServerErrorException("Incorrect RSA Public Key: " + ex.getMessage());
         }
     }
 
@@ -48,7 +48,7 @@ public class RsaUtil {
         try {
             file = ResourceUtils.getFile(filename);
         } catch (FileNotFoundException ex) {
-            throw new InternalException(ex.getMessage());
+            throw new TimecastInternalServerErrorException(ex.getMessage());
         }
         try (BufferedReader br = new BufferedReader(new FileReader(file))){
             String line;
@@ -56,7 +56,7 @@ public class RsaUtil {
                 strKeyPEM.append(line).append("\n");
             }
         } catch (IOException ex) {
-            throw new InternalException(ex.getMessage());
+            throw new TimecastInternalServerErrorException(ex.getMessage());
         }
 
         return strKeyPEM.toString();

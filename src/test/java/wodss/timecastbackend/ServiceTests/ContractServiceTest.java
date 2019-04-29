@@ -7,20 +7,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.ModelMap;
+
 import wodss.timecastbackend.domain.Contract;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.ContractDTO;
-import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
 import wodss.timecastbackend.service.ContractService;
-import wodss.timecastbackend.service.EmployeeService;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
-import wodss.timecastbackend.util.RessourceNotFoundException;
+import wodss.timecastbackend.util.ResourceNotFoundException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -219,7 +216,7 @@ public class ContractServiceTest {
             fail("Should have thrown exception: Employee does not exist. Error in checkEmployee");
         }
         catch (Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
         }
     }
 
@@ -288,7 +285,7 @@ public class ContractServiceTest {
             fail("Should have thrown exception: No contract with such an id existent. Error in FindByID");
         }
         catch(Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
         }
     }
 
@@ -297,7 +294,7 @@ public class ContractServiceTest {
         ContractDTO editContractDTO1 = new ContractDTO(1L, 1L, testContract1.getPensumPercentage()-10, testContract1.getStartDate().plusDays(2),testContract1.getEndDate().minusDays(4));
 
         try{
-            ContractDTO edit = contractService.editContract((long)1, editContractDTO1);
+            ContractDTO edit = contractService.updateContract((long)1, editContractDTO1);
 
             assertEquals(editContractDTO1.getId(), edit.getId());
             assertEquals(editContractDTO1.getEmployeeId(), edit.getEmployeeId());
@@ -331,11 +328,11 @@ public class ContractServiceTest {
         ContractDTO editContractDTO1 = new ContractDTO(1L, 1L, testContract1.getPensumPercentage()-10, testContract1.getStartDate().plusDays(2),testContract1.getEndDate().minusDays(4));
 
         try{
-            ContractDTO edit = contractService.editContract((long)999, editContractDTO1);
+            ContractDTO edit = contractService.updateContract((long)999, editContractDTO1);
             fail("Should have thrown exception: contract id does not exist. Error in checkIfContractExists");
         }
         catch(Exception ex){
-            assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(ResourceNotFoundException.class, ex.getClass());
         }
     }
 
@@ -344,11 +341,11 @@ public class ContractServiceTest {
         ContractDTO editContractDTO1 = new ContractDTO(1L, 999L, 100, testContract1.getStartDate().plusDays(2),testContract1.getEndDate().minusDays(4));
 
         try{
-            ContractDTO edit = contractService.editContract((long)1, editContractDTO1);
+            ContractDTO edit = contractService.updateContract((long)1, editContractDTO1);
             fail("Should have thrown exception: Employee does not exist. Error in checkIfEmployeeExists.");
         }
         catch(Exception ex){
-            assertEquals(RessourceNotFoundException.class, ex.getClass());
+            assertEquals(ResourceNotFoundException.class, ex.getClass());
         }
     }
 
@@ -357,7 +354,7 @@ public class ContractServiceTest {
         ContractDTO editContractDTO1 = new ContractDTO(1L, 1L, -1, testContract1.getStartDate().plusDays(2),testContract1.getEndDate().minusDays(4));
 
         try{
-            ContractDTO edit = contractService.editContract((long)1, editContractDTO1);
+            ContractDTO edit = contractService.updateContract((long)1, editContractDTO1);
             fail("Should have thrown exception: Pensum percentage cannot be less than 0. Error in checkPensumPercentage.");
         }
         catch(Exception ex){
@@ -370,7 +367,7 @@ public class ContractServiceTest {
         ContractDTO editContractDTO1 = new ContractDTO(1L, 1L, 101, testContract1.getStartDate().plusDays(2),testContract1.getEndDate().minusDays(4));
 
         try{
-            ContractDTO edit = contractService.editContract((long)1, editContractDTO1);
+            ContractDTO edit = contractService.updateContract((long)1, editContractDTO1);
             fail("Should have thrown exception: Pensum percentage cannot be over 100. Error in checkPensumPercentage.");
         }
         catch(Exception ex){
@@ -383,7 +380,7 @@ public class ContractServiceTest {
         ContractDTO editContractDTO1 = new ContractDTO(1L, 1L, testContract1.getPensumPercentage()-10, testContract1.getEndDate().minusDays(4), testContract1.getStartDate().plusDays(2));
 
         try{
-            ContractDTO edit = contractService.editContract((long)1, editContractDTO1);
+            ContractDTO edit = contractService.updateContract((long)1, editContractDTO1);
             fail("Should have thrown exception: StartDate must be before EndDate. Error in checkDates");
         }
         catch(Exception ex){
@@ -404,7 +401,7 @@ public class ContractServiceTest {
         ContractDTO createContractDTO4 = new ContractDTO(2L, 1L, 100, testContract1.getEndDate(),testContract2.getStartDate().minusDays(1));
 
         try{
-            ContractDTO create = contractService.editContract(createContractDTO1.getId(), createContractDTO1);
+            ContractDTO create = contractService.updateContract(createContractDTO1.getId(), createContractDTO1);
             fail("Should have thrown exception: StartDate equals startdate of another contract. Error in checkDates");
         }
         catch (Exception e){
@@ -412,7 +409,7 @@ public class ContractServiceTest {
 
         }
         try{
-            ContractDTO create = contractService.editContract(createContractDTO2.getId(), createContractDTO2);
+            ContractDTO create = contractService.updateContract(createContractDTO2.getId(), createContractDTO2);
             fail("Should have thrown exception: StartDate lies 1 day after startdate of another contract. Error in checkDates");
         }
         catch (Exception e){
@@ -420,7 +417,7 @@ public class ContractServiceTest {
 
         }
         try{
-            ContractDTO create = contractService.editContract(createContractDTO3.getId(), createContractDTO3);
+            ContractDTO create = contractService.updateContract(createContractDTO3.getId(), createContractDTO3);
             fail("Should have thrown exception: StartDate lies 1 day before enddate of another contract. Error in checkDates");
         }
         catch (Exception e){
@@ -428,7 +425,7 @@ public class ContractServiceTest {
 
         }
         try{
-            ContractDTO create = contractService.editContract(createContractDTO4.getId(), createContractDTO4);
+            ContractDTO create = contractService.updateContract(createContractDTO4.getId(), createContractDTO4);
             fail("Should have thrown exception: StartDate equals enddate of another contract. Error in checkDates");
         }
         catch (Exception e){
@@ -449,7 +446,7 @@ public class ContractServiceTest {
         ContractDTO createContractDTO4 = new ContractDTO(1L, 1L, 100, testContract1.getEndDate().plusDays(1L),testContract2.getEndDate());
 
         try{
-            ContractDTO create = contractService.editContract(createContractDTO1.getId(), createContractDTO1);
+            ContractDTO create = contractService.updateContract(createContractDTO1.getId(), createContractDTO1);
             fail("Should have thrown exception: EndDate equals startdate of another contract. Error in checkDates");
         }
         catch (Exception e){
@@ -457,7 +454,7 @@ public class ContractServiceTest {
 
         }
         try{
-            ContractDTO create = contractService.editContract(createContractDTO2.getId(), createContractDTO2);
+            ContractDTO create = contractService.updateContract(createContractDTO2.getId(), createContractDTO2);
             fail("Should have thrown exception: Enddate lies 1 day after startdate of another contract. Error in checkDates");
         }
         catch (Exception e){
@@ -465,7 +462,7 @@ public class ContractServiceTest {
 
         }
         try{
-            ContractDTO create = contractService.editContract(createContractDTO3.getId(), createContractDTO3);
+            ContractDTO create = contractService.updateContract(createContractDTO3.getId(), createContractDTO3);
             fail("Should have thrown exception: Enddate lies 1 day before enddate of another contract. Error in checkDates");
         }
         catch (Exception e){
@@ -473,7 +470,7 @@ public class ContractServiceTest {
 
         }
         try{
-            ContractDTO create = contractService.editContract(createContractDTO4.getId(), createContractDTO4);
+            ContractDTO create = contractService.updateContract(createContractDTO4.getId(), createContractDTO4);
             fail("Should have thrown exception: EndDate equals enddate of another contract. Error in checkDates");
         }
         catch (Exception e){
@@ -488,7 +485,7 @@ public class ContractServiceTest {
         ContractDTO createContractDTO1 = new ContractDTO(1L, 1L, 100, testContract2.getStartDate().minusDays(1L),testContract2.getEndDate().plusDays(1));
 
         try{
-            ContractDTO create = contractService.editContract(createContractDTO1.getId(), createContractDTO1);
+            ContractDTO create = contractService.updateContract(createContractDTO1.getId(), createContractDTO1);
             fail("Should have thrown exception: There is another contract contained within the new contract's time frame. Error in checkDates");
         }
         catch (Exception e){
@@ -504,7 +501,7 @@ public class ContractServiceTest {
             fail("Should have thrown exception: Contract does not exists");
         }
         catch(Exception e){
-            assertEquals(RessourceNotFoundException.class, e.getClass());
+            assertEquals(ResourceNotFoundException.class, e.getClass());
         }
     }
 
