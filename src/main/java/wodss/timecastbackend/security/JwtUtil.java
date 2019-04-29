@@ -18,8 +18,8 @@ public class JwtUtil {
     private ObjectMapper objectMapper = new ObjectMapper();
     private PrivateKey privateKey;
 
-    public JwtUtil(@Value("${wodss.timecastfrontend.jwt.key-store}") String publicKeyLocation) {
-        String privateKeyPEM = RsaUtil.getKey(publicKeyLocation);
+    public JwtUtil() {
+        String privateKeyPEM = RsaUtil.getKey("classpath:keystore/private_key.pem");
         privateKey = RsaUtil.getPrivateKeyFromString(privateKeyPEM);
     }
     public EmployeeDTO parseToken(String token) throws JwtException {

@@ -96,7 +96,7 @@ public class EmployeeService {
         //ADMINISTRATOR
         if(currentEmployee != null && currentEmployee.getRole() == Role.ADMINISTRATOR) {
             defRole = role;
-            defActive = employeeDTO.getActive();
+            defActive = true; //employeeDTO.getActive();
         }
 
         //EVERYONE
