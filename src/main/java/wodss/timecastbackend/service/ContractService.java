@@ -124,17 +124,16 @@ public class ContractService {
      * 2: The start date overlaps with another contract of the same employee
      * 3: The end date overlaps with another contract of the same employee
      * 4: There is another contract contained within the date range of the new/edited contract.
-     * if any one of these checks fails, the method will throw a preconditionFailedException.
-     * @param startDate
-     * @param endDate
-     * @param employeeID
-     * @param contractID
+     * If any one of these checks fails, the method will throw a preconditionFailedException.
+     * @param startDate the start date of the contract
+     * @param endDate the end date of the contract
+     * @param employeeID the id of the employee to whom the contract belongs
+     * @param contractID the id of the created of edited contract.
      * @throws Exception
      */
     public void checkDates(LocalDate startDate, LocalDate endDate, long employeeID, long contractID) throws Exception{
 
         boolean startDateLiesAfterEndDate = startDate.isAfter(endDate);
-        //boolean startDateIsInPast = startDate.isBefore(LocalDate.now());
         //Error cases:
         //Error case 1: The start date of the new Contract lies in between the start and end date of another contract of the same employee or it equals the start/end date of another contract.
         boolean startDateOverlapsWithOtherContract =
@@ -178,6 +177,11 @@ public class ContractService {
         }
     }
 
+    /**
+     * Takes a list of allocation objects and returns a new list which contains the given allocations converted into DTOs.
+     * @param allocations the allocations which need to be converted.
+     * @return A list of the given allocations converted into DTOs.
+     */
     public List<ContractDTO> modelsToDTOs(List<Contract> allocations) {
         return allocations.stream().map(c -> mapper.contractToContractDTO(c)).collect(Collectors.toList());
     }

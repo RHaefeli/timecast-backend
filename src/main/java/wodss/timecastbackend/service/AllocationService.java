@@ -93,6 +93,12 @@ public class AllocationService {
         return allocationDTO;
     }
 
+    /**
+     * Checks if the repository contains an allocation with the given id.
+     * @param id the id of the allocation
+     * @return The allocation object of the given id if it was found in the repository
+     * @throws Exception Throws a RessourceNotFoundException if the allocation was not found.
+     */
     private Allocation checkIfAllocationExists(long id) throws Exception {
         Optional<Allocation> oAllocation = allocationRepository.findById(id);
         if(oAllocation.isPresent())
@@ -101,6 +107,12 @@ public class AllocationService {
             throw new RessourceNotFoundException(ERR_MSG_ALLOCATIONNOTFOUND);
     }
 
+    /**
+     * Checks if the repository contains a contract with the given id.
+     * @param id the id of the contract
+     * @return The contract object of the given id if it was found in the repository
+     * @throws Exception Throws a RessourceNotFoundException if the contract was not found.
+     */
     private Contract checkIfContractExists(long id) throws Exception {
         Optional<Contract> oContract = contractRepository.findById(id);
         if(oContract.isPresent())
@@ -109,6 +121,12 @@ public class AllocationService {
             throw new RessourceNotFoundException(ERR_MSG_CONTRACTNOTFOUND);
     }
 
+    /**
+     * Checks if the repository contains a project with the given id.
+     * @param id the id of the project
+     * @return The project object of the given id if it was found in the repository
+     * @throws Exception Throws a RessourceNotFoundException if the project was not found.
+     */
     private Project checkIfProjectExists(long id) throws Exception {
         Optional<Project> oProject = projectRepository.findById(id);
         if(oProject.isPresent())
@@ -117,6 +135,15 @@ public class AllocationService {
             throw new RessourceNotFoundException(ERR_MSG_PROJECTNOTFOUND);
     }
 
+    /**
+     * Performs several checks to see if the allocation can be created.
+     * 1: Checks if the allocation pensum is negative
+     * 2: Checks the dates of the
+     * @param allocationDTO
+     * @param project
+     * @param contract
+     * @throws Exception
+     */
     private void checkIfAllocationIsValid(AllocationDTO allocationDTO, Project project, Contract contract) throws Exception{
         //Do all checks in one method.
         checkIfAllocationPensumPercentageIsNegative(allocationDTO.getPensumPercentage());
@@ -167,9 +194,15 @@ public class AllocationService {
         return allocations.stream().map(a -> mapper.allocationToAllocationDTO(a)).collect(Collectors.toList());
     }
 
+    /**
+     *
+     * @param contract
+     * @param startDate
+     * @param endDate
+     * @param allocationPensumPercentage
+     * @throws Exception
+     */
     private void checkIfAllocationExceedsContractLimit(Contract contract, LocalDate startDate, LocalDate endDate, int allocationPensumPercentage) throws Exception {
-
-        //TODO: Define an SQL statement in Repository interface
         List<Allocation> overlappingAllocations = allocationRepository.findAll().stream().filter(a ->
                 a.getContract().getId() == contract.getId()
                 && (
@@ -180,12 +213,8 @@ public class AllocationService {
                 ).collect(Collectors.toList());
 
         for(Allocation a : overlappingAllocations){
-            int aa = getTotalPensumAtDate(a.getStartDate(), overlappingAllocations);
-            int bb = getTotalPensumAtDate(a.getEndDate(), overlappingAllocations);
             if((getTotalPensumAtDate(a.getStartDate(), overlappingAllocations) + allocationPensumPercentage > contract.getPensumPercentage())
             || getTotalPensumAtDate(a.getEndDate(), overlappingAllocations) + allocationPensumPercentage > contract.getPensumPercentage()){
-                System.out.println("aa: " + aa);
-                System.out.println("bb " + bb);
                 throw new PreconditionFailedException(ERR_MSG_CONTRACTLIMITEXCEEDED);
             }
         }
@@ -193,11 +222,6 @@ public class AllocationService {
 
 
     private int getTotalPensumAtDate(LocalDate date, List<Allocation> overlappingAllocations){
-        //TODO: remove aa after debug
-        int aa = overlappingAllocations.stream().filter(a ->
-                (a.getStartDate().isBefore(date) || a.getStartDate().equals(date))
-                        && (a.getEndDate().isAfter(date) || a.getEndDate().equals(date))
-        ).mapToInt(a -> a.getPensumPercentage()).sum();
         return overlappingAllocations.stream().filter(a ->
                 (a.getStartDate().isBefore(date) || a.getStartDate().equals(date))
                 && (a.getEndDate().isAfter(date) || a.getEndDate().equals(date))
