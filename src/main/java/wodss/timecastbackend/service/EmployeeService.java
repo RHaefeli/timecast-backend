@@ -135,7 +135,7 @@ public class EmployeeService {
         //ADMINISTRATOR
         if(currentEmployee.getRole() == Role.ADMINISTRATOR) {
             Employee employee = checkEmployee(employeeDTO.getId());
-            checkIfMailIsUnique(employeeDTO.getEmailAddress(), employeeOptional.get().getEmailAddress());
+            checkIfMailIsUnique(employeeDTO.getEmailAddress(), employee.getEmailAddress());
             checkStrings(employeeDTO.getFirstName(), employeeDTO.getLastName(), employeeDTO.getEmailAddress());
             employee.setFirstName(employeeDTO.getFirstName());
             employee.setLastName((employeeDTO.getLastName()));
