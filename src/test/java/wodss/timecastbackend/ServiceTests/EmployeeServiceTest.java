@@ -11,6 +11,7 @@ import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.persistence.EmployeeRepository;
+import wodss.timecastbackend.security.EmployeeSession;
 import wodss.timecastbackend.service.EmployeeService;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
@@ -26,12 +27,10 @@ import static org.junit.Assert.fail;
 public class EmployeeServiceTest {
     @Mock
     EmployeeRepository employeeRepository;
-
     @Mock
     ModelMapper mapper;
-
-
-
+    @Mock
+    EmployeeSession employeeSession;
     @InjectMocks
     EmployeeService employeeService;
 
@@ -50,6 +49,11 @@ public class EmployeeServiceTest {
 
         Mockito.when(employeeRepository.findAll()).thenReturn(Arrays.asList(testEmployee1, testEmployee2, testEmployee3));
         Mockito.when(employeeRepository.findById(1l)).thenReturn(Optional.of(testEmployee1));
+
+        Employee admin = new Employee(
+                "Mustermann", "Max", "admin@gmx.ch", Role.ADMINISTRATOR, "12345");
+
+        Mockito.when(employeeSession.getEmployee()).thenReturn(admin);
     }
 
 

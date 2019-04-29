@@ -8,11 +8,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.web.WebAppConfiguration;
 import wodss.timecastbackend.domain.*;
 import wodss.timecastbackend.dto.AllocationDTO;
 import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.ContractRepository;
 import wodss.timecastbackend.persistence.ProjectRepository;
+import wodss.timecastbackend.security.EmployeeSession;
 import wodss.timecastbackend.service.AllocationService;
 import wodss.timecastbackend.util.ModelMapper;
 import wodss.timecastbackend.util.PreconditionFailedException;
@@ -35,6 +38,8 @@ public class AllocationServiceTest {
     ContractRepository contractRepository;
     @Mock
     ModelMapper mapper;
+    @Mock
+    EmployeeSession employeeSession;
     @InjectMocks
     AllocationService allocationService;
 
@@ -81,6 +86,9 @@ public class AllocationServiceTest {
         doMockRepoSetup(projectRepository, testProject1, testProject2, testProject3);
         doMockRepoSetup(contractRepository, testContract1, testContract2, testContract3);
 
+        Employee admin = new Employee(
+                "Mustermann", "Max", "admin@gmx.ch", Role.ADMINISTRATOR, "12345");
+        Mockito.when(employeeSession.getEmployee()).thenReturn(admin);
     }
 
     /**

@@ -20,7 +20,7 @@ public class Allocation {
     }
 
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @ManyToOne(optional = false)
     private Project project;
