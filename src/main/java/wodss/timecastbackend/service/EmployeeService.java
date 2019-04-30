@@ -9,7 +9,6 @@ import wodss.timecastbackend.domain.Role;
 import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.persistence.AllocationRepository;
 import wodss.timecastbackend.persistence.EmployeeRepository;
-import wodss.timecastbackend.persistence.ProjectRepository;
 import wodss.timecastbackend.security.EmployeeSession;
 import wodss.timecastbackend.exception.ForbiddenException;
 import wodss.timecastbackend.util.ModelMapper;
@@ -26,18 +25,16 @@ import java.util.stream.Collectors;
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final AllocationRepository allocationRepository;
-    private final ProjectRepository projectRepository;
     private final ModelMapper mapper;
     private final PasswordEncoder passwordEncoder;
     private final EmployeeSession employeeSession;
 
     @Autowired
     public EmployeeService(EmployeeRepository employeeRepository, ModelMapper mapper, PasswordEncoder passwordEncoder,
-                           AllocationRepository allocationRepository, ProjectRepository projectRepository,
+                           AllocationRepository allocationRepository,
                            EmployeeSession employeeSession) {
         this.employeeRepository = employeeRepository;
         this.allocationRepository = allocationRepository;
-        this.projectRepository = projectRepository;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
         this.employeeSession = employeeSession;
@@ -96,11 +93,12 @@ public class EmployeeService {
         //ADMINISTRATOR
         if(currentEmployee != null && currentEmployee.getRole() == Role.ADMINISTRATOR) {
             defRole = role;
-            defActive = true; //employeeDTO.getActive();
+            defActive = employeeDTO.getActive(); //employeeDTO.getActive();
         }
 
         //EVERYONE
         Role r = checkIfRoleExists(defRole);
+        checkPassword(password);
         checkStrings(employeeDTO.getFirstName(), employeeDTO.getLastName(), employeeDTO.getEmailAddress());
         checkIfMailIsUnique(employeeDTO.getEmailAddress(), "");
         String pw = passwordEncoder.encode(password);
@@ -196,9 +194,13 @@ public class EmployeeService {
      * If role was not found, a PreconditionFailedException is thrown.
      * @param role the role string
      * @return The found role, if available.
-     * @throws Exception Throws a PreconditionFailedException if role is not found.
+     * @throws Exception Throws a PreconditionFailedException if role is not found or the role String is null.
      */
     private Role checkIfRoleExists(String role) throws PreconditionFailedException{
+
+        if(role ==  null) {
+            throw new PreconditionFailedException("Role parameter is missing");
+        }
 
         Optional<Role> oRole = Arrays.stream(Role.values())
                 .filter(v -> role.toLowerCase().equals(v.getValue().toLowerCase()))
@@ -308,5 +310,15 @@ public class EmployeeService {
     private void checkIfEmployeeIsAnActiveProjectManager(Employee e) throws PreconditionFailedException {
         if(e.getRole() == Role.PROJECTMANAGER && employeeRepository.existsById(e.getId()))
             throw new PreconditionFailedException("The employee is an active project manager");
+    }
+
+    /**
+     * Checks if the given password is valid.
+     * @param password Password parameter
+     * @throws PreconditionFailedException If the password is null.
+     */
+    private void checkPassword(String password) throws PreconditionFailedException {
+        if(password == null)
+            throw new PreconditionFailedException("Password parameter is missing");
     }
 }

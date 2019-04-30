@@ -40,8 +40,8 @@ public class EmployeeController {
 
     @PostMapping
     public ResponseEntity<EmployeeDTO> createUser(@Valid @RequestBody EmployeeDTO employeeDto,
-                                                  @RequestParam(required = true) String role,
-                                                  @RequestParam(required = true) String password,
+                                                  @RequestParam(required = false) String role,
+                                                  @RequestParam(required = false) String password,
                                                   HttpServletResponse response)  throws Exception{
         employeeDto = employeeService.createEmployee(employeeDto, role, password);
         return new ResponseEntity<EmployeeDTO>(employeeDto, HttpStatus.CREATED);
