@@ -18,7 +18,7 @@ employee can then be assigned to a project according to the employees pensum.
 <br>
 
 #### Environment
-Run the application with
+Run the application in the application root folder with
 <br>
 ``` gradlew bootRun ```
 
