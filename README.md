@@ -101,9 +101,9 @@ Example keystore structure
 
     .
     └──keystore
-       ├── private_key.pem                     # The entities used in the application
-       ├── timecast_backend.p12                # The Exception definitions which are specific for the application
-       └── timecast_frontend.p12               # All Security related classes, such as Authentication, JWT and RSA utils.
+       ├── private_key.pem                     # This key is the JWT private key which is used to sigh the JWT Signature in the backend.
+       ├── timecast_backend.p12                # This key is required for verifying the TLS/SSL certificate of the Backend Server.
+       └── timecast_frontend.p12               # This key is required to provide a TLS/SSL connection for the Client.
 
 ## References
 * [Spring MVC Doc](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-spring-mvc)
