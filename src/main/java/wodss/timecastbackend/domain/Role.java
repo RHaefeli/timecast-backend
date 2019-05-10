@@ -1,7 +1,5 @@
 package wodss.timecastbackend.domain;
 
-import java.util.List;
-
 public enum Role{
     ADMINISTRATOR("ADMINISTRATOR"),
     DEVELOPER("DEVELOPER"),

@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import wodss.timecastbackend.domain.Contract;
-import wodss.timecastbackend.domain.Employee;
 
 import java.time.LocalDate;
 import java.util.List;

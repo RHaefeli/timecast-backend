@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import wodss.timecastbackend.domain.Employee;
-import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.security.JwtUtil;
 import wodss.timecastbackend.security.PdfEmployee;
 import java.util.Collection;

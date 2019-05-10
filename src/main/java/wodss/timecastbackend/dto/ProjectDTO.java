@@ -1,18 +1,10 @@
 package wodss.timecastbackend.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.springframework.format.annotation.DateTimeFormat;
-import wodss.timecastbackend.util.DateSerializer;
-import wodss.timecastbackend.validator.DateConstraint;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 public class ProjectDTO {
     @JsonProperty("id") private long id;

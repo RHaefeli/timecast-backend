@@ -2,7 +2,6 @@ package wodss.timecastbackend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
-import org.springframework.beans.factory.annotation.Value;
 import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.exception.TimecastInternalServerErrorException;
