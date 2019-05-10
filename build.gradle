@@ -5,6 +5,10 @@ plugins {
 }
 
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'war'
+apply plugin: 'application'
+
+mainClassName="wodss.timecastbackend.TimecastBackendApplication"
 
 group = 'wodss'
 version = '0.0.1-SNAPSHOT'
