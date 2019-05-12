@@ -13,10 +13,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import wodss.timecastbackend.exception.BadRequestException;
-import wodss.timecastbackend.exception.ForbiddenException;
-import wodss.timecastbackend.exception.PreconditionFailedException;
-import wodss.timecastbackend.exception.ResourceNotFoundException;
+import wodss.timecastbackend.exception.*;
 
 @ControllerAdvice
 public class ExceptionAdviceHandler {
@@ -59,6 +56,11 @@ public class ExceptionAdviceHandler {
     public ResponseEntity<String> handleFrobiddenException(ForbiddenException e) {
         logger.error(e.getMessage());
         return new ResponseEntity<String>(e.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    @ExceptionHandler(TimecastInternalServerErrorException.class)
+    public ResponseEntity<String> handleInternalException(TimecastInternalServerErrorException e) {
+        logger.error(e.getMessage());
+        return new ResponseEntity<String>("Uncaught or internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {

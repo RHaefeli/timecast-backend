@@ -1,6 +1,10 @@
 package wodss.timecastbackend.security;
 
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 import wodss.timecastbackend.exception.TimecastInternalServerErrorException;
 
@@ -13,7 +17,16 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
+@Component
 public class RsaUtil {
+
+    private static ResourceLoader resourceLoader;
+
+    @Autowired
+    public RsaUtil (ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
     public static RSAPrivateKey getPrivateKeyFromString(String key) {
         String privateKeyPEM = key;
         privateKeyPEM = privateKeyPEM.replace("-----BEGIN PRIVATE KEY-----\n", "");
@@ -44,13 +57,14 @@ public class RsaUtil {
     public static String getKey(String filename) {
         // Read key from file
         StringBuilder strKeyPEM = new StringBuilder();
-        File file = null;
+        InputStream is = null;
         try {
-            file = ResourceUtils.getFile(filename);
-        } catch (FileNotFoundException ex) {
+            Resource resource = resourceLoader.getResource(filename);
+            is = resource.getInputStream();
+        } catch (IOException ex) {
             throw new TimecastInternalServerErrorException(ex.getMessage());
         }
-        try (BufferedReader br = new BufferedReader(new FileReader(file))){
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"))){
             String line;
             while ((line = br.readLine()) != null) {
                 strKeyPEM.append(line).append("\n");
