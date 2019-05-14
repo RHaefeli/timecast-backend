@@ -6,6 +6,7 @@ import wodss.timecastbackend.domain.Employee;
 import wodss.timecastbackend.dto.EmployeeDTO;
 import wodss.timecastbackend.exception.TimecastInternalServerErrorException;
 
+import java.security.Key;
 import java.security.PrivateKey;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,16 +16,16 @@ import java.util.Map;
 public class JwtUtil {
 
     private ObjectMapper objectMapper = new ObjectMapper();
-    private PrivateKey privateKey;
+    private Key key;
 
     public JwtUtil() {
-        String privateKeyPEM = RsaUtil.getKey("classpath:keystore/private_key.pem");
-        privateKey = RsaUtil.getPrivateKeyFromString(privateKeyPEM);
+        key = HsUtil.getKeyFromFile("classpath:keystore/secret.txt");
     }
+
     public EmployeeDTO parseToken(String token) throws JwtException {
         try {
             Claims claims = Jwts.parser()
-                    .setSigningKey(privateKey)
+                    .setSigningKey(key)
                     .parseClaimsJws(token).getBody();
             EmployeeDTO employeeDTO = objectMapper.convertValue(claims.get("employee"), EmployeeDTO.class);
             return employeeDTO;
@@ -53,7 +54,7 @@ public class JwtUtil {
         claims.setExpiration(new Date(t + (30 * 60000)));
         return Jwts.builder()
                 .setClaims(claims)
-                .signWith(privateKey, SignatureAlgorithm.RS256)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .claim("employee", employeeMap)
                 .compact();
     }
