@@ -63,25 +63,19 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
     @Bean
     CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000/"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowCredentials(true);
-        config.setMaxAge(180L);
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
+        return new CustomCorsFilter(source);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .cors().and().csrf().disable()
-            .addFilterBefore(corsFilter(), SessionManagementFilter.class)
+            .csrf().disable()
+            //.addFilterBefore(corsFilter(), SessionManagementFilter.class)
             .exceptionHandling()
             .authenticationEntryPoint(restAuthenticationEntryPoint)
             .and()
             .authorizeRequests()
+            //.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .antMatchers(HttpMethod.POST,"/employee").permitAll()
             .antMatchers(HttpMethod.POST,"/token").permitAll()
             .anyRequest().authenticated()

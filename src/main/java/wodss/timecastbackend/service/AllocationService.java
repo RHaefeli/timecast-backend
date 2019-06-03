@@ -174,7 +174,8 @@ public class AllocationService {
             }
 
             checkIfAllocationIsValid(allocationDTO, project, contract);
-            Allocation allocation = new Allocation(project, contract, allocationDTO.getPensumPercentage(), allocationDTO.getStartDate(), allocationDTO.getEndDate());
+            Allocation allocation = new Allocation(project, contract,
+                    allocationDTO.getPensumPercentage(), allocationDTO.getStartDate(), allocationDTO.getEndDate());
             allocation = allocationRepository.save(allocation);
             allocationDTO = mapper.allocationToAllocationDTO(allocation);
             return allocationDTO;
